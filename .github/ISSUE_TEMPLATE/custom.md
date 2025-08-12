@@ -1,3 +1,12 @@
+---
+name: Custom issue template
+about: Describe this issue template's purpose here.
+title: ''
+labels: ''
+assignees: ''
+
+---
+
 name: Feature Template
 description: 기능 추가할 때 쓰는 템플릿
 title: "[Feature]: Feature Title"
