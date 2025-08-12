@@ -7,33 +7,14 @@ assignees: ''
 
 ---
 
-name: Feature Template
-description: 기능 추가할 때 쓰는 템플릿
-title: "[Feature]: Feature Title"
-labels: ["feature"]
+### 🔍 설명
+-
 
-body:
-  - type: textarea
-    id: feature-contents
-    attributes:
-      label: Feature 설명
-      description: 작업할 Feature에 대한 설명을 적어주세요.
-      placeholder: ex. 타이머 화면 그리기
-    validations:
-      required: true
-  - type: input
-    id: prepare-issue
-    attributes:
-      label: Prepare Issue(Optional)
-      description: 관련된 Prepare가 있다면 적어주세요.
-      placeholder: "ex. #14"
-    validations:
-      required: false
-  - type: textarea
-    id: related-view
-    attributes:
-      label: Related View(Optional)
-      description: 작업하는 사항에 영향을 받는 View(화면)
-      placeholder: ex. HomeView
-    validations:
-      required: false
+### 🔥 할 일
+-
+
+### ⏰ 예상 시간
+-
+
+### 🐴 할 말
+-
