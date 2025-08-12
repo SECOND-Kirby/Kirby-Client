@@ -1,31 +1,30 @@
----
-name: Custom issue template
-about: Describe this issue template's purpose here.
-title: ''
-labels: ''
-assignees: ''
-
----
-
-name: "✨ Feature"
-description: "새로운 기능 추가"
+name: Feature Template
+description: 기능 추가할 때 쓰는 템플릿
+title: "[Feature]: Feature Title"
 labels: ["feature"]
+
 body:
   - type: textarea
+    id: feature-contents
     attributes:
-      label: 📄 설명
-      description: 새로운 기능에 대한 설명을 작성해 주세요.
-      placeholder: 자세히 적을수록 좋습니다!
+      label: Feature 설명
+      description: 작업할 Feature에 대한 설명을 적어주세요.
+      placeholder: ex. 타이머 화면 그리기
     validations:
       required: true
-  - type: textarea
+  - type: input
+    id: prepare-issue
     attributes:
-      label: ✅ 작업할 내용
-      description: 할 일을 체크박스 형태로 작성해주세요.
-      placeholder: 최대한 세분화 해서 적어주세요!
+      label: Prepare Issue(Optional)
+      description: 관련된 Prepare가 있다면 적어주세요.
+      placeholder: "ex. #14"
     validations:
-      required: true
+      required: false
   - type: textarea
+    id: related-view
     attributes:
-      label: 🙋🏻 참고 자료
-      description: 참고 자료가 있다면 작성해 주세요.
+      label: Related View(Optional)
+      description: 작업하는 사항에 영향을 받는 View(화면)
+      placeholder: ex. HomeView
+    validations:
+      required: false
