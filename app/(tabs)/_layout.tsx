@@ -1,11 +1,9 @@
 import { Tabs } from 'expo-router';
 import React from 'react';
-import { Platform } from 'react-native';
+import { Image, Platform } from 'react-native';
 
 import { HapticTab } from '@/components/HapticTab';
-import { IconSymbol } from '@/components/ui/IconSymbol';
 import TabBarBackground from '@/components/ui/TabBarBackground';
-import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 
 export default function TabLayout() {
@@ -14,7 +12,7 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
+        tabBarActiveTintColor: '#B2C549',
         headerShown: false,
         tabBarButton: HapticTab,
         tabBarBackground: TabBarBackground,
@@ -27,17 +25,51 @@ export default function TabLayout() {
         }),
       }}>
       <Tabs.Screen
-        name="index"
+        name="home"
         options={{
-          title: 'Home',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
+          title: '홈',
+          tabBarIcon: ({ color }) => (
+            <Image 
+              source={require('@/assets/images/home-icon.png')} 
+              style={{ width: 24, height: 24, tintColor: color }} 
+            />
+          ),
         }}
       />
       <Tabs.Screen
-        name="explore"
+        name="training"
         options={{
-          title: 'Explore',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
+          title: '운동',
+          tabBarIcon: ({ color }) => (
+            <Image 
+              source={require('@/assets/images/training-icon.png')} 
+              style={{ width: 24, height: 24, tintColor: color }} 
+            />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="analytics"
+        options={{
+          title: '분석',
+          tabBarIcon: ({ color }) => (
+            <Image 
+              source={require('@/assets/images/analytics-icon.png')} 
+              style={{ width: 24, height: 24, tintColor: color }} 
+            />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="settings"
+        options={{
+          title: '설정',
+          tabBarIcon: ({ color }) => (
+            <Image 
+              source={require('@/assets/images/settings-icon.png')} 
+              style={{ width: 24, height: 24, tintColor: color }} 
+            />
+          ),
         }}
       />
     </Tabs>
