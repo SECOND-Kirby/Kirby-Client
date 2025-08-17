@@ -1,5 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Dimensions,
   ScrollView,
@@ -8,10 +8,27 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import BallCollectionScreen from './BallCollectionScreen';
 
 const { width } = Dimensions.get('window');
 
 const HomeScreen = () => {
+  const [isCollecting, setIsCollecting] = useState(false);
+
+  const handleStartCollection = () => {
+    setIsCollecting(true);
+  };
+
+  const handleStopCollection = () => {
+    setIsCollecting(false);
+  };
+
+  // 공 수거 중이면 BallCollectionScreen 표시
+  if (isCollecting) {
+    return <BallCollectionScreen onStop={handleStopCollection} />;
+  }
+
+  // 기본 홈 화면
   return (
     <ScrollView style={styles.container}>
       {/* 상단 헤더 */}
@@ -93,7 +110,7 @@ const HomeScreen = () => {
       </View>
 
       {/* 공 수거 시작 버튼 */}
-      <TouchableOpacity style={styles.startButton}>
+      <TouchableOpacity style={styles.startButton} onPress={handleStartCollection}>
         <Text style={styles.startButtonText}>공 수거 시작</Text>
       </TouchableOpacity>
     </ScrollView>
@@ -130,22 +147,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flex: 1,
   },
-  statCard: {
-    backgroundColor: 'white',
-    borderRadius: 12,
-    padding: 16,
-    alignItems: 'center',
-    flex: 1,
-    marginHorizontal: 4,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
   statIcon: {
     marginBottom: 6,
   },
@@ -178,12 +179,6 @@ const styles = StyleSheet.create({
   },
   cardTitle: {
     fontSize: 16,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 12,
-  },
-  sectionTitle: {
-    fontSize: 18,
     fontWeight: 'bold',
     color: '#333',
     marginBottom: 12,
