@@ -26,7 +26,7 @@ const LoginScreen = () => {
   };
 
   const handleSignUp = () => {
-    Alert.alert('알림', '회원가입 기능은 준비 중입니다.');
+    router.push('/signup');
   };
 
   return (
