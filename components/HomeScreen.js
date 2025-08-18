@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
+import { router } from 'expo-router';
 import React, { useState } from 'react';
 import {
   Dimensions,
@@ -23,6 +24,10 @@ const HomeScreen = () => {
     setIsCollecting(false);
   };
 
+  const handleProfilePress = () => {
+    router.push('/(tabs)/settings');  // 설정 탭으로 이동
+  };
+
   // 공 수거 중이면 BallCollectionScreen 표시
   if (isCollecting) {
     return <BallCollectionScreen onStop={handleStopCollection} />;
@@ -34,7 +39,7 @@ const HomeScreen = () => {
       {/* 상단 헤더 */}
       <View style={styles.header}>
         <Text style={styles.headerTitle}>홈</Text>
-        <TouchableOpacity style={styles.profileIcon}>
+        <TouchableOpacity style={styles.profileIcon} onPress={handleProfilePress}>
           <Ionicons name="person-outline" size={24} color="#666" />
         </TouchableOpacity>
       </View>
