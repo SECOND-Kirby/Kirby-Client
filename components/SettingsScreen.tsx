@@ -3,8 +3,6 @@ import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import React, { useCallback, useState } from 'react';
 import {
   Alert,
-  Image,
-  ImageSourcePropType,
   SafeAreaView,
   ScrollView,
   StyleSheet,
@@ -12,9 +10,10 @@ import {
   TouchableOpacity,
   View
 } from 'react-native';
+import { useThemeColor } from '@/hooks/useThemeColor';
 
 interface SettingItemProps {
-  icon: string | ImageSourcePropType;
+  icon: string;
   title: string;
   value?: string;
   onPress?: () => void;
@@ -23,7 +22,6 @@ interface SettingItemProps {
   onToggleChange?: (value: boolean) => void;
   showArrow?: boolean;
   iconColor?: string;
-  iconType?: 'ionicon' | 'image';
 }
 
 interface SectionHeaderProps {
@@ -34,25 +32,32 @@ const SettingsScreen = () => {
   const params = useLocalSearchParams();
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [notificationEnabled, setNotificationEnabled] = useState(true);
-  const [dailyGoalHours, setDailyGoalHours] = useState(24);
+  const [dailyGoalHours, setDailyGoalHours] = useState(2);
   const [serveGoal, setServeGoal] = useState(50);
+
+  // 테마 색상 가져오기
+  const backgroundColor = useThemeColor({}, 'background');
+  const cardBackgroundColor = useThemeColor({}, 'cardBackground');
+  const primaryColor = useThemeColor({}, 'primary');
+  const primaryLightColor = useThemeColor({}, 'primaryLight');
+  const redColor = useThemeColor({}, 'red');
 
   // 화면이 포커스될 때마다 파라미터 확인
   useFocusEffect(
-    useCallback(() => {
-      if (params.updatedDailyGoalHours) {
-        const hours = parseInt(params.updatedDailyGoalHours as string);
-        setDailyGoalHours(hours);
-        Alert.alert('알림', '목표가 저장되었습니다.');
-        router.replace('/(tabs)/settings');
-      }
-      if (params.updatedServeGoal) {
-        const serves = parseInt(params.updatedServeGoal as string);
-        setServeGoal(serves);
-        Alert.alert('알림', '목표가 저장되었습니다.');
-        router.replace('/(tabs)/settings');
-      }
-    }, [params.updatedDailyGoalHours, params.updatedServeGoal])
+      useCallback(() => {
+        if (params.updatedDailyGoalHours) {
+          const hours = parseInt(params.updatedDailyGoalHours as string);
+          setDailyGoalHours(hours);
+          Alert.alert('알림', '목표가 저장되었습니다.');
+          router.replace('/(tabs)/settings');
+        }
+        if (params.updatedServeGoal) {
+          const serves = parseInt(params.updatedServeGoal as string);
+          setServeGoal(serves);
+          Alert.alert('알림', '목표가 저장되었습니다.');
+          router.replace('/(tabs)/settings');
+        }
+      }, [params.updatedDailyGoalHours, params.updatedServeGoal])
   );
 
   const handleProfileEdit = () => {
@@ -76,50 +81,50 @@ const SettingsScreen = () => {
 
   const handleDataReset = () => {
     Alert.alert(
-      '데이터 초기화',
-      '모든 데이터가 삭제됩니다. 계속하시겠습니까?',
-      [
-        {
-          text: '취소',
-          style: 'cancel',
-        },
-        {
-          text: '초기화',
-          style: 'destructive',
-          onPress: () => {
-            setSoundEnabled(true);
-            setNotificationEnabled(true);
-            setDailyGoalHours(24);
-            setServeGoal(50);
-            Alert.alert('알림', '데이터가 초기화되었습니다.');
+        '데이터 초기화',
+        '모든 데이터가 삭제됩니다. 계속하시겠습니까?',
+        [
+          {
+            text: '취소',
+            style: 'cancel',
           },
-        },
-      ]
+          {
+            text: '초기화',
+            style: 'destructive',
+            onPress: () => {
+              setSoundEnabled(true);
+              setNotificationEnabled(true);
+              setDailyGoalHours(2);
+              setServeGoal(50);
+              Alert.alert('알림', '데이터가 초기화되었습니다.');
+            },
+          },
+        ]
     );
   };
 
   const handleLogout = () => {
     Alert.alert(
-      '로그아웃',
-      '정말 로그아웃하시겠습니까?',
-      [
-        {
-          text: '취소',
-          style: 'cancel',
-        },
-        {
-          text: '로그아웃',
-          style: 'destructive',
-          onPress: () => {
-            router.replace('/');
+        '로그아웃',
+        '정말 로그아웃하시겠습니까?',
+        [
+          {
+            text: '취소',
+            style: 'cancel',
           },
-        },
-      ]
+          {
+            text: '로그아웃',
+            style: 'destructive',
+            onPress: () => {
+              router.replace('/');
+            },
+          },
+        ]
     );
   };
 
   const handleAccountDeletion = () => {
-    router.push('/account-deletion');  // account-deletion.tsx로 이동
+    router.push('/account-deletion');
   };
 
   const SettingItem: React.FC<SettingItemProps> = (props) => {
@@ -132,59 +137,51 @@ const SettingsScreen = () => {
       toggleValue = false,
       onToggleChange = () => {},
       showArrow = true,
-      iconColor = "#666",
-      iconType = "ionicon"
+      iconColor = primaryColor
     } = props;
 
     return (
-      <TouchableOpacity 
-        style={styles.settingItem} 
-        onPress={onPress} 
-        disabled={hasToggle}
-      >
-        <View style={styles.settingLeft}>
-          {iconType === "image" ? (
-            <Image 
-              source={icon as ImageSourcePropType} 
-              style={[styles.settingIconImage, { tintColor: iconColor }]} 
-              resizeMode="contain"
-            />
-          ) : (
-            <Ionicons 
-              name={icon as any} 
-              size={20} 
-              color={iconColor} 
-              style={styles.settingIcon} 
-            />
-          )}
-          <Text style={styles.settingTitle}>{title}</Text>
-        </View>
-        <View style={styles.settingRight}>
-          {hasToggle ? (
-            <View style={styles.customToggle}>
-              <TouchableOpacity
-                style={[
-                  styles.toggleContainer,
-                  toggleValue ? styles.toggleActive : styles.toggleInactive,
-                ]}
-                onPress={() => onToggleChange(!toggleValue)}
-              >
-                <View
-                  style={[
-                    styles.toggleThumb,
-                    toggleValue ? styles.thumbActive : styles.thumbInactive,
-                  ]}
-                />
-              </TouchableOpacity>
+        <TouchableOpacity
+            style={styles.settingItem}
+            onPress={onPress}
+            disabled={hasToggle}
+        >
+          <View style={styles.settingLeft}>
+            <View style={[styles.iconContainer, { backgroundColor: iconColor + '20' }]}>
+              <Ionicons
+                  name={icon as any}
+                  size={18}
+                  color={iconColor}
+              />
             </View>
-          ) : (
-            <>
-              {value && <Text style={styles.settingValue}>{value}</Text>}
-              {showArrow && <Ionicons name="chevron-forward" size={16} color="#ccc" />}
-            </>
-          )}
-        </View>
-      </TouchableOpacity>
+            <Text style={styles.settingTitle}>{title}</Text>
+          </View>
+          <View style={styles.settingRight}>
+            {hasToggle ? (
+                <View style={styles.customToggle}>
+                  <TouchableOpacity
+                      style={[
+                        styles.toggleContainer,
+                        toggleValue ? [styles.toggleActive, { backgroundColor: primaryColor }] : styles.toggleInactive,
+                      ]}
+                      onPress={() => onToggleChange(!toggleValue)}
+                  >
+                    <View
+                        style={[
+                          styles.toggleThumb,
+                          toggleValue ? styles.thumbActive : styles.thumbInactive,
+                        ]}
+                    />
+                  </TouchableOpacity>
+                </View>
+            ) : (
+                <>
+                  {value && <Text style={styles.settingValue}>{value}</Text>}
+                  {showArrow && <Ionicons name="chevron-forward" size={16} color="#ccc" />}
+                </>
+            )}
+          </View>
+        </TouchableOpacity>
     );
   };
 
@@ -194,126 +191,110 @@ const SettingsScreen = () => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>설정</Text>
-      </View>
-      
-      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
-        <View style={styles.profileSection}>
-          <View style={styles.profileInfo}>
-            <View style={styles.profileImageContainer}>
-              <Ionicons name="person" size={30} color="#999" />
+      <SafeAreaView style={[styles.container, { backgroundColor }]}>
+        <View style={[styles.header, { backgroundColor }]}>
+          <Text style={styles.headerTitle}>설정</Text>
+        </View>
+
+        <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+          <View style={[styles.profileSection, { backgroundColor: cardBackgroundColor }]}>
+            <View style={styles.profileInfo}>
+              <View style={styles.profileImageContainer}>
+                <Ionicons name="person" size={30} color="#999" />
+              </View>
+              <View style={styles.profileText}>
+                <Text style={styles.profileName}>김테니스</Text>
+                <Text style={styles.profileEmail}>tennis@email.com</Text>
+              </View>
             </View>
-            <View style={styles.profileText}>
-              <Text style={styles.profileName}>김테니스</Text>
-              <Text style={styles.profileEmail}>tennis@email.com</Text>
-            </View>
+            <TouchableOpacity style={[styles.editButton, { backgroundColor: primaryLightColor }]} onPress={handleProfileEdit}>
+              <Text style={styles.editButtonText}>프로필 편집</Text>
+            </TouchableOpacity>
           </View>
-          <TouchableOpacity style={styles.editButton} onPress={handleProfileEdit}>
-            <Text style={styles.editButtonText}>프로필 편집</Text>
-          </TouchableOpacity>
-        </View>
 
-        <SectionHeader title="목표" />
-        <View style={styles.section}>
-          <SettingItem
-            icon={require('@/assets/images/clock-icon.png')}
-            iconType="image"
-            title="일일 운동 시간"
-            value={`${dailyGoalHours}시간`}
-            onPress={() => handleGoalEdit('time')}
-            iconColor="#B2C549"
-          />
-          <SettingItem
-            icon={require('@/assets/images/material-symbols_target.png')}
-            iconType="image"
-            title="서브 횟수 목표"
-            value={`${serveGoal}회`}
-            onPress={() => handleGoalEdit('serve')}
-            iconColor="#B2C549"
-          />
-        </View>
+          <SectionHeader title="목표" />
+          <View style={[styles.section, { backgroundColor: cardBackgroundColor }]}>
+            <SettingItem
+                icon="time-outline"
+                title="일일 운동 시간"
+                value={`${dailyGoalHours}시간`}
+                onPress={() => handleGoalEdit('time')}
+            />
+            <SettingItem
+                icon="golf-outline"
+                title="서브 횟수 목표"
+                value={`${serveGoal}회`}
+                onPress={() => handleGoalEdit('serve')}
+            />
+          </View>
 
-        <SectionHeader title="앱 설정" />
-        <View style={styles.section}>
-          <SettingItem
-            icon={require('@/assets/images/globe-icon.png')}
-            iconType="image"
-            title="언어설정"
-            value="한국어"
-            onPress={handleLanguageSetting}
-            iconColor="#B2C549"
-          />
-          <SettingItem
-            icon={require('@/assets/images/sound-icon.png')}
-            iconType="image"
-            title="소리설정"
-            hasToggle={true}
-            toggleValue={soundEnabled}
-            onToggleChange={setSoundEnabled}
-            showArrow={false}
-            iconColor="#B2C549"
-          />
-          <SettingItem
-            icon={require('@/assets/images/notification-icon.png')}
-            iconType="image"
-            title="알림설정"
-            hasToggle={true}
-            toggleValue={notificationEnabled}
-            onToggleChange={setNotificationEnabled}
-            showArrow={false}
-            iconColor="#B2C549"
-          />
-          <SettingItem
-            icon={require('@/assets/images/trash-icon.png')}
-            iconType="image"
-            title="데이터 초기화"
-            onPress={handleDataReset}
-            showArrow={false}
-            iconColor="#D1524C"
-          />
-        </View>
+          <SectionHeader title="앱 설정" />
+          <View style={[styles.section, { backgroundColor: cardBackgroundColor }]}>
+            <SettingItem
+                icon="globe-outline"
+                title="언어설정"
+                value="한국어"
+                onPress={handleLanguageSetting}
+            />
+            <SettingItem
+                icon="volume-high-outline"
+                title="소리설정"
+                hasToggle={true}
+                toggleValue={soundEnabled}
+                onToggleChange={setSoundEnabled}
+                showArrow={false}
+            />
+            <SettingItem
+                icon="notifications-outline"
+                title="알림설정"
+                hasToggle={true}
+                toggleValue={notificationEnabled}
+                onToggleChange={setNotificationEnabled}
+                showArrow={false}
+            />
+            <SettingItem
+                icon="trash-outline"
+                title="데이터 초기화"
+                onPress={handleDataReset}
+                showArrow={false}
+                iconColor={redColor}
+            />
+          </View>
 
-        <SectionHeader title="계정관리" />
-        <View style={styles.section}>
-          <SettingItem
-            icon={require('@/assets/images/logout-icon.png')}
-            iconType="image"
-            title="로그아웃"
-            onPress={handleLogout}
-            showArrow={false}
-            iconColor="#D1524C"
-          />
-          <SettingItem
-            icon={require('@/assets/images/delete-user-icon.png')}
-            iconType="image"
-            title="회원 탈퇴"
-            onPress={handleAccountDeletion}
-            showArrow={false}
-            iconColor="#D1524C"
-          />
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+          <SectionHeader title="계정관리" />
+          <View style={[styles.section, { backgroundColor: cardBackgroundColor }]}>
+            <SettingItem
+                icon="log-out-outline"
+                title="로그아웃"
+                onPress={handleLogout}
+                showArrow={false}
+                iconColor={redColor}
+            />
+            <SettingItem
+                icon="person-remove-outline"
+                title="회원 탈퇴"
+                onPress={handleAccountDeletion}
+                showArrow={false}
+                iconColor={redColor}
+            />
+          </View>
+        </ScrollView>
+      </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
   },
   header: {
-    backgroundColor: 'white',
     paddingHorizontal: 20,
     paddingVertical: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
+    paddingTop: 50,
     alignItems: 'center',
   },
   headerTitle: {
-    fontSize: 18,
+    fontSize: 24,
     fontWeight: 'bold',
     color: '#333',
   },
@@ -321,9 +302,18 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   profileSection: {
-    backgroundColor: 'white',
     padding: 20,
-    marginBottom: 20,
+    marginBottom: 30,
+    marginHorizontal: 16,
+    borderRadius: 12,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 2,
   },
   profileInfo: {
     flexDirection: 'row',
@@ -353,14 +343,13 @@ const styles = StyleSheet.create({
     color: '#666',
   },
   editButton: {
-    backgroundColor: '#E7FF65',
     borderRadius: 12,
     paddingVertical: 12,
     alignItems: 'center',
   },
   editButtonText: {
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: '600',
     color: '#333',
   },
   sectionHeader: {
@@ -370,37 +359,45 @@ const styles = StyleSheet.create({
     marginLeft: 20,
     marginRight: 20,
     marginBottom: 8,
-    marginTop: 20,
+    marginTop: 10,
   },
   section: {
-    backgroundColor: 'white',
     marginBottom: 20,
+    marginHorizontal: 16,
+    borderRadius: 12,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 2,
   },
   settingItem: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
+    paddingHorizontal: 16,
+    paddingVertical: 16,
   },
   settingLeft: {
     flexDirection: 'row',
     alignItems: 'center',
     flex: 1,
   },
-  settingIcon: {
-    marginRight: 15,
-  },
-  settingIconImage: {
-    width: 20,
-    height: 20,
-    marginRight: 15,
+  iconContainer: {
+    width: 32,
+    height: 32,
+    borderRadius: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
   },
   settingTitle: {
     fontSize: 16,
     color: '#333',
+    fontWeight: '500',
   },
   settingRight: {
     flexDirection: 'row',
@@ -415,22 +412,22 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   toggleContainer: {
-    width: 40,
-    height: 24,
-    borderRadius: 12,
+    width: 44,
+    height: 26,
+    borderRadius: 13,
     justifyContent: 'center',
     position: 'relative',
   },
   toggleActive: {
-    backgroundColor: '#B2C549',
+    // 동적으로 backgroundColor가 설정됨
   },
   toggleInactive: {
     backgroundColor: '#e0e0e0',
   },
   toggleThumb: {
-    width: 20,
-    height: 20,
-    borderRadius: 10,
+    width: 22,
+    height: 22,
+    borderRadius: 11,
     backgroundColor: 'white',
     position: 'absolute',
     shadowColor: '#000',
