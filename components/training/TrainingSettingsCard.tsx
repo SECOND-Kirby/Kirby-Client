@@ -43,16 +43,32 @@ const TrainingSettingsCard: React.FC<TrainingSettingsCardProps> = ({
         <View style={styles.settingItem}>
             <View style={styles.settingRow}>
                 <Text style={styles.settingLabel}>{label}</Text>
-                <View style={styles.sliderContainer}>
-                    <View style={styles.sliderTrack}>
-                        <View
-                            style={[styles.sliderFill, {
-                                width: `${value}%`,
-                                backgroundColor: primaryLightColor
-                            }]}
-                        />
+                <View style={styles.sliderWrapper}>
+                    <TouchableOpacity
+                        style={[styles.sliderButton, { marginRight: 8 }]}
+                        onPress={() => onValueChange(Math.max(0, value - 10))}
+                    >
+                        <Text style={styles.sliderButtonText}>-</Text>
+                    </TouchableOpacity>
+
+                    <View style={styles.sliderContainer}>
+                        <View style={styles.sliderTrack}>
+                            <View
+                                style={[styles.sliderFill, {
+                                    width: `${value}%`,
+                                    backgroundColor: primaryLightColor
+                                }]}
+                            />
+                        </View>
+                        <View style={[styles.sliderThumb, { left: `${Math.max(0, Math.min(88, value * 0.88))}%` }]} />
                     </View>
-                    <View style={[styles.sliderThumb, { left: `${Math.max(0, Math.min(90, value - 5))}%` }]} />
+
+                    <TouchableOpacity
+                        style={[styles.sliderButton, { marginLeft: 8 }]}
+                        onPress={() => onValueChange(Math.min(100, value + 10))}
+                    >
+                        <Text style={styles.sliderButtonText}>+</Text>
+                    </TouchableOpacity>
                 </View>
             </View>
         </View>
@@ -80,6 +96,7 @@ const TrainingSettingsCard: React.FC<TrainingSettingsCardProps> = ({
                 onValueChange={onFrequencyChange}
             />
 
+            {/* 시간 설정 */}
             <View style={styles.timeSection}>
                 <Text style={styles.settingLabel}>시간</Text>
                 <View style={styles.timeControls}>
@@ -141,11 +158,30 @@ const styles = StyleSheet.create({
         width: 60,
         paddingLeft: 8,
     },
+    sliderWrapper: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        flex: 1,
+        marginLeft: 30,
+    },
+    sliderButton: {
+        width: 28,
+        height: 28,
+        borderRadius: 14,
+        backgroundColor: '#f0f0f0',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    sliderButtonText: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        color: '#666',
+    },
     sliderContainer: {
         position: 'relative',
         height: 24,
         flex: 1,
-        marginLeft: 20,
+        paddingHorizontal: 4,
     },
     sliderTrack: {
         height: 10,

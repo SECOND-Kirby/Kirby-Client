@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
+import { router } from 'expo-router';
 import React, { useState } from 'react';
 import {
     ScrollView,
@@ -35,6 +36,10 @@ const TrainingScreen: React.FC = () => {
         setSelectedMode(mode);
     };
 
+    const handleProfilePress = () => {
+        router.push('/(tabs)/settings');
+    };
+
     const adjustDuration = (increase: boolean) => {
         const newDuration = increase ? duration + 5 : duration - 5;
         if (newDuration >= 5 && newDuration <= 120) {
@@ -58,7 +63,7 @@ const TrainingScreen: React.FC = () => {
                 {/* 헤더 - 스크롤 안에 포함 */}
                 <View style={[styles.header, { backgroundColor }]}>
                     <Text style={styles.headerTitle}>오늘의 훈련</Text>
-                    <TouchableOpacity style={styles.profileIcon}>
+                    <TouchableOpacity style={styles.profileIcon} onPress={handleProfilePress}>
                         <Ionicons name="person-outline" size={24} color="#666" />
                     </TouchableOpacity>
                 </View>
