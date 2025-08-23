@@ -1,6 +1,6 @@
-import { Ionicons } from '@expo/vector-icons';
-import { router } from 'expo-router';
-import React, { useState } from 'react';
+import {Ionicons} from '@expo/vector-icons';
+import {router} from 'expo-router';
+import React, {useState} from 'react';
 import {
     ScrollView,
     StyleSheet,
@@ -8,7 +8,7 @@ import {
     TouchableOpacity,
     View,
 } from 'react-native';
-import { useThemeColor } from '@/hooks/useThemeColor';
+import {useThemeColor} from '@/hooks/useThemeColor';
 import TrainingSettingsCard from './TrainingSettingsCard';
 import TrainingModeSelector from './TrainingModeSelector';
 
@@ -48,23 +48,28 @@ const TrainingScreen: React.FC = () => {
     };
 
     const handleStartTraining = () => {
-        console.log('훈련 시작:', {
-            mode: selectedMode,
-            intensity,
-            direction,
-            frequency,
-            duration
+        // 같은 탭에서 세션 모드로 전환
+        router.push({
+            pathname: '/(tabs)/training',
+            params: {
+                sessionMode: 'active',
+                duration: duration.toString(),
+                mode: selectedMode,
+                intensity: intensity.toString(),
+                direction: direction.toString(),
+                frequency: frequency.toString(),
+            }
         });
     };
 
     return (
-        <View style={[styles.container, { backgroundColor }]}>
+        <View style={[styles.container, {backgroundColor}]}>
             <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
                 {/* 헤더 - 스크롤 안에 포함 */}
-                <View style={[styles.header, { backgroundColor }]}>
+                <View style={[styles.header, {backgroundColor}]}>
                     <Text style={styles.headerTitle}>오늘의 훈련</Text>
                     <TouchableOpacity style={styles.profileIcon} onPress={handleProfilePress}>
-                        <Ionicons name="person-outline" size={24} color="#666" />
+                        <Ionicons name="person-outline" size={24} color="#666"/>
                     </TouchableOpacity>
                 </View>
 
@@ -75,20 +80,20 @@ const TrainingScreen: React.FC = () => {
 
                 {/* 상단 통계 카드들 - 홈과 동일 */}
                 <View style={styles.statsSection}>
-                    <View style={[styles.statCard, { backgroundColor: cardBackgroundColor }]}>
-                        <Ionicons name="time-outline" size={24} color="#666" style={styles.statIcon} />
+                    <View style={[styles.statCard, {backgroundColor: cardBackgroundColor}]}>
+                        <Ionicons name="time-outline" size={24} color="#666" style={styles.statIcon}/>
                         <Text style={styles.statValue}>1시간30분</Text>
                         <Text style={styles.statLabel}>훈련 시간</Text>
                     </View>
 
-                    <View style={[styles.statCard, { backgroundColor: cardBackgroundColor }]}>
-                        <Ionicons name="time-outline" size={24} color="#666" style={styles.statIcon} />
+                    <View style={[styles.statCard, {backgroundColor: cardBackgroundColor}]}>
+                        <Ionicons name="time-outline" size={24} color="#666" style={styles.statIcon}/>
                         <Text style={styles.statValue}>56회</Text>
                         <Text style={styles.statLabel}>서브 횟수</Text>
                     </View>
 
-                    <View style={[styles.statCard, { backgroundColor: cardBackgroundColor }]}>
-                        <Ionicons name="time-outline" size={24} color="#666" style={styles.statIcon} />
+                    <View style={[styles.statCard, {backgroundColor: cardBackgroundColor}]}>
+                        <Ionicons name="time-outline" size={24} color="#666" style={styles.statIcon}/>
                         <Text style={styles.statValue}>85%</Text>
                         <Text style={styles.statLabel}>정확도</Text>
                     </View>
@@ -108,7 +113,7 @@ const TrainingScreen: React.FC = () => {
 
                 {/* 훈련 시작 버튼 */}
                 <TouchableOpacity
-                    style={[styles.startButton, { backgroundColor: primaryLightColor }]}
+                    style={[styles.startButton, {backgroundColor: primaryLightColor}]}
                     onPress={handleStartTraining}
                 >
                     <Text style={styles.startButtonText}>훈련 시작</Text>
