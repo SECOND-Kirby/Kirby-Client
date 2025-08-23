@@ -2,7 +2,6 @@ import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
 import {
-  Dimensions,
   ScrollView,
   StyleSheet,
   Text,
@@ -11,8 +10,7 @@ import {
 } from 'react-native';
 import BallCollectionScreen from './BallCollectionScreen';
 import { useThemeColor } from '@/hooks/useThemeColor';
-
-const { width } = Dimensions.get('window');
+import WeeklyActivityChart from './analytics/WeeklyActivityChart';
 
 const HomeScreen = () => {
   const [isCollecting, setIsCollecting] = useState(false);
@@ -100,20 +98,7 @@ const HomeScreen = () => {
 
         {/* 이번주 활동 */}
         <View style={styles.section}>
-          <View style={[styles.cardContainer, { backgroundColor: cardBackgroundColor }]}>
-            <Text style={styles.cardTitle}>이번주 활동</Text>
-            <View style={styles.chartContainer}>
-              {['월', '화', '수', '목', '금', '토', '일'].map((day, index) => {
-                const heights = [90, 70, 60, 40, 20, 65, 55]; // 고정된 높이값
-                return (
-                    <View key={day} style={styles.chartDay}>
-                      <View style={[styles.chartBar, { height: heights[index], backgroundColor: primaryLightColor }]} />
-                      <Text style={styles.chartLabel}>{day}</Text>
-                    </View>
-                );
-              })}
-            </View>
-          </View>
+          <WeeklyActivityChart />
         </View>
 
         {/* 공 수거 시작 버튼 */}
@@ -247,27 +232,6 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     color: '#333',
-  },
-  chartContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-end',
-    height: 120,
-    paddingHorizontal: 8,
-  },
-  chartDay: {
-    alignItems: 'center',
-    flex: 1,
-  },
-  chartBar: {
-    width: 20,
-    borderRadius: 10,
-    marginBottom: 8,
-    minHeight: 20,
-  },
-  chartLabel: {
-    fontSize: 12,
-    color: '#666',
   },
   startButton: {
     borderRadius: 12,
