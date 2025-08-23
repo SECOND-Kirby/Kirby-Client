@@ -16,6 +16,17 @@ export const Colors = {
     gray: '#666',
     lightGray: '#999',
     red: '#D1524C',
+    // 훈련 세션 색상 추가
+    timerBackground: '#75D88B',
+    timerProgress: '#8EFFA1',
+    pauseButton: '#F16D61',
+    resetButton: '#717171',
+    continueButton: '#45BA45',
+    startButton: '#4DD5C1',
+    // 통계 카드 색상 추가
+    statCardBackground: '#F2F2F2',
+    statValueColor: '#6475E0',
+    statLabelColor: '#5A5A5A',
   },
   dark: {
     text: '#ECEDEE',
@@ -31,5 +42,14 @@ export const Colors = {
     gray: '#9BA1A6',
     lightGray: '#666',
     red: '#ff6b6b',
+    timerBackground: '#5BB574',
+    timerProgress: '#6FE082',
+    pauseButton: '#E55A52',
+    resetButton: '#5A5A5A',
+    continueButton: '#3A9A3A',
+    startButton: '#3BC4B2',
+    statCardBackground: '#2A2A2A',
+    statValueColor: '#7B8CE8',
+    statLabelColor: '#AAAAAA',
   },
 };
