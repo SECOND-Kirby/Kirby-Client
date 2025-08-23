@@ -2,7 +2,7 @@ import {Ionicons} from '@expo/vector-icons';
 import {router} from 'expo-router';
 import React, {useEffect, useState} from 'react';
 import {
-    Alert,
+    Modal,
     SafeAreaView,
     StyleSheet,
     Text,
@@ -32,6 +32,8 @@ const TrainingSessionScreen: React.FC<TrainingSessionScreenProps> = ({
     const [totalServes, setTotalServes] = useState(0);
     const [accuracy, setAccuracy] = useState(0);
     const [avgSpeed, setAvgSpeed] = useState(0);
+
+    const [showEndModal, setShowEndModal] = useState(false);
 
     const backgroundColor = useThemeColor({}, 'background');
     const cardBackgroundColor = useThemeColor({}, 'cardBackground');
@@ -109,29 +111,17 @@ const TrainingSessionScreen: React.FC<TrainingSessionScreenProps> = ({
     };
 
     const handleEndTraining = () => {
-        Alert.alert(
-            '훈련을 종료하시겠습니까?',
-            '현재까지의 훈련 기록이 저장됩니다.',
-            [
-                {
-                    text: '취소',
-                    style: 'cancel',
-                },
-                {
-                    text: '종료',
-                    style: 'default',
-                    onPress: () => {
-                        // 훈련 기록 저장 후 훈련 탭으로 돌아가기
-                        router.push('/(tabs)/training');
-                    },
-                },
-            ]
-        );
+        // 필요하면 일시정지
+        setIsRunning(false);
+        setShowEndModal(true);
     };
 
-    const handleStop = () => {
-        // 훈련 결과 저장 후 메인으로 돌아가기
-        router.back();
+    // 모달에서 “종료” 눌렀을 때 저장 + 탭 이동
+    const confirmEndAndSave = async () => {
+        // TODO: 실제 저장 로직 추가 (예: await saveTrainingResult({...}))
+
+        setShowEndModal(false);
+        router.push('/training');
     };
 
     return (
@@ -222,13 +212,44 @@ const TrainingSessionScreen: React.FC<TrainingSessionScreenProps> = ({
 
                         <TouchableOpacity
                             style={[styles.secondaryButton, {backgroundColor: resetButtonColor}]}
-                            onPress={handleReset}
+                            onPress={handleEndTraining}
                         >
-                            <Text style={styles.secondaryButtonText}>초기화</Text>
+                            <Text style={styles.secondaryButtonText}>훈련 종료</Text>
                         </TouchableOpacity>
                     </View>
                 )}
             </View>
+
+            {/* 종료 확인 모달 */}
+            <Modal
+                transparent
+                visible={showEndModal}
+                animationType="fade"
+                onRequestClose={() => setShowEndModal(false)}
+            >
+                <View style={styles.modalOverlay}>
+                    <View style={styles.modalCard}>
+                        <Text style={styles.modalTitle}>훈련을 종료하시겠습니까?</Text>
+                        <Text style={styles.modalDesc}>현재까지의 훈련 기록이 저장됩니다.</Text>
+
+                        <View style={styles.modalButtons}>
+                            <TouchableOpacity
+                                style={[styles.modalBtn, styles.modalCancel]}
+                                onPress={() => setShowEndModal(false)}
+                            >
+                                <Text style={[styles.modalBtnText, {color: resetButtonColor}]}>취소</Text>
+                            </TouchableOpacity>
+
+                            <TouchableOpacity
+                                style={[styles.modalBtn, styles.modalConfirm]}
+                                onPress={confirmEndAndSave}
+                            >
+                                <Text style={styles.modalBtnText}>종료</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </View>
+            </Modal>
         </SafeAreaView>
     );
 };
@@ -377,6 +398,52 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: 'bold',
         color: '#fff',
+    },
+
+    modalOverlay: {
+        flex: 1,
+        backgroundColor: 'rgba(0,0,0,0.35)',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: 24,
+    },
+    modalCard: {
+        width: '100%',
+        maxWidth: 380,
+        borderRadius: 16,
+        backgroundColor: '#fff',
+        padding: 20,
+    },
+    modalTitle: {
+        fontSize: 18,
+        fontWeight: '700',
+        marginBottom: 8,
+        color: '#111',
+    },
+    modalDesc: {
+        fontSize: 14,
+        color: '#555',
+        marginBottom: 16,
+    },
+    modalButtons: {
+        flexDirection: 'row',
+        gap: 12,
+        justifyContent: 'flex-end',
+    },
+    modalBtn: {
+        paddingVertical: 12,
+        paddingHorizontal: 16,
+        borderRadius: 10,
+    },
+    modalCancel: {
+        backgroundColor: '#e5e7eb',
+    },
+    modalConfirm: {
+        backgroundColor: '#111827',
+    },
+    modalBtnText: {
+        color: '#fff',
+        fontWeight: '600',
     },
 });
 
