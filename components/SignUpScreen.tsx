@@ -121,7 +121,7 @@ const SignUpScreen = () => {
             errors.email = '이메일을 입력해주세요.';
             hasError = true;
         } else {
-            // 이메일 형식 검증 (한글 입력 방지 포함)
+            // 이메일 형식 검증
             const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
             if (!emailRegex.test(email)) {
                 errors.email = '올바른 이메일 형식을 입력해주세요.';
@@ -241,47 +241,70 @@ const SignUpScreen = () => {
         }
 
         setDuplicateChecking(true);
+        // 기존 에러 메시지 초기화
+        setFieldErrors(prev => ({ ...prev, username: '' }));
 
         try {
             const response = await authService.checkUsername(username);
-            console.log('중복확인 응답:', response);
+            console.log('중복확인 성공 응답:', response);
 
-            if (response.success) {
-                // 성공 = 사용 가능한 아이디
-                setUsernameChecked(true);
-                setFieldErrors(prev => ({ ...prev, username: '' }));
-                Alert.alert('아이디 중복확인', '사용 가능한 아이디입니다.', [
-                    { text: '확인', style: 'default' }
-                ]);
-            } else {
-                // 실패 처리 - 중복된 아이디인 경우
-                setUsernameChecked(false);
+            // 성공 = 사용 가능한 아이디
+            setUsernameChecked(true);
+            Alert.alert('아이디 중복확인', '사용 가능한 아이디입니다.', [
+                { text: '확인', style: 'default' }
+            ]);
 
-                // U002 코드는 아이디 중복
-                if (response.code === 'U002') {
-                    setFieldErrors(prev => ({ ...prev, username: '이미 사용중인 아이디입니다.' }));
-                    Alert.alert(
-                        '아이디 중복확인',
-                        '이미 사용중인 아이디입니다.\n다른 아이디를 입력해주세요.',
-                        [{ text: '확인', style: 'cancel' }]
-                    );
-                } else {
-                    // 기타 에러 처리
-                    const mockError = {
-                        response: {
-                            data: response
-                        }
-                    };
-                    const errorMessage = handleErrorResponse(mockError, false);
-                    Alert.alert('아이디 중복확인', errorMessage);
-                }
-            }
         } catch (error: any) {
-            console.error('중복확인 네트워크 에러:', error);
+            console.log('중복확인 에러 캐치:', error);
+            console.log('에러 응답 데이터:', error.response?.data);
+            console.log('에러 상태 코드:', error.response?.status);
+
             setUsernameChecked(false);
 
-            const errorMessage = handleErrorResponse(error, false);
-            Alert.alert('오류', errorMessage);
+            // HTTP 에러 응답인 경우 (409, 400 등)
+            if (error.response?.data) {
+                const errorData = error.response.data;
+                console.log('백엔드 에러 데이터:', errorData);
+
+                let fieldErrorMessage = '';
+                let alertMessage = '';
+
+                if (errorData.code === 'U002') {
+                    // 아이디 중복 (409 상태)
+                    fieldErrorMessage = '이미 사용중인 아이디입니다.';
+                    alertMessage = '이미 사용중인 아이디입니다.\n다른 아이디를 입력해주세요.';
+                } else if (errorData.code === 'E002' && errorData.data && typeof errorData.data === 'object') {
+                    // 입력값 검증 실패 (400 상태)
+                    const backendErrors = errorData.data as Record<string, string>;
+                    if (backendErrors.username) {
+                        fieldErrorMessage = backendErrors.username;
+                        alertMessage = backendErrors.username;
+                    } else {
+                        fieldErrorMessage = '아이디 형식이 올바르지 않습니다.';
+                        alertMessage = '아이디 형식이 올바르지 않습니다.';
+                    }
+                } else {
+                    // 기타 백엔드 에러
+                    fieldErrorMessage = errorData.message || '아이디 확인 중 오류가 발생했습니다.';
+                    alertMessage = errorData.message || '아이디 확인 중 오류가 발생했습니다.';
+                }
+
+                // 필드 에러 메시지 설정
+                setFieldErrors(prev => ({ ...prev, username: fieldErrorMessage }));
+
+                // Alert 표시
+                Alert.alert('아이디 중복확인', alertMessage, [
+                    { text: '확인', style: 'cancel' }
+                ]);
+
+            } else {
+                // 실제 네트워크 에러 (인터넷 연결 끊김 등)
+                console.error('실제 네트워크 에러:', error);
+                setFieldErrors(prev => ({ ...prev, username: '네트워크 오류가 발생했습니다.' }));
+                Alert.alert('오류', '네트워크 오류가 발생했습니다.', [
+                    { text: '확인', style: 'default' }
+                ]);
+            }
         } finally {
             setDuplicateChecking(false);
         }
