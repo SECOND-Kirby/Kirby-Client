@@ -1,427 +1,674 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
+import { authService } from '@/services/authService';
 import {
-  Alert,
-  SafeAreaView,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View
+    Alert,
+    SafeAreaView,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View
 } from 'react-native';
 
 const SignUpScreen = () => {
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('');
-  const [id, setId] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+    const [name, setName] = useState('');
+    const [email, setEmail] = useState('');
+    const [phoneNumber, setPhoneNumber] = useState('');
+    const [username, setUsername] = useState('');
+    const [password, setPassword] = useState('');
+    const [passwordConfirm, setPasswordConfirm] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
+    const [showPasswordConfirm, setShowPasswordConfirm] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const [duplicateChecking, setDuplicateChecking] = useState(false);
+    const [usernameChecked, setUsernameChecked] = useState(false);
 
-  const validatePassword = (password) => {
-    // 8자 이상
-    if (password.length < 8) {
-      return '비밀번호는 8자 이상이어야 합니다.';
-    }
+    // 필드별 에러 상태 (백엔드 필드명과 일치)
+    const [fieldErrors, setFieldErrors] = useState({
+        name: '',
+        email: '',
+        phoneNumber: '',
+        username: '',
+        password: '',
+        passwordConfirm: ''
+    });
 
-    // 영문, 숫자, 특수문자 중 최소 2개 이상 포함
-    const hasLower = /[a-z]/.test(password);
-    const hasUpper = /[A-Z]/.test(password);
-    const hasNumber = /\d/.test(password);
-    const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(password);
-    
-    const categories = [hasLower, hasUpper, hasNumber, hasSpecial].filter(Boolean).length;
-    
-    if (categories < 2) {
-      return '영문(대/소문자), 숫자, 특수문자 중 최소 2개 이상 포함해야 합니다.';
-    }
+    const formatPhoneNumber = (text: string): string => {
+        const numbers = text.replace(/[^\d]/g, '');
 
-    return null; // 검증 통과
-  };
+        if (numbers.length > 11) {
+            return phoneNumber;
+        }
 
-  const handleBack = () => {
-    router.back();
-  };
+        if (numbers.length <= 3) {
+            return numbers;
+        } else if (numbers.length <= 7) {
+            return `${numbers.slice(0, 3)}-${numbers.slice(3)}`;
+        } else {
+            return `${numbers.slice(0, 3)}-${numbers.slice(3, 7)}-${numbers.slice(7)}`;
+        }
+    };
 
-  const validateId = (id) => {
-    // 6자 이상
-    if (id.length < 6) {
-      return '아이디는 6자 이상이어야 합니다.';
-    }
-    
-    // 영문과 숫자만 허용
-    const idRegex = /^[a-zA-Z0-9]+$/;
-    if (!idRegex.test(id)) {
-      return '아이디는 영문과 숫자만 사용할 수 있습니다.';
-    }
-    
-    return null; // 검증 통과
-  };
+    const handleBack = () => {
+        router.back();
+    };
 
-  const handleDuplicateCheck = () => {
-    if (id.trim() === '') {
-      Alert.alert('알림', '아이디를 입력해주세요.');
-      return;
-    }
-    
-    const idError = validateId(id);
-    if (idError) {
-      Alert.alert('알림', '형식이 알맞지 않습니다.\n' + idError);
-      return;
-    }
-    
-    // 실제 앱에서는 서버에 중복 확인 요청
-    Alert.alert('알림', '사용 가능한 아이디입니다.');
-  };
+    const handlePhoneNumberChange = (text: string) => {
+        const formatted = formatPhoneNumber(text);
+        setPhoneNumber(formatted);
+        if (fieldErrors.phoneNumber) {
+            setFieldErrors(prev => ({ ...prev, phoneNumber: '' }));
+        }
+    };
 
-  const validateEmail = (email) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-  };
+    const handleUsernameChange = (text: string) => {
+        setUsername(text);
+        setUsernameChecked(false);
+        if (fieldErrors.username) {
+            setFieldErrors(prev => ({ ...prev, username: '' }));
+        }
+    };
 
-  const formatPhoneNumber = (text) => {
-    // 숫자만 추출
-    const numbers = text.replace(/[^\d]/g, '');
-    
-    // 11자리 초과 시 자르기
-    if (numbers.length > 11) {
-      return phone;
-    }
-    
-    // 형식에 맞게 변환
-    if (numbers.length <= 3) {
-      return numbers;
-    } else if (numbers.length <= 7) {
-      return `${numbers.slice(0, 3)}-${numbers.slice(3)}`;
-    } else {
-      return `${numbers.slice(0, 3)}-${numbers.slice(3, 7)}-${numbers.slice(7)}`;
-    }
-  };
+    const handleNameChange = (text: string) => {
+        setName(text);
+        if (fieldErrors.name) {
+            setFieldErrors(prev => ({ ...prev, name: '' }));
+        }
+    };
 
-  const validatePhone = (phone) => {
-    const phoneRegex = /^010-\d{4}-\d{4}$/;
-    return phoneRegex.test(phone);
-  };
+    const handleEmailChange = (text: string) => {
+        setEmail(text);
+        if (fieldErrors.email) {
+            setFieldErrors(prev => ({ ...prev, email: '' }));
+        }
+    };
 
-  const handlePhoneChange = (text) => {
-    const formatted = formatPhoneNumber(text);
-    setPhone(formatted);
-  };
-  const handleSignUp = () => {
-    // 입력 검증
-    if (!name.trim()) {
-      Alert.alert('알림', '이름을 입력해주세요.');
-      return;
-    }
-    if (!email.trim() || !validateEmail(email)) {
-      Alert.alert('알림', '올바른 이메일 주소를 입력해주세요.');
-      return;
-    }
-    if (!phone.trim() || !validatePhone(phone)) {
-      Alert.alert('알림', '전화번호를 010-0000-0000 형식으로 입력해주세요.');
-      return;
-    }
-    if (!id.trim()) {
-      Alert.alert('알림', '아이디를 입력해주세요.');
-      return;
-    }
-    
-    const idError = validateId(id);
-    if (idError) {
-      Alert.alert('알림', idError);
-      return;
-    }
-    
-    const passwordError = validatePassword(password);
-    if (passwordError) {
-      Alert.alert('알림', passwordError);
-      return;
-    }
-    if (password !== confirmPassword) {
-      Alert.alert('알림', '비밀번호가 일치하지 않습니다.');
-      return;
-    }
+    const handlePasswordChange = (text: string) => {
+        setPassword(text);
+        if (fieldErrors.password) {
+            setFieldErrors(prev => ({ ...prev, password: '' }));
+        }
+    };
 
-    // 회원가입 성공 시
-    Alert.alert(
-      '회원가입 완료',
-      '회원가입이 완료되었습니다. 로그인해주세요.',
-      [
-        {
-          text: '확인',
-          onPress: () => router.replace('/'),
-        },
-      ]
+    const handlePasswordConfirmChange = (text: string) => {
+        setPasswordConfirm(text);
+        if (fieldErrors.passwordConfirm) {
+            setFieldErrors(prev => ({ ...prev, passwordConfirm: '' }));
+        }
+    };
+
+    const validateFields = () => {
+        const errors = {
+            name: '',
+            email: '',
+            phoneNumber: '',
+            username: '',
+            password: '',
+            passwordConfirm: ''
+        };
+
+        let hasError = false;
+
+        if (!name.trim()) {
+            errors.name = '이름을 입력해주세요.';
+            hasError = true;
+        }
+
+        if (!email.trim()) {
+            errors.email = '이메일을 입력해주세요.';
+            hasError = true;
+        }
+
+        if (!phoneNumber.trim()) {
+            errors.phoneNumber = '전화번호를 입력해주세요.';
+            hasError = true;
+        }
+
+        if (!username.trim()) {
+            errors.username = '아이디를 입력해주세요.';
+            hasError = true;
+        }
+
+        if (!password.trim()) {
+            errors.password = '비밀번호를 입력해주세요.';
+            hasError = true;
+        }
+
+        if (!passwordConfirm.trim()) {
+            errors.passwordConfirm = '비밀번호 확인을 입력해주세요.';
+            hasError = true;
+        } else if (password !== passwordConfirm) {
+            errors.passwordConfirm = '비밀번호가 일치하지 않습니다.';
+            hasError = true;
+        }
+
+        setFieldErrors(errors);
+        return !hasError;
+    };
+
+    const handleDuplicateCheck = async () => {
+        if (!username.trim()) {
+            setFieldErrors(prev => ({ ...prev, username: '아이디를 입력해주세요.' }));
+            return;
+        }
+
+        setDuplicateChecking(true);
+
+        try {
+            const response = await authService.checkUsername(username);
+            console.log('중복확인 응답:', response);
+
+            if (response.success) {
+                // 성공 = 사용 가능한 아이디
+                setUsernameChecked(true);
+                setFieldErrors(prev => ({ ...prev, username: '' }));
+                Alert.alert('아이디 중복확인', '사용 가능한 아이디입니다.', [
+                    { text: '확인', style: 'default' }
+                ]);
+            } else {
+                // 실패 = 중복이거나 형식 오류
+                setUsernameChecked(false);
+
+                // 형식 검증 오류인 경우 (E002)
+                if (response.code === 'E002' && response.data && typeof response.data === 'object') {
+                    const backendErrors = response.data as Record<string, string>;
+                    if (backendErrors.username) {
+                        setFieldErrors(prev => ({ ...prev, username: backendErrors.username }));
+                        Alert.alert('아이디 중복확인', backendErrors.username);
+                        return;
+                    }
+                }
+
+                // 중복 오류인 경우 (U002)
+                if (response.code === 'U002') {
+                    Alert.alert('아이디 중복확인', '이미 사용중인 아이디입니다.\n다른 아이디를 입력해주세요.', [
+                        { text: '확인', style: 'cancel' }
+                    ]);
+                } else {
+                    Alert.alert('오류', response.message || '중복 확인 중 오류가 발생했습니다.');
+                }
+            }
+        } catch (error: any) {
+            console.error('중복확인 에러:', error);
+            setUsernameChecked(false);
+
+            let errorMessage = '중복 확인 중 오류가 발생했습니다.';
+            if (error.response?.data?.message) {
+                errorMessage = error.response.data.message;
+            }
+
+            Alert.alert('오류', errorMessage);
+        } finally {
+            setDuplicateChecking(false);
+        }
+    };
+
+    const handleSignUp = async () => {
+        console.log('회원가입 버튼 클릭됨');
+
+        // 필드 검증
+        if (!validateFields()) {
+            return;
+        }
+
+        // 아이디 중복 확인 체크
+        if (!usernameChecked) {
+            Alert.alert('알림', '아이디 중복 확인을 해주세요.');
+            return;
+        }
+
+        console.log('기본 검증 통과, API 호출 진행');
+        setLoading(true);
+
+        try {
+            const signupData = {
+                username: username,
+                email: email,
+                phoneNumber: phoneNumber,
+                name: name,
+                password: password,
+                passwordConfirm: passwordConfirm
+            };
+
+            console.log('API 호출 시작');
+            const response = await authService.signup(signupData);
+
+            Alert.alert(
+                '회원가입 완료',
+                response.message || '회원가입이 완료되었습니다.',
+                [
+                    {
+                        text: '확인',
+                        onPress: () => router.replace('/'),
+                    },
+                ]
+            );
+
+        } catch (error: any) {
+            console.log('회원가입 에러:', error);
+            let errorMessage = '회원가입 중 오류가 발생했습니다.';
+
+            // HTTP 에러 응답 처리
+            if (error.response?.data) {
+                const errorData = error.response.data;
+                console.log('에러 데이터:', errorData);
+
+                switch (errorData.code) {
+                    case 'U002':
+                        errorMessage = errorData.message || '이미 사용중인 아이디입니다.\n아이디 중복확인을 다시 해주세요.';
+                        setUsernameChecked(false);
+                        break;
+                    case 'U003':
+                        errorMessage = errorData.message || '이미 등록된 이메일입니다.\n다른 이메일을 사용해주세요.';
+                        break;
+                    case 'U004':
+                        errorMessage = errorData.message || '이미 등록된 전화번호입니다.\n다른 전화번호를 사용해주세요.';
+                        break;
+                    case 'U006':
+                        errorMessage = errorData.message || '비밀번호가 일치하지 않습니다.\n비밀번호를 다시 확인해주세요.';
+                        break;
+                    case 'U007':
+                        errorMessage = errorData.message || '새 비밀번호가 현재 비밀번호와 동일합니다.';
+                        break;
+                    case 'E002':
+                        // 입력값 검증 실패 처리
+                        if (errorData.data && typeof errorData.data === 'object') {
+                            const backendErrors = errorData.data as Record<string, string>;
+
+                            // 백엔드 필드별 에러를 프론트엔드 필드 에러에 직접 매핑
+                            const newFieldErrors = { ...fieldErrors };
+                            let hasFieldError = false;
+
+                            Object.entries(backendErrors).forEach(([field, message]) => {
+                                if (field in newFieldErrors) {
+                                    newFieldErrors[field as keyof typeof newFieldErrors] = message;
+                                    hasFieldError = true;
+                                }
+                            });
+
+                            if (hasFieldError) {
+                                setFieldErrors(newFieldErrors);
+                                errorMessage = '입력값을 확인해주세요.\n각 필드의 오류를 수정해주세요.';
+                            } else {
+                                errorMessage = errorData.message || '입력값이 올바르지 않습니다.';
+                            }
+                        } else {
+                            errorMessage = errorData.message || '입력값이 올바르지 않습니다.';
+                        }
+                        break;
+                    default:
+                        errorMessage = errorData.message || errorMessage;
+                }
+            }
+            else if (error.response?.status >= 200 && error.response?.status < 300) {
+                console.log('성공 응답이지만 success: false인 경우');
+
+                errorMessage = '회원가입 처리 중 문제가 발생했습니다.';
+            }
+            // 네트워크 에러나 기타 에러
+            else if (error.message) {
+                errorMessage = `네트워크 오류가 발생했습니다.\n${error.message}`;
+            }
+
+            Alert.alert('회원가입 실패', errorMessage, [
+                { text: '확인', style: 'default' }
+            ]);
+
+        } finally {
+            setLoading(false);
+            console.log('회원가입 처리 완료');
+        }
+    };
+
+    // 회원가입 버튼 활성화 여부
+    const isSignUpDisabled = loading || !usernameChecked;
+
+    return (
+        <SafeAreaView style={styles.container}>
+            {/* 헤더 */}
+            <View style={styles.header}>
+                <TouchableOpacity style={styles.backButton} onPress={handleBack}>
+                    <Ionicons name="chevron-back" size={24} color="#333"/>
+                </TouchableOpacity>
+                <Text style={styles.headerTitle}>회원가입</Text>
+                <View style={styles.placeholder}/>
+            </View>
+
+            <ScrollView
+                style={styles.scrollView}
+                showsVerticalScrollIndicator={false}
+                keyboardShouldPersistTaps="handled"
+                contentContainerStyle={styles.scrollViewContent}
+            >
+                {/* 환영 메시지 */}
+                <View style={styles.welcomeContainer}>
+                    <Text style={styles.welcomeTitle}>환영합니다</Text>
+                    <Text style={styles.welcomeSubtitle}>회원가입을 위해 정보를 입력해주세요</Text>
+                </View>
+
+                {/* 입력 필드들 */}
+                <View style={styles.inputContainer}>
+                    <Text style={styles.inputLabel}>이름</Text>
+                    <TextInput
+                        style={[styles.input, fieldErrors.name && styles.inputError]}
+                        placeholder="이름을 입력해주세요"
+                        placeholderTextColor="#999"
+                        value={name}
+                        onChangeText={handleNameChange}
+                        autoCapitalize="words"
+                        maxLength={100}
+                    />
+                    {fieldErrors.name ? <Text style={styles.errorText}>{fieldErrors.name}</Text> : null}
+
+                    <Text style={styles.inputLabel}>이메일</Text>
+                    <TextInput
+                        style={[styles.input, fieldErrors.email && styles.inputError]}
+                        placeholder="example@email.com"
+                        placeholderTextColor="#999"
+                        value={email}
+                        onChangeText={handleEmailChange}
+                        keyboardType="email-address"
+                        autoCapitalize="none"
+                        autoCorrect={false}
+                        maxLength={50}
+                    />
+                    {fieldErrors.email ? <Text style={styles.errorText}>{fieldErrors.email}</Text> : null}
+
+                    <Text style={styles.inputLabel}>전화번호</Text>
+                    <TextInput
+                        style={[styles.input, fieldErrors.phoneNumber && styles.inputError]}
+                        placeholder="010-0000-0000"
+                        placeholderTextColor="#999"
+                        value={phoneNumber}
+                        onChangeText={handlePhoneNumberChange}
+                        keyboardType="number-pad"
+                        maxLength={13}
+                    />
+                    {fieldErrors.phoneNumber ? <Text style={styles.errorText}>{fieldErrors.phoneNumber}</Text> : null}
+
+                    <Text style={styles.inputLabel}>아이디</Text>
+                    <View style={styles.usernameContainer}>
+                        <TextInput
+                            style={[styles.input, styles.usernameInput, fieldErrors.username && styles.inputError]}
+                            placeholder="6자 이상, 영문/숫자만"
+                            placeholderTextColor="#999"
+                            value={username}
+                            onChangeText={handleUsernameChange}
+                            autoCapitalize="none"
+                            autoCorrect={false}
+                            maxLength={20}
+                        />
+                        <TouchableOpacity
+                            style={[
+                                styles.duplicateButton,
+                                duplicateChecking && styles.duplicateButtonDisabled,
+                                usernameChecked && styles.duplicateButtonChecked
+                            ]}
+                            onPress={handleDuplicateCheck}
+                            disabled={duplicateChecking}
+                        >
+                            <Text style={[
+                                styles.duplicateButtonText,
+                                usernameChecked && styles.duplicateButtonTextChecked
+                            ]}>
+                                {duplicateChecking ? '확인중...' : usernameChecked ? '확인완료' : '중복확인'}
+                            </Text>
+                        </TouchableOpacity>
+                    </View>
+                    {fieldErrors.username ? <Text style={styles.errorText}>{fieldErrors.username}</Text> : null}
+
+                    <Text style={styles.inputLabel}>비밀번호</Text>
+                    <View style={styles.passwordContainer}>
+                        <TextInput
+                            style={[styles.input, styles.passwordInput, fieldErrors.password && styles.inputError]}
+                            placeholder="비밀번호를 입력해주세요"
+                            placeholderTextColor="#999"
+                            value={password}
+                            onChangeText={handlePasswordChange}
+                            secureTextEntry={!showPassword}
+                            autoCapitalize="none"
+                            autoCorrect={false}
+                            maxLength={20}
+                        />
+                        <TouchableOpacity
+                            style={styles.eyeButton}
+                            onPress={() => setShowPassword(!showPassword)}
+                        >
+                            <Ionicons
+                                name={showPassword ? "eye" : "eye-off"}
+                                size={20}
+                                color="#999"
+                            />
+                        </TouchableOpacity>
+                    </View>
+                    {fieldErrors.password ? <Text style={styles.errorText}>{fieldErrors.password}</Text> : null}
+                    <Text style={styles.passwordHint}>
+                        8자 이상 20자 이하, 영문자/숫자/특수문자 모두 포함
+                    </Text>
+
+                    <Text style={styles.inputLabel}>비밀번호확인</Text>
+                    <View style={styles.passwordContainer}>
+                        <TextInput
+                            style={[styles.input, styles.passwordInput, fieldErrors.passwordConfirm && styles.inputError]}
+                            placeholder="비밀번호를 다시 입력해주세요"
+                            placeholderTextColor="#999"
+                            value={passwordConfirm}
+                            onChangeText={handlePasswordConfirmChange}
+                            secureTextEntry={!showPasswordConfirm}
+                            autoCapitalize="none"
+                            autoCorrect={false}
+                            maxLength={20}
+                        />
+                        <TouchableOpacity
+                            style={styles.eyeButton}
+                            onPress={() => setShowPasswordConfirm(!showPasswordConfirm)}
+                        >
+                            <Ionicons
+                                name={showPasswordConfirm ? "eye" : "eye-off"}
+                                size={20}
+                                color="#999"
+                            />
+                        </TouchableOpacity>
+                    </View>
+                    {fieldErrors.passwordConfirm ? <Text style={styles.errorText}>{fieldErrors.passwordConfirm}</Text> : null}
+                </View>
+
+                {/* 회원가입 버튼 */}
+                <TouchableOpacity
+                    style={[
+                        styles.signUpButton,
+                        isSignUpDisabled && styles.signUpButtonDisabled
+                    ]}
+                    onPress={handleSignUp}
+                    disabled={isSignUpDisabled}
+                >
+                    <Text style={[
+                        styles.signUpButtonText,
+                        isSignUpDisabled && styles.signUpButtonTextDisabled
+                    ]}>
+                        {loading ? '회원가입 중...' : '회원가입'}
+                    </Text>
+                </TouchableOpacity>
+
+                {!usernameChecked && (
+                    <Text style={styles.warningText}>
+                        아이디 중복 확인을 완료해주세요
+                    </Text>
+                )}
+            </ScrollView>
+        </SafeAreaView>
     );
-  };
-
-  return (
-    <SafeAreaView style={styles.container}>
-      {/* 헤더 */}
-      <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton} onPress={handleBack}>
-          <Ionicons name="chevron-back" size={24} color="#333" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>회원가입</Text>
-        <View style={styles.placeholder} />
-      </View>
-
-      <ScrollView 
-        style={styles.scrollView} 
-        showsVerticalScrollIndicator={false}
-        keyboardShouldPersistTaps="handled"
-        contentContainerStyle={styles.scrollViewContent}
-      >
-        {/* 환영 메시지 */}
-        <View style={styles.welcomeContainer}>
-          <Text style={styles.welcomeTitle}>환영합니다</Text>
-          <Text style={styles.welcomeSubtitle}>회원가입을 위해 정보를 입력해주세요</Text>
-        </View>
-
-        {/* 입력 필드들 */}
-        <View style={styles.inputContainer}>
-          <Text style={styles.inputLabel}>이름</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="이름을 입력해주세요"
-            placeholderTextColor="#999"
-            value={name}
-            onChangeText={setName}
-            autoCapitalize="words"
-          />
-
-          <Text style={styles.inputLabel}>이메일</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="example@email.com"
-            placeholderTextColor="#999"
-            value={email}
-            onChangeText={setEmail}
-            keyboardType="email-address"
-            autoCapitalize="none"
-            autoCorrect={false}
-          />
-
-          <Text style={styles.inputLabel}>전화번호</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="010-0000-0000"
-            placeholderTextColor="#999"
-            value={phone}
-            onChangeText={handlePhoneChange}
-            keyboardType="number-pad"
-            maxLength={13}
-          />
-
-          <Text style={styles.inputLabel}>아이디</Text>
-          <View style={styles.idContainer}>
-            <TextInput
-              style={[styles.input, styles.idInput]}
-              placeholder="6자 이상의 영문/숫자 조합"
-              placeholderTextColor="#999"
-              value={id}
-              onChangeText={setId}
-              autoCapitalize="none"
-              autoCorrect={false}
-            />
-            <TouchableOpacity style={styles.duplicateButton} onPress={handleDuplicateCheck}>
-              <Text style={styles.duplicateButtonText}>중복확인</Text>
-            </TouchableOpacity>
-          </View>
-
-          <Text style={styles.inputLabel}>비밀번호</Text>
-          <View style={styles.passwordContainer}>
-            <TextInput
-              style={[styles.input, styles.passwordInput]}
-              placeholder="비밀번호를 입력해주세요"
-              placeholderTextColor="#999"
-              value={password}
-              onChangeText={setPassword}
-              secureTextEntry={!showPassword}
-              autoCapitalize="none"
-              autoCorrect={false}
-            />
-            <TouchableOpacity
-              style={styles.eyeButton}
-              onPress={() => setShowPassword(!showPassword)}
-            >
-              <Ionicons
-                name={showPassword ? "eye" : "eye-off"}
-                size={20}
-                color="#999"
-              />
-            </TouchableOpacity>
-          </View>
-          <Text style={styles.passwordHint}>
-            비밀번호는 8자 이상이어야 합니다.{'\n'}
-            영문(대/소문자), 숫자, 특수문자 중 최소 2개 이상 포함해야 합니다.
-          </Text>
-
-          <Text style={styles.inputLabel}>비밀번호확인</Text>
-          <View style={styles.passwordContainer}>
-            <TextInput
-              style={[styles.input, styles.passwordInput]}
-              placeholder="비밀번호를 다시 입력해주세요"
-              placeholderTextColor="#999"
-              value={confirmPassword}
-              onChangeText={setConfirmPassword}
-              secureTextEntry={!showConfirmPassword}
-              autoCapitalize="none"
-              autoCorrect={false}
-            />
-            <TouchableOpacity
-              style={styles.eyeButton}
-              onPress={() => setShowConfirmPassword(!showConfirmPassword)}
-            >
-              <Ionicons
-                name={showConfirmPassword ? "eye" : "eye-off"}
-                size={20}
-                color="#999"
-              />
-            </TouchableOpacity>
-          </View>
-        </View>
-
-        {/* 회원가입 버튼 */}
-        <TouchableOpacity style={styles.signUpButton} onPress={handleSignUp}>
-          <Text style={styles.signUpButtonText}>회원가입</Text>
-        </TouchableOpacity>
-      </ScrollView>
-    </SafeAreaView>
-  );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: 'white',
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
-  },
-  backButton: {
-    padding: 5,
-  },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#333',
-  },
-  placeholder: {
-    width: 34, // backButton과 같은 너비
-  },
-  scrollView: {
-    flex: 1,
-  },
-  scrollViewContent: {
-    flexGrow: 1,
-    paddingBottom: 50,
-  },
-  welcomeContainer: {
-    alignItems: 'flex-start',
-    paddingHorizontal: 30,
-    paddingVertical: 30,
-  },
-  welcomeTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 8,
-  },
-  welcomeSubtitle: {
-    fontSize: 14,
-    color: '#666',
-  },
-  inputContainer: {
-    paddingHorizontal: 30,
-  },
-  inputLabel: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#333',
-    marginBottom: 8,
-    marginTop: 20,
-  },
-  input: {
-    height: 50,
-    backgroundColor: '#f8f8f8',
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    fontSize: 16,
-    borderWidth: 1,
-    borderColor: '#e0e0e0',
-  },
-  idContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  idInput: {
-    flex: 1,
-    marginRight: 10,
-  },
-  duplicateButton: {
-    backgroundColor: '#f0f0f0',
-    paddingHorizontal: 16,
-    paddingVertical: 15,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#e0e0e0',
-  },
-  duplicateButtonText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#333',
-  },
-  passwordContainer: {
-    position: 'relative',
-  },
-  passwordInput: {
-    paddingRight: 50,
-  },
-  eyeButton: {
-    position: 'absolute',
-    right: 15,
-    top: '35%',
-    transform: [{ translateY: -10 }],
-    padding: 5,
-  },
-  passwordHint: {
-    fontSize: 12,
-    color: '#999',
-    marginTop: 8,
-    lineHeight: 16,
-  },
-  signUpButton: {
-    backgroundColor: '#E7FF65',
-    borderRadius: 12,
-    paddingVertical: 16,
-    marginHorizontal: 30,
-    marginVertical: 30,
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
+    container: {
+        flex: 1,
+        backgroundColor: 'white',
     },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  signUpButtonText: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#333',
-  },
+    header: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingHorizontal: 20,
+        paddingVertical: 15,
+        borderBottomWidth: 1,
+        borderBottomColor: '#f0f0f0',
+    },
+    backButton: {
+        padding: 5,
+    },
+    headerTitle: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        color: '#333',
+    },
+    placeholder: {
+        width: 34,
+    },
+    scrollView: {
+        flex: 1,
+    },
+    scrollViewContent: {
+        flexGrow: 1,
+        paddingBottom: 50,
+    },
+    welcomeContainer: {
+        alignItems: 'flex-start',
+        paddingHorizontal: 30,
+        paddingVertical: 30,
+    },
+    welcomeTitle: {
+        fontSize: 24,
+        fontWeight: 'bold',
+        color: '#333',
+        marginBottom: 8,
+    },
+    welcomeSubtitle: {
+        fontSize: 14,
+        color: '#666',
+    },
+    inputContainer: {
+        paddingHorizontal: 30,
+    },
+    inputLabel: {
+        fontSize: 14,
+        fontWeight: '600',
+        color: '#333',
+        marginBottom: 8,
+        marginTop: 20,
+    },
+    input: {
+        height: 50,
+        backgroundColor: '#f8f8f8',
+        borderRadius: 12,
+        paddingHorizontal: 16,
+        fontSize: 16,
+        borderWidth: 1,
+        borderColor: '#e0e0e0',
+    },
+    inputError: {
+        borderColor: '#ff4444',
+        backgroundColor: '#fff5f5',
+    },
+    errorText: {
+        fontSize: 12,
+        color: '#ff4444',
+        marginTop: 4,
+        marginLeft: 4,
+    },
+    usernameContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    usernameInput: {
+        flex: 1,
+        marginRight: 10,
+    },
+    duplicateButton: {
+        backgroundColor: '#f0f0f0',
+        paddingHorizontal: 16,
+        paddingVertical: 15,
+        borderRadius: 12,
+        borderWidth: 1,
+        borderColor: '#e0e0e0',
+    },
+    duplicateButtonDisabled: {
+        backgroundColor: '#e0e0e0',
+        opacity: 0.6,
+    },
+    duplicateButtonChecked: {
+        backgroundColor: '#E7FF65',
+        borderColor: '#d0e055',
+    },
+    duplicateButtonText: {
+        fontSize: 14,
+        fontWeight: '600',
+        color: '#333',
+    },
+    duplicateButtonTextChecked: {
+        color: '#333',
+        fontWeight: 'bold',
+    },
+    passwordContainer: {
+        position: 'relative',
+    },
+    passwordInput: {
+        paddingRight: 50,
+    },
+    eyeButton: {
+        position: 'absolute',
+        right: 15,
+        top: '35%',
+        transform: [{translateY: -10}],
+        padding: 5,
+    },
+    passwordHint: {
+        fontSize: 12,
+        color: '#999',
+        marginTop: 8,
+        lineHeight: 16,
+    },
+    signUpButton: {
+        backgroundColor: '#E7FF65',
+        borderRadius: 12,
+        paddingVertical: 16,
+        marginHorizontal: 30,
+        marginVertical: 30,
+        alignItems: 'center',
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 2,
+        },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 3,
+    },
+    signUpButtonDisabled: {
+        backgroundColor: '#f0f0f0',
+        opacity: 0.6,
+        shadowOpacity: 0,
+        elevation: 0,
+    },
+    signUpButtonText: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        color: '#333',
+    },
+    signUpButtonTextDisabled: {
+        color: '#999',
+    },
+    warningText: {
+        fontSize: 14,
+        color: '#ff6b6b',
+        textAlign: 'center',
+        marginTop: -20,
+        marginBottom: 20,
+        fontWeight: '500',
+    },
 });
 
 export default SignUpScreen;
