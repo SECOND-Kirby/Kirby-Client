@@ -149,6 +149,84 @@ const SignUpScreen = () => {
         return !hasError;
     };
 
+    // 에러 응답 처리 함수
+    const handleErrorResponse = (error: any, isSignup: boolean = false) => {
+        console.log('에러 처리 시작:', error);
+
+        let errorMessage = isSignup ? '회원가입 중 오류가 발생했습니다.' : '중복 확인 중 오류가 발생했습니다.';
+        const newFieldErrors = { ...fieldErrors };
+        let hasFieldError = false;
+
+        if (error.response?.data) {
+            const errorData = error.response.data;
+            console.log('백엔드 에러 데이터:', errorData);
+
+            switch (errorData.code) {
+                case 'U002': // 아이디 중복
+                    errorMessage = '이미 사용중인 아이디입니다.';
+                    if (isSignup) {
+                        setUsernameChecked(false);
+                        errorMessage += '\n아이디 중복확인을 다시 해주세요.';
+                    }
+                    break;
+
+                case 'U003': // 이메일 중복
+                    errorMessage = '이미 등록된 이메일입니다.\n다른 이메일을 사용해주세요.';
+                    newFieldErrors.email = '이미 등록된 이메일입니다.';
+                    hasFieldError = true;
+                    break;
+
+                case 'U004': // 전화번호 중복
+                    errorMessage = '이미 등록된 전화번호입니다.\n다른 전화번호를 사용해주세요.';
+                    newFieldErrors.phoneNumber = '이미 등록된 전화번호입니다.';
+                    hasFieldError = true;
+                    break;
+
+                case 'U006': // 비밀번호 불일치
+                    errorMessage = '비밀번호가 일치하지 않습니다.';
+                    newFieldErrors.passwordConfirm = '비밀번호가 일치하지 않습니다.';
+                    hasFieldError = true;
+                    break;
+
+                case 'E002': // 입력값 검증 실패
+                    if (errorData.data && typeof errorData.data === 'object') {
+                        const backendErrors = errorData.data as Record<string, string>;
+                        console.log('필드별 검증 에러:', backendErrors);
+
+                        // 백엔드 필드별 에러를 프론트엔드 필드 에러에 직접 매핑
+                        Object.entries(backendErrors).forEach(([field, message]) => {
+                            if (field in newFieldErrors) {
+                                newFieldErrors[field as keyof typeof newFieldErrors] = message;
+                                hasFieldError = true;
+                            }
+                        });
+
+                        if (hasFieldError) {
+                            errorMessage = '입력값을 확인해주세요.';
+                        } else {
+                            errorMessage = errorData.message || '입력값이 올바르지 않습니다.';
+                        }
+                    } else {
+                        errorMessage = errorData.message || '입력값이 올바르지 않습니다.';
+                    }
+                    break;
+
+                default:
+                    errorMessage = errorData.message || errorMessage;
+                    console.log('처리되지 않은 에러 코드:', errorData.code);
+            }
+        } else if (error.message) {
+            errorMessage = `네트워크 오류가 발생했습니다.\n${error.message}`;
+        }
+
+        // 필드 에러가 있으면 업데이트
+        if (hasFieldError) {
+            setFieldErrors(newFieldErrors);
+        }
+
+        return errorMessage;
+    };
+
     const handleDuplicateCheck = async () => {
         if (!username.trim()) {
             setFieldErrors(prev => ({ ...prev, username: '아이디를 입력해주세요.' }));
@@ -169,37 +247,25 @@ const SignUpScreen = () => {
                     { text: '확인', style: 'default' }
                 ]);
             } else {
-                // 실패 = 중복이거나 형식 오류
+                // 실패 처리 - response 객체를 error 형태로 변환
                 setUsernameChecked(false);
-
-                // 형식 검증 오류인 경우 (E002)
-                if (response.code === 'E002' && response.data && typeof response.data === 'object') {
-                    const backendErrors = response.data as Record<string, string>;
-                    if (backendErrors.username) {
-                        setFieldErrors(prev => ({ ...prev, username: backendErrors.username }));
-                        Alert.alert('아이디 중복확인', backendErrors.username);
-                        return;
+                const mockError = {
+                    response: {
+                        data: {
+                            code: response.code,
+                            message: response.message,
+                            data: response.data
+                        }
                     }
-                }
-
-                // 중복 오류인 경우 (U002)
-                if (response.code === 'U002') {
-                    Alert.alert('아이디 중복확인', '이미 사용중인 아이디입니다.\n다른 아이디를 입력해주세요.', [
-                        { text: '확인', style: 'cancel' }
-                    ]);
-                } else {
-                    Alert.alert('오류', response.message || '중복 확인 중 오류가 발생했습니다.');
-                }
+                };
+                const errorMessage = handleErrorResponse(mockError, false);
+                Alert.alert('아이디 중복확인', errorMessage);
             }
         } catch (error: any) {
             console.error('중복확인 에러:', error);
             setUsernameChecked(false);
 
-            let errorMessage = '중복 확인 중 오류가 발생했습니다.';
-            if (error.response?.data?.message) {
-                errorMessage = error.response.data.message;
-            }
-
+            const errorMessage = handleErrorResponse(error, false);
             Alert.alert('오류', errorMessage);
         } finally {
             setDuplicateChecking(false);
@@ -249,69 +315,8 @@ const SignUpScreen = () => {
 
         } catch (error: any) {
             console.log('회원가입 에러:', error);
-            let errorMessage = '회원가입 중 오류가 발생했습니다.';
 
-            // HTTP 에러 응답 처리
-            if (error.response?.data) {
-                const errorData = error.response.data;
-                console.log('에러 데이터:', errorData);
-
-                switch (errorData.code) {
-                    case 'U002':
-                        errorMessage = errorData.message || '이미 사용중인 아이디입니다.\n아이디 중복확인을 다시 해주세요.';
-                        setUsernameChecked(false);
-                        break;
-                    case 'U003':
-                        errorMessage = errorData.message || '이미 등록된 이메일입니다.\n다른 이메일을 사용해주세요.';
-                        break;
-                    case 'U004':
-                        errorMessage = errorData.message || '이미 등록된 전화번호입니다.\n다른 전화번호를 사용해주세요.';
-                        break;
-                    case 'U006':
-                        errorMessage = errorData.message || '비밀번호가 일치하지 않습니다.\n비밀번호를 다시 확인해주세요.';
-                        break;
-                    case 'U007':
-                        errorMessage = errorData.message || '새 비밀번호가 현재 비밀번호와 동일합니다.';
-                        break;
-                    case 'E002':
-                        // 입력값 검증 실패 처리
-                        if (errorData.data && typeof errorData.data === 'object') {
-                            const backendErrors = errorData.data as Record<string, string>;
-
-                            // 백엔드 필드별 에러를 프론트엔드 필드 에러에 직접 매핑
-                            const newFieldErrors = { ...fieldErrors };
-                            let hasFieldError = false;
-
-                            Object.entries(backendErrors).forEach(([field, message]) => {
-                                if (field in newFieldErrors) {
-                                    newFieldErrors[field as keyof typeof newFieldErrors] = message;
-                                    hasFieldError = true;
-                                }
-                            });
-
-                            if (hasFieldError) {
-                                setFieldErrors(newFieldErrors);
-                                errorMessage = '입력값을 확인해주세요.\n각 필드의 오류를 수정해주세요.';
-                            } else {
-                                errorMessage = errorData.message || '입력값이 올바르지 않습니다.';
-                            }
-                        } else {
-                            errorMessage = errorData.message || '입력값이 올바르지 않습니다.';
-                        }
-                        break;
-                    default:
-                        errorMessage = errorData.message || errorMessage;
-                }
-            }
-            else if (error.response?.status >= 200 && error.response?.status < 300) {
-                console.log('성공 응답이지만 success: false인 경우');
-
-                errorMessage = '회원가입 처리 중 문제가 발생했습니다.';
-            }
-            // 네트워크 에러나 기타 에러
-            else if (error.message) {
-                errorMessage = `네트워크 오류가 발생했습니다.\n${error.message}`;
-            }
+            const errorMessage = handleErrorResponse(error, true);
 
             Alert.alert('회원가입 실패', errorMessage, [
                 { text: '확인', style: 'default' }
