@@ -120,6 +120,13 @@ const SignUpScreen = () => {
         if (!email.trim()) {
             errors.email = '이메일을 입력해주세요.';
             hasError = true;
+        } else {
+            // 이메일 형식 검증 (한글 입력 방지 포함)
+            const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+            if (!emailRegex.test(email)) {
+                errors.email = '올바른 이메일 형식을 입력해주세요.';
+                hasError = true;
+            }
         }
 
         if (!phoneNumber.trim()) {
@@ -247,22 +254,30 @@ const SignUpScreen = () => {
                     { text: '확인', style: 'default' }
                 ]);
             } else {
-                // 실패 처리 - response 객체를 error 형태로 변환
+                // 실패 처리 - 중복된 아이디인 경우
                 setUsernameChecked(false);
-                const mockError = {
-                    response: {
-                        data: {
-                            code: response.code,
-                            message: response.message,
-                            data: response.data
+
+                // U002 코드는 아이디 중복
+                if (response.code === 'U002') {
+                    setFieldErrors(prev => ({ ...prev, username: '이미 사용중인 아이디입니다.' }));
+                    Alert.alert(
+                        '아이디 중복확인',
+                        '이미 사용중인 아이디입니다.\n다른 아이디를 입력해주세요.',
+                        [{ text: '확인', style: 'cancel' }]
+                    );
+                } else {
+                    // 기타 에러 처리
+                    const mockError = {
+                        response: {
+                            data: response
                         }
-                    }
-                };
-                const errorMessage = handleErrorResponse(mockError, false);
-                Alert.alert('아이디 중복확인', errorMessage);
+                    };
+                    const errorMessage = handleErrorResponse(mockError, false);
+                    Alert.alert('아이디 중복확인', errorMessage);
+                }
             }
         } catch (error: any) {
-            console.error('중복확인 에러:', error);
+            console.error('중복확인 네트워크 에러:', error);
             setUsernameChecked(false);
 
             const errorMessage = handleErrorResponse(error, false);
