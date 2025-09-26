@@ -1,16 +1,16 @@
-import {Ionicons} from '@expo/vector-icons';
-import {router} from 'expo-router';
-import React, {useState} from 'react';
+import { useThemeColor } from '@/hooks/useThemeColor';
+import { Ionicons } from '@expo/vector-icons';
+import { router } from 'expo-router';
+import React, { useState } from 'react';
 import {
-    ScrollView,
+    Image, ScrollView,
     StyleSheet,
     Text,
     TouchableOpacity,
-    View,
+    View
 } from 'react-native';
-import {useThemeColor} from '@/hooks/useThemeColor';
-import TrainingSettingsCard from './TrainingSettingsCard';
 import TrainingModeSelector from './TrainingModeSelector';
+import TrainingSettingsCard from './TrainingSettingsCard';
 
 interface TrainingMode {
     id: 'serve' | 'ai';
@@ -81,21 +81,21 @@ const TrainingScreen: React.FC = () => {
                 {/* 상단 통계 카드들 - 홈과 동일 */}
                 <View style={styles.statsSection}>
                     <View style={[styles.statCard, {backgroundColor: cardBackgroundColor}]}>
-                        <Ionicons name="time-outline" size={24} color="#666" style={styles.statIcon}/>
+                        <Image source={require('@/assets/images/clock.png')} style={styles.statIcon}/>
                         <Text style={styles.statValue}>1시간30분</Text>
                         <Text style={styles.statLabel}>훈련 시간</Text>
                     </View>
 
                     <View style={[styles.statCard, {backgroundColor: cardBackgroundColor}]}>
-                        <Ionicons name="time-outline" size={24} color="#666" style={styles.statIcon}/>
+                        <Image source={require('@/assets/images/serve.png')} style={styles.statIcon}/>
                         <Text style={styles.statValue}>56회</Text>
                         <Text style={styles.statLabel}>서브 횟수</Text>
                     </View>
 
                     <View style={[styles.statCard, {backgroundColor: cardBackgroundColor}]}>
-                        <Ionicons name="time-outline" size={24} color="#666" style={styles.statIcon}/>
+                        <Image source={require('@/assets/images/battery.png')} style={styles.statIcon}/>
                         <Text style={styles.statValue}>85%</Text>
-                        <Text style={styles.statLabel}>정확도</Text>
+                        <Text style={styles.statLabel}>배터리</Text>
                     </View>
                 </View>
 
@@ -181,8 +181,12 @@ const styles = StyleSheet.create({
         elevation: 2,
     },
     statIcon: {
+        width: 24,
+        height: 24,
         marginBottom: 8,
+        resizeMode: 'contain',
     },
+
     statValue: {
         fontSize: 16,
         fontWeight: 'bold',

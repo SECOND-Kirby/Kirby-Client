@@ -2,6 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React from 'react';
 import {
+    Image,
     ScrollView,
     StyleSheet,
     Text,
@@ -36,7 +37,7 @@ const AnalyticsScreen: React.FC = () => {
                 <Text style={styles.sectionTitle}>훈련성과 분석</Text>
                 <View style={styles.performanceContainer}>
                     <View style={[styles.performanceCard, { backgroundColor: cardBackgroundColor }]}>
-                        <Ionicons name="radio-button-on-outline" size={24} color="#B2C549" style={styles.performanceIcon} />
+                        <Image source={require('@/assets/images/accuracy.png')} style={styles.statIcon}/>
                         <Text style={styles.performanceValue}>85%</Text>
                         <Text style={styles.performanceLabel}>정확도</Text>
                     </View>
@@ -169,6 +170,12 @@ const styles = StyleSheet.create({
         fontSize: 12,
         color: '#666',
         textAlign: 'center',
+    },
+    statIcon: {
+        width: 24,
+        height: 24,
+        marginBottom: 8,
+        resizeMode: 'contain',
     },
     cardContainer: {
         borderRadius: 12,
