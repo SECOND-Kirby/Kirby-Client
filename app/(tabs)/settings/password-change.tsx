@@ -1,1 +1,1 @@
-export { default } from '@/components/PasswordChangeScreen';
+export { default } from '@/screens/Setting/PasswordChangeScreen';

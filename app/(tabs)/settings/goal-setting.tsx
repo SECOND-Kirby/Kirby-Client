@@ -1,1 +1,1 @@
-export { default } from '@/components/GoalSettingScreen';
+export { default } from '@/screens/Setting/GoalSettingScreen';

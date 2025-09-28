@@ -1,1 +1,1 @@
-export { default } from '@/components/ProfileEditScreen';
+export { default } from '@/screens/Setting/ProfileEditScreen';
