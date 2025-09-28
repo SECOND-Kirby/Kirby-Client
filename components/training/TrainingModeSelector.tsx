@@ -7,17 +7,11 @@ import {
     View,
 } from 'react-native';
 import { useThemeColor } from '@/hooks/useThemeColor';
-
-interface TrainingMode {
-    id: 'serve' | 'ai';
-    title: string;
-    subtitle: string;
-    icon: string;
-}
+import { TrainingMode, TrainingModeOption } from '@/types/training';
 
 interface TrainingModeSelectorProps {
-    selectedMode: 'serve' | 'ai';
-    onModeSelect: (mode: 'serve' | 'ai') => void;
+    selectedMode: TrainingMode;
+    onModeSelect: (mode: TrainingMode) => void;
 }
 
 const TrainingModeSelector: React.FC<TrainingModeSelectorProps> = ({
@@ -27,7 +21,7 @@ const TrainingModeSelector: React.FC<TrainingModeSelectorProps> = ({
     const cardBackgroundColor = useThemeColor({}, 'cardBackground');
     const primaryColor = useThemeColor({}, 'primary');
 
-    const trainingModes: TrainingMode[] = [
+    const trainingModes: TrainingModeOption[] = [
         {
             id: 'serve',
             title: '서브 훈련',

@@ -1,7 +1,6 @@
 import { useThemeColor } from '@/hooks/useThemeColor';
-import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import React, { useState } from 'react';
+import React from 'react';
 import {
     Image, ScrollView,
     StyleSheet,
@@ -9,63 +8,64 @@ import {
     TouchableOpacity,
     View
 } from 'react-native';
-import TrainingModeSelector from './TrainingModeSelector';
-import TrainingSettingsCard from './TrainingSettingsCard';
-
-interface TrainingMode {
-    id: 'serve' | 'ai';
-    title: string;
-    subtitle: string;
-    icon: string;
-}
+import { Ionicons } from '@expo/vector-icons';
+import { useTrainingSettings } from '@/hooks/useTrainingSettings';
+import TrainingModeSelector from '@/components/training/TrainingModeSelector';
+import SettingsCard from '@/components/training/SettingsCard';
 
 const TrainingScreen: React.FC = () => {
-    const [selectedMode, setSelectedMode] = useState<'serve' | 'ai'>('serve');
-    const [intensity, setIntensity] = useState(50);
-    const [direction, setDirection] = useState(30);
-    const [frequency, setFrequency] = useState(40);
-    const [duration, setDuration] = useState(60);
-
-    // 테마 색상 가져오기
     const backgroundColor = useThemeColor({}, 'background');
     const cardBackgroundColor = useThemeColor({}, 'cardBackground');
-    const primaryColor = useThemeColor({}, 'primary');
     const primaryLightColor = useThemeColor({}, 'primaryLight');
 
-    const handleModeSelect = (mode: 'serve' | 'ai') => {
-        setSelectedMode(mode);
-    };
+    const {
+        settings,
+        updateMode,
+        updateIntensity,
+        updateDirection,
+        updateFrequency,
+        adjustDuration,
+    } = useTrainingSettings();
 
     const handleProfilePress = () => {
         router.push('/(tabs)/settings');
     };
 
-    const adjustDuration = (increase: boolean) => {
-        const newDuration = increase ? duration + 5 : duration - 5;
-        if (newDuration >= 5 && newDuration <= 120) {
-            setDuration(newDuration);
-        }
-    };
-
     const handleStartTraining = () => {
-        // 같은 탭에서 세션 모드로 전환
         router.push({
-            pathname: '/(tabs)/training',
+            pathname: '/training/session' as any,
             params: {
-                sessionMode: 'active',
-                duration: duration.toString(),
-                mode: selectedMode,
-                intensity: intensity.toString(),
-                direction: direction.toString(),
-                frequency: frequency.toString(),
+                duration: settings.duration.toString(),
+                mode: settings.mode,
+                intensity: settings.intensity.toString(),
+                direction: settings.direction.toString(),
+                frequency: settings.frequency.toString(),
             }
         });
     };
 
+    const statsData = [
+        {
+            icon: require('@/assets/images/clock.png'),
+            value: '1시간30분',
+            label: '훈련 시간'
+        },
+        {
+            icon: require('@/assets/images/serve.png'),
+            value: '56회',
+            label: '서브 횟수'
+        },
+        {
+            icon: require('@/assets/images/battery.png'),
+            value: '85%',
+            label: '배터리'
+        }
+    ];
+
     return (
         <View style={[styles.container, {backgroundColor}]}>
             <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
-                {/* 헤더 - 스크롤 안에 포함 */}
+                {/* 헤더 */}
                 <View style={[styles.header, {backgroundColor}]}>
                     <Text style={styles.headerTitle}>오늘의 훈련</Text>
                     <TouchableOpacity style={styles.profileIcon} onPress={handleProfilePress}>
@@ -78,36 +78,26 @@ const TrainingScreen: React.FC = () => {
                     <Text style={styles.greeting}>안녕하세요, 김테니스님</Text>
                 </View>
 
-                {/* 상단 통계 카드들 - 홈과 동일 */}
+                {/* 상단 통계 카드들 */}
                 <View style={styles.statsSection}>
-                    <View style={[styles.statCard, {backgroundColor: cardBackgroundColor}]}>
-                        <Image source={require('@/assets/images/clock.png')} style={styles.statIcon}/>
-                        <Text style={styles.statValue}>1시간30분</Text>
-                        <Text style={styles.statLabel}>훈련 시간</Text>
-                    </View>
-
-                    <View style={[styles.statCard, {backgroundColor: cardBackgroundColor}]}>
-                        <Image source={require('@/assets/images/serve.png')} style={styles.statIcon}/>
-                        <Text style={styles.statValue}>56회</Text>
-                        <Text style={styles.statLabel}>서브 횟수</Text>
-                    </View>
-
-                    <View style={[styles.statCard, {backgroundColor: cardBackgroundColor}]}>
-                        <Image source={require('@/assets/images/battery.png')} style={styles.statIcon}/>
-                        <Text style={styles.statValue}>85%</Text>
-                        <Text style={styles.statLabel}>배터리</Text>
-                    </View>
+                    {statsData.map((stat, index) => (
+                        <View key={index} style={[styles.statCard, {backgroundColor: cardBackgroundColor}]}>
+                            <Image source={stat.icon} style={styles.statIcon}/>
+                            <Text style={styles.statValue}>{stat.value}</Text>
+                            <Text style={styles.statLabel}>{stat.label}</Text>
+                        </View>
+                    ))}
                 </View>
 
-                {/* 훈련 설정 카드 - 별도 컴포넌트 */}
-                <TrainingSettingsCard
-                    intensity={intensity}
-                    direction={direction}
-                    frequency={frequency}
-                    duration={duration}
-                    onIntensityChange={setIntensity}
-                    onDirectionChange={setDirection}
-                    onFrequencyChange={setFrequency}
+                {/* 훈련 설정 카드 - 기존 컴포넌트 사용 */}
+                <SettingsCard
+                    intensity={settings.intensity}
+                    direction={settings.direction}
+                    frequency={settings.frequency}
+                    duration={settings.duration}
+                    onIntensityChange={updateIntensity}
+                    onDirectionChange={updateDirection}
+                    onFrequencyChange={updateFrequency}
                     onDurationChange={adjustDuration}
                 />
 
@@ -119,10 +109,10 @@ const TrainingScreen: React.FC = () => {
                     <Text style={styles.startButtonText}>훈련 시작</Text>
                 </TouchableOpacity>
 
-                {/* 훈련 모드 선택 - 별도 컴포넌트 */}
+                {/* 훈련 모드 선택 - 기존 컴포넌트 사용 */}
                 <TrainingModeSelector
-                    selectedMode={selectedMode}
-                    onModeSelect={handleModeSelect}
+                    selectedMode={settings.mode}
+                    onModeSelect={updateMode}
                 />
             </ScrollView>
         </View>
@@ -130,9 +120,7 @@ const TrainingScreen: React.FC = () => {
 };
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-    },
+    container: { flex: 1 },
     header: {
         flexDirection: 'row',
         justifyContent: 'space-between',
@@ -146,12 +134,8 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         color: '#333',
     },
-    profileIcon: {
-        padding: 8,
-    },
-    scrollView: {
-        flex: 1,
-    },
+    profileIcon: { padding: 8 },
+    scrollView: { flex: 1 },
     greetingSection: {
         paddingHorizontal: 16,
         marginBottom: 24,
@@ -172,10 +156,7 @@ const styles = StyleSheet.create({
         padding: 16,
         alignItems: 'center',
         shadowColor: '#000',
-        shadowOffset: {
-            width: 0,
-            height: 1,
-        },
+        shadowOffset: { width: 0, height: 1 },
         shadowOpacity: 0.05,
         shadowRadius: 2,
         elevation: 2,
@@ -186,7 +167,6 @@ const styles = StyleSheet.create({
         marginBottom: 8,
         resizeMode: 'contain',
     },
-
     statValue: {
         fontSize: 16,
         fontWeight: 'bold',
@@ -205,10 +185,7 @@ const styles = StyleSheet.create({
         marginVertical: 20,
         alignItems: 'center',
         shadowColor: '#000',
-        shadowOffset: {
-            width: 0,
-            height: 2,
-        },
+        shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.1,
         shadowRadius: 4,
         elevation: 3,
