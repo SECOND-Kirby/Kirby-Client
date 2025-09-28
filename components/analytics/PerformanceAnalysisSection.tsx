@@ -1,4 +1,3 @@
-// src/components/analytics/PerformanceAnalysisSection.tsx
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
@@ -13,10 +12,10 @@ interface PerformanceStatProps {
 
 const PerformanceStat: React.FC<PerformanceStatProps> = ({ iconName, value, label, iconColor }) => {
     return (
-        <View style={styles.performanceStat}>
-            <Ionicons name={iconName} size={28} color={iconColor} style={styles.performanceIcon} />
-            <Text style={styles.performanceValue}>{value}</Text>
-            <Text style={styles.performanceLabel}>{label}</Text>
+        <View style={perfStyles.performanceStat}>
+            <Ionicons name={iconName} size={28} color={iconColor} style={perfStyles.performanceIcon} />
+            <Text style={perfStyles.performanceValue}>{value}</Text>
+            <Text style={perfStyles.performanceLabel}>{label}</Text>
         </View>
     );
 };
@@ -24,17 +23,16 @@ const PerformanceStat: React.FC<PerformanceStatProps> = ({ iconName, value, labe
 const PerformanceAnalysisSection: React.FC = () => {
     const cardBackgroundColor = useThemeColor({}, 'cardBackground');
 
-    // 더미 데이터 (실제로는 API 또는 상태에서 가져옴)
     const performanceData = [
         { iconName: 'flash-outline' as const, value: '75%', label: '정확도', iconColor: '#28a745' },
         { iconName: 'stats-chart-outline' as const, value: '110km/h', label: '평균 속도', iconColor: '#007bff' },
-        { iconName: 'pulse-outline' as const, value: '85', label: '최고 속도', iconColor: '#dc3545' },
+        { iconName: 'pulse-outline' as const, value: '125km/h', label: '최고 속도', iconColor: '#dc3545' },
     ];
 
     return (
-        <View style={styles.section}>
-            <Text style={styles.sectionTitle}>훈련성과 분석</Text>
-            <View style={[styles.performanceCard, { backgroundColor: cardBackgroundColor }]}>
+        <View style={perfStyles.section}>
+            <Text style={perfStyles.sectionTitle}>훈련성과 분석</Text>
+            <View style={[perfStyles.performanceCard, { backgroundColor: cardBackgroundColor }]}>
                 {performanceData.map((stat, index) => (
                     <PerformanceStat
                         key={index}
@@ -49,7 +47,7 @@ const PerformanceAnalysisSection: React.FC = () => {
     );
 };
 
-const styles = StyleSheet.create({
+const perfStyles = StyleSheet.create({
     section: {
         paddingHorizontal: 20,
         marginBottom: 30,

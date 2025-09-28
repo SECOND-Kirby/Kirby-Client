@@ -1,8 +1,78 @@
-// src/components/analytics/GoalProgressSection.tsx
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { useThemeColor } from '@/hooks/useThemeColor';
-import CircularProgressChart from '@/components/charts/CircularProgressChart';
+
+interface CircularProgressProps {
+    percentage: number;
+    size?: number;
+}
+
+const CircularProgress: React.FC<CircularProgressProps> = ({ percentage, size = 120 }) => {
+    const primaryLightColor = useThemeColor({}, 'primaryLight');
+
+    return (
+        <View style={[circularStyles.container, { width: size, height: size }]}>
+            {/* 배경 원 */}
+            <View
+                style={[
+                    circularStyles.backgroundCircle,
+                    {
+                        width: size,
+                        height: size,
+                        borderRadius: size / 2,
+                        borderWidth: 8,
+                    }
+                ]}
+            />
+
+            {/* 진행률 원 */}
+            <View
+                style={[
+                    circularStyles.progressCircle,
+                    {
+                        width: size,
+                        height: size,
+                        borderRadius: size / 2,
+                        borderWidth: 8,
+                        borderColor: primaryLightColor,
+                        borderTopColor: percentage > 25 ? primaryLightColor : '#e0e0e0',
+                        borderRightColor: percentage > 50 ? primaryLightColor : '#e0e0e0',
+                        borderBottomColor: percentage > 75 ? primaryLightColor : '#e0e0e0',
+                        borderLeftColor: percentage > 0 ? primaryLightColor : '#e0e0e0',
+                    }
+                ]}
+            />
+
+            <View style={circularStyles.textContainer}>
+                <Text style={circularStyles.percentageText}>{percentage}%</Text>
+            </View>
+        </View>
+    );
+};
+
+const circularStyles = StyleSheet.create({
+    container: {
+        position: 'relative',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    backgroundCircle: {
+        position: 'absolute',
+        borderColor: '#e0e0e0',
+    },
+    progressCircle: {
+        position: 'absolute',
+        transform: [{ rotate: '-90deg' }],
+    },
+    textContainer: {
+        alignItems: 'center',
+    },
+    percentageText: {
+        fontSize: 24,
+        fontWeight: 'bold',
+        color: '#333',
+    },
+});
 
 interface GoalProgressSectionProps {
     dailyGoalHours: number;
@@ -12,9 +82,9 @@ interface GoalProgressSectionProps {
 const GoalProgressSection: React.FC<GoalProgressSectionProps> = ({ dailyGoalHours, serveGoal }) => {
     const cardBackgroundColor = useThemeColor({}, 'cardBackground');
 
-    // 더미 데이터 (실제로는 API 또는 상태에서 가져옴)
-    const currentHours = 1.5; // 현재 훈련 시간
-    const currentServe = 35; // 현재 서브 성공 횟수
+    // 더미 데이터
+    const currentHours = 1.5;
+    const currentServe = 35;
 
     const timeProgress = Math.min((currentHours / dailyGoalHours) * 100, 100);
     const serveProgress = Math.min((currentServe / serveGoal) * 100, 100);
@@ -24,32 +94,26 @@ const GoalProgressSection: React.FC<GoalProgressSectionProps> = ({ dailyGoalHour
             <Text style={styles.sectionTitle}>목표 달성 현황</Text>
             <View style={[styles.cardContainer, { backgroundColor: cardBackgroundColor }]}>
                 {/* 훈련 시간 목표 */}
-                <View style={styles.circularChartContainer}>
-                    <CircularProgressChart
-                        percentage={timeProgress}
-                        subtitle="일일 훈련 목표"
-                        size={120}
-                    />
+                <View style={styles.progressContainer}>
+                    <CircularProgress percentage={Math.round(timeProgress)} size={120} />
                     <View style={styles.summaryContainer}>
                         <Text style={styles.summaryValue}>
                             {currentHours}h / {dailyGoalHours}h
                         </Text>
+                        <Text style={styles.summaryLabel}>일일 훈련 목표</Text>
                     </View>
                 </View>
 
                 <View style={styles.divider} />
 
                 {/* 서브 성공률 목표 */}
-                <View style={styles.circularChartContainer}>
-                    <CircularProgressChart
-                        percentage={serveProgress}
-                        subtitle="서브 성공 목표"
-                        size={120}
-                    />
+                <View style={styles.progressContainer}>
+                    <CircularProgress percentage={Math.round(serveProgress)} size={120} />
                     <View style={styles.summaryContainer}>
                         <Text style={styles.summaryValue}>
                             {currentServe}회 / {serveGoal}회
                         </Text>
+                        <Text style={styles.summaryLabel}>서브 성공 목표</Text>
                     </View>
                 </View>
             </View>
@@ -77,7 +141,7 @@ const styles = StyleSheet.create({
         shadowRadius: 2,
         elevation: 2,
     },
-    circularChartContainer: {
+    progressContainer: {
         alignItems: 'center',
         paddingVertical: 10,
     },
@@ -90,6 +154,10 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         color: '#333',
         marginBottom: 4,
+    },
+    summaryLabel: {
+        fontSize: 14,
+        color: '#666',
     },
     divider: {
         height: 1,
