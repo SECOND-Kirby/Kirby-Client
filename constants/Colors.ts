@@ -16,6 +16,7 @@ export const Colors = {
     gray: '#666',
     lightGray: '#999',
     red: '#D1524C',
+    border: '#e0e0e0',
     // 훈련 세션 색상 추가
     timerBackground: '#75D88B',
     timerProgress: '#8EFFA1',
@@ -42,6 +43,7 @@ export const Colors = {
     gray: '#9BA1A6',
     lightGray: '#666',
     red: '#ff6b6b',
+    border: '#4B5563', // 추가
     timerBackground: '#5BB574',
     timerProgress: '#6FE082',
     pauseButton: '#E55A52',

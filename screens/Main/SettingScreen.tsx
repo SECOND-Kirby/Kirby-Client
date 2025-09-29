@@ -1,3 +1,4 @@
+import { useThemeColor } from '@/hooks/useThemeColor';
 import { Ionicons } from '@expo/vector-icons';
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import React, { useCallback, useState } from 'react';
@@ -10,7 +11,6 @@ import {
     TouchableOpacity,
     View
 } from 'react-native';
-import { useThemeColor } from '@/hooks/useThemeColor';
 
 interface SettingItemProps {
     icon: string;
@@ -61,12 +61,12 @@ const SettingsScreen = () => {
     );
 
     const handleProfileEdit = () => {
-        router.push('/profile-edit');
+        router.push('/(tabs)/settings/profile-edit');
     };
 
     const handleGoalEdit = (type: 'time' | 'serve') => {
         router.push({
-            pathname: '/goal-setting',
+            pathname: '/(tabs)/settings/goal-setting',
             params: {
                 type: type,
                 dailyGoalHours: dailyGoalHours.toString(),
@@ -124,7 +124,7 @@ const SettingsScreen = () => {
     };
 
     const handleAccountDeletion = () => {
-        router.push('/account-deletion');
+        router.push('/(tabs)/settings/account-deletion');
     };
 
     const SettingItem: React.FC<SettingItemProps> = (props) => {

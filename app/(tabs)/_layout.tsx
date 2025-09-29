@@ -3,7 +3,7 @@ import React from 'react';
 import { Image, Platform } from 'react-native';
 
 import { HapticTab } from '@/components/shared/ui/HapticTab';
-import TabBarBackground from '@/components/ui/TabBarBackground';
+import TabBarBackground from '@/components/shared/ui/TabBarBackground';
 import { useColorScheme } from '@/hooks/useColorScheme';
 
 export default function TabLayout() {
@@ -87,7 +87,7 @@ export default function TabLayout() {
 
             {/* 공 수거 단일 화면 */}
             <Tabs.Screen
-                name="ball-retrieval"
+                name="ball-collection"
                 options={{
                     // 탭 바에 표시되지 않도록 숨깁니다.
                     href: null,
