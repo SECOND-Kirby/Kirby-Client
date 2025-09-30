@@ -38,3 +38,15 @@ export const TRAINING_LIMITS = {
     DIRECTION: { MIN: 0, MAX: 100 },
     FREQUENCY: { MIN: 0, MAX: 100 }
 } as const;
+
+
+export const BUTTON_HEIGHT = 50;
+export const INPUT_HEIGHT = 50;
+export const BORDER_RADIUS = 12;
+export const SPACING = {
+    xs: 4,
+    sm: 8,
+    md: 16,
+    lg: 24,
+    xl: 32,
+};

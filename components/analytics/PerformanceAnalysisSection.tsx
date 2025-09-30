@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Platform, StyleSheet, Text, View } from 'react-native';
 import { useThemeColor } from '@/hooks/useThemeColor';
 
 interface PerformanceStatProps {
@@ -63,11 +63,18 @@ const perfStyles = StyleSheet.create({
         justifyContent: 'space-around',
         borderRadius: 12,
         paddingVertical: 20,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.05,
-        shadowRadius: 2,
         elevation: 2,
+        ...Platform.select({
+            web: {
+                boxShadow: '0px 1px 2px rgba(0, 0, 0, 0.05)',
+            },
+            default: {
+                shadowColor: '#000',
+                shadowOffset: { width: 0, height: 1 },
+                shadowOpacity: 0.05,
+                shadowRadius: 2,
+            },
+        }),
     },
     performanceStat: {
         alignItems: 'center',

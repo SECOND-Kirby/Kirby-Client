@@ -1,4 +1,3 @@
-// src/components/auth/SignUpForm.tsx
 import { router } from 'expo-router';
 import React, { useState } from 'react';
 import { Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
@@ -9,6 +8,8 @@ import { TextInput } from '@/components/shared/ui/TextInput';
 import { ThemedText } from '@/components/shared/ui/ThemedText';
 import { authService } from '@/services/authService';
 import { handleApiError } from '@/utils/errorHandler';
+import { Colors } from '@/constants/Colors';
+import { SPACING } from '@/utils/constants';
 
 interface FieldErrors {
     name: string;
@@ -19,12 +20,11 @@ interface FieldErrors {
     passwordConfirm: string;
 }
 
-// 전화번호 포맷팅 함수
 const formatPhoneNumber = (text: string): string => {
     const numbers = text.replace(/[^\d]/g, '');
 
     if (numbers.length > 11) {
-        return text.slice(0, -1); // 이전 값 유지
+        return text.slice(0, -1);
     }
 
     if (numbers.length <= 3) {
@@ -60,25 +60,21 @@ export function SignUpForm() {
         passwordConfirm: '',
     });
 
-    // 공통 필드 업데이트 함수
     const updateField = (field: keyof typeof formData, value: string) => {
         setFormData(prev => ({ ...prev, [field]: value }));
         if (fieldErrors[field]) {
             setFieldErrors(prev => ({ ...prev, [field]: '' }));
         }
-        // 아이디가 변경되면 중복확인 초기화
         if (field === 'username') {
             setUsernameChecked(false);
         }
     };
 
-    // 전화번호 업데이트 (포맷팅 포함)
     const updatePhoneNumber = (text: string) => {
         const formatted = formatPhoneNumber(text);
         updateField('phoneNumber', formatted);
     };
 
-    // 폼 검증
     const validateFields = (): boolean => {
         const errors: FieldErrors = {
             name: '',
@@ -134,7 +130,6 @@ export function SignUpForm() {
         return !hasError;
     };
 
-    // 아이디 중복 확인
     const handleDuplicateCheck = async (): Promise<void> => {
         if (!formData.username.trim()) {
             setFieldErrors(prev => ({ ...prev, username: '아이디를 입력해주세요.' }));
@@ -172,7 +167,6 @@ export function SignUpForm() {
         }
     };
 
-    // 회원가입 처리
     const handleSignUp = async () => {
         if (!validateFields()) {
             return;
@@ -194,7 +188,7 @@ export function SignUpForm() {
                 [
                     {
                         text: '확인',
-                        onPress: () => router.replace('/'),
+                        onPress: () => router.replace('/(auth)'),
                     },
                 ]
             );
@@ -221,7 +215,7 @@ export function SignUpForm() {
         <View style={styles.container}>
             {/* 이름 */}
             <View style={styles.inputContainer}>
-                <ThemedText style={styles.label}>이름 *</ThemedText>
+                <ThemedText style={styles.label}>이름</ThemedText>
                 <TextInput
                     placeholder="이름을 입력해주세요"
                     value={formData.name}
@@ -235,7 +229,7 @@ export function SignUpForm() {
 
             {/* 이메일 */}
             <View style={styles.inputContainer}>
-                <ThemedText style={styles.label}>이메일 *</ThemedText>
+                <ThemedText style={styles.label}>이메일</ThemedText>
                 <TextInput
                     placeholder="example@email.com"
                     value={formData.email}
@@ -251,7 +245,7 @@ export function SignUpForm() {
 
             {/* 전화번호 */}
             <View style={styles.inputContainer}>
-                <ThemedText style={styles.label}>전화번호 *</ThemedText>
+                <ThemedText style={styles.label}>전화번호</ThemedText>
                 <TextInput
                     placeholder="010-0000-0000"
                     value={formData.phoneNumber}
@@ -265,18 +259,19 @@ export function SignUpForm() {
 
             {/* 아이디 */}
             <View style={styles.inputContainer}>
-                <ThemedText style={styles.label}>아이디 *</ThemedText>
-                <View style={styles.usernameContainer}>
-                    <TextInput
-                        style={styles.usernameInput}
-                        placeholder="6자 이상, 영문/숫자만"
-                        value={formData.username}
-                        onChangeText={(text) => updateField('username', text)}
-                        autoCapitalize="none"
-                        autoCorrect={false}
-                        maxLength={20}
-                        error={fieldErrors.username}
-                    />
+                <ThemedText style={styles.label}>아이디</ThemedText>
+                <View style={styles.usernameRow}>
+                    <View style={styles.usernameInputWrapper}>
+                        <TextInput
+                            placeholder="6자 이상의 영문/숫자 조합"
+                            value={formData.username}
+                            onChangeText={(text) => updateField('username', text)}
+                            autoCapitalize="none"
+                            autoCorrect={false}
+                            maxLength={20}
+                            error={fieldErrors.username}
+                        />
+                    </View>
                     <TouchableOpacity
                         style={[
                             styles.duplicateButton,
@@ -285,11 +280,9 @@ export function SignUpForm() {
                         ]}
                         onPress={handleDuplicateCheck}
                         disabled={duplicateChecking}
+                        activeOpacity={0.7}
                     >
-                        <Text style={[
-                            styles.duplicateButtonText,
-                            usernameChecked && styles.duplicateButtonTextChecked
-                        ]}>
+                        <Text style={styles.duplicateButtonText}>
                             {duplicateChecking ? '확인중...' : usernameChecked ? '확인완료' : '중복확인'}
                         </Text>
                     </TouchableOpacity>
@@ -299,8 +292,8 @@ export function SignUpForm() {
 
             {/* 비밀번호 */}
             <View style={styles.inputContainer}>
-                <ThemedText style={styles.label}>비밀번호 *</ThemedText>
-                <View style={styles.passwordContainer}>
+                <ThemedText style={styles.label}>비밀번호</ThemedText>
+                <View style={styles.passwordWrapper}>
                     <TextInput
                         style={styles.passwordInput}
                         placeholder="비밀번호를 입력해주세요"
@@ -315,24 +308,25 @@ export function SignUpForm() {
                     <TouchableOpacity
                         style={styles.eyeButton}
                         onPress={() => setShowPassword(!showPassword)}
+                        activeOpacity={0.7}
                     >
                         <Ionicons
                             name={showPassword ? "eye" : "eye-off"}
                             size={20}
-                            color="#999"
+                            color={Colors.text.secondary}
                         />
                     </TouchableOpacity>
                 </View>
                 {fieldErrors.password ? <Text style={styles.errorText}>{fieldErrors.password}</Text> : null}
-                <Text style={styles.passwordHint}>
+                <Text style={styles.hint}>
                     8자 이상 20자 이하, 영문자/숫자/특수문자 모두 포함
                 </Text>
             </View>
 
             {/* 비밀번호 확인 */}
             <View style={styles.inputContainer}>
-                <ThemedText style={styles.label}>비밀번호 확인 *</ThemedText>
-                <View style={styles.passwordContainer}>
+                <ThemedText style={styles.label}>비밀번호 확인</ThemedText>
+                <View style={styles.passwordWrapper}>
                     <TextInput
                         style={styles.passwordInput}
                         placeholder="비밀번호를 다시 입력해주세요"
@@ -347,11 +341,12 @@ export function SignUpForm() {
                     <TouchableOpacity
                         style={styles.eyeButton}
                         onPress={() => setShowPasswordConfirm(!showPasswordConfirm)}
+                        activeOpacity={0.7}
                     >
                         <Ionicons
                             name={showPasswordConfirm ? "eye" : "eye-off"}
                             size={20}
-                            color="#999"
+                            color={Colors.text.secondary}
                         />
                     </TouchableOpacity>
                 </View>
@@ -359,7 +354,7 @@ export function SignUpForm() {
             </View>
 
             {/* 회원가입 버튼 */}
-            <View style={styles.signUpButtonContainer}>
+            <View style={styles.buttonContainer}>
                 <Button
                     title={loading ? '회원가입 중...' : '회원가입'}
                     onPress={handleSignUp}
@@ -368,7 +363,6 @@ export function SignUpForm() {
                 />
             </View>
 
-            {/* 경고 메시지 */}
             {!usernameChecked && (
                 <ThemedText style={styles.warningText}>
                     아이디 중복 확인을 완료해주세요
@@ -381,64 +375,53 @@ export function SignUpForm() {
 const styles = StyleSheet.create({
     container: {
         width: '100%',
-        alignItems: 'center',
     },
     inputContainer: {
-        width: '100%',
-        marginBottom: 20,
+        marginBottom: SPACING.lg,
     },
     label: {
         fontSize: 14,
-        fontWeight: 'bold',
-        marginBottom: 8,
-        color: '#333',
+        fontWeight: '600',
+        marginBottom: SPACING.sm,
+        color: Colors.text.main,
     },
     errorText: {
         fontSize: 12,
-        color: '#ff4444',
+        color: Colors.error,
         marginTop: 4,
-        marginLeft: 4,
     },
-    passwordHint: {
+    hint: {
         fontSize: 12,
-        color: '#999',
-        marginTop: 8,
-        lineHeight: 16,
+        color: Colors.text.secondary,
+        marginTop: SPACING.sm,
     },
-    usernameContainer: {
+    usernameRow: {
         flexDirection: 'row',
-        alignItems: 'center',
+        gap: 10,
     },
-    usernameInput: {
+    usernameInputWrapper: {
         flex: 1,
-        marginRight: 10,
     },
     duplicateButton: {
-        backgroundColor: '#f0f0f0',
-        paddingHorizontal: 16,
-        paddingVertical: 15,
+        backgroundColor: Colors.background.button,
+        paddingHorizontal: SPACING.md,
+        justifyContent: 'center',
         borderRadius: 12,
-        borderWidth: 1,
-        borderColor: '#e0e0e0',
+        minWidth: 90,
     },
     duplicateButtonDisabled: {
-        backgroundColor: '#e0e0e0',
-        opacity: 0.6,
+        opacity: 0.5,
     },
     duplicateButtonChecked: {
-        backgroundColor: '#E7FF65',
-        borderColor: '#d0e055',
+        backgroundColor: Colors.primary,
     },
     duplicateButtonText: {
         fontSize: 14,
         fontWeight: '600',
-        color: '#333',
+        color: Colors.text.main,
+        textAlign: 'center',
     },
-    duplicateButtonTextChecked: {
-        color: '#333',
-        fontWeight: 'bold',
-    },
-    passwordContainer: {
+    passwordWrapper: {
         position: 'relative',
     },
     passwordInput: {
@@ -450,14 +433,13 @@ const styles = StyleSheet.create({
         top: 15,
         padding: 5,
     },
-    signUpButtonContainer: {
-        marginTop: 15,
-        marginBottom: 20,
-        width: '100%',
+    buttonContainer: {
+        marginTop: SPACING.md,
+        marginBottom: SPACING.lg,
     },
     warningText: {
         fontSize: 14,
-        color: '#ff6b6b',
+        color: Colors.error,
         textAlign: 'center',
         fontWeight: '500',
     },

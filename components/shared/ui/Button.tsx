@@ -1,4 +1,3 @@
-// src/components/shared/ui/Button.tsx
 import React from 'react';
 import {
     ActivityIndicator,
@@ -6,14 +5,13 @@ import {
     Text,
     TouchableOpacity,
     TouchableOpacityProps,
-    View,
 } from 'react-native';
-
-import { useThemeColor } from '@/hooks/useThemeColor';
+import { Colors } from '@/constants/Colors';
+import { BUTTON_HEIGHT, BORDER_RADIUS } from '@/utils/constants';
 
 interface ButtonProps extends TouchableOpacityProps {
     title: string;
-    variant?: 'primary' | 'secondary' | 'danger' | 'ghost' | 'brand'
+    variant?: 'primary' | 'secondary' | 'danger' | 'ghost';
     isLoading?: boolean;
     disabled?: boolean;
     fullWidth?: boolean;
@@ -31,72 +29,75 @@ export function Button({
     const getButtonStyle = () => {
         switch (variant) {
             case 'primary':
-                return { backgroundColor: '#007AFF', color: 'white' };
-            case 'danger':
-                return { backgroundColor: '#D1524C', color: 'white' };
+                return {
+                    backgroundColor: Colors.primary,
+                    color: Colors.text.main
+                };
             case 'secondary':
-                return { backgroundColor: 'transparent', color: '#007AFF' };
+                return {
+                    backgroundColor: Colors.background.button,
+                    color: Colors.text.main
+                };
+            case 'danger':
+                return {
+                    backgroundColor: '#D1524C',
+                    color: 'white'
+                };
             case 'ghost':
-                return { backgroundColor: 'transparent', color: '#FF3B30' };
-            case 'brand':
-                return { backgroundColor: '#9DE84C', color: '#333740' };
+                return {
+                    backgroundColor: 'transparent',
+                    color: '#FF3B30'
+                };
             default:
-                return { backgroundColor: '#007AFF', color: 'white' };
+                return {
+                    backgroundColor: Colors.primary,
+                    color: Colors.text.main
+                };
         }
     };
 
     const buttonColors = getButtonStyle();
-    const buttonStyle = {
-        backgroundColor: buttonColors.backgroundColor,
-    };
-    const textStyle = {
-        color: buttonColors.color,
-    };
 
     return (
         <TouchableOpacity
             style={[
-                styles.buttonBase,
+                styles.button,
                 fullWidth && styles.fullWidth,
-                buttonStyle,
+                { backgroundColor: buttonColors.backgroundColor },
                 (disabled || isLoading) && styles.disabled,
                 style,
             ]}
-            activeOpacity={0.8}
+            activeOpacity={0.7}
             disabled={disabled || isLoading}
-            {...rest}>
+            {...rest}
+        >
             {isLoading ? (
                 <ActivityIndicator color={buttonColors.color} />
             ) : (
-                <Text style={[styles.buttonText, textStyle]}>{title}</Text>
+                <Text style={[styles.buttonText, { color: buttonColors.color }]}>
+                    {title}
+                </Text>
             )}
         </TouchableOpacity>
     );
 }
 
 const styles = StyleSheet.create({
-    buttonBase: {
-        borderRadius: 12,
-        paddingVertical: 16,
+    button: {
+        height: BUTTON_HEIGHT,
+        borderRadius: BORDER_RADIUS,
         alignItems: 'center',
         justifyContent: 'center',
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-        elevation: 3,
     },
     fullWidth: {
         width: '100%',
     },
     buttonText: {
-        fontSize: 18,
-        fontWeight: 'bold',
+        fontSize: 16,
+        fontWeight: '600',
     },
     disabled: {
-        opacity: 0.6,
-        backgroundColor: '#f0f0f0',
-        shadowOpacity: 0,
-        elevation: 0,
+        opacity: 0.5,
+        backgroundColor: Colors.disabled,
     },
 });

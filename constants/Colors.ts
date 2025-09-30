@@ -1,57 +1,33 @@
-const tintColorLight = '#B2C549';
-const tintColorDark = '#E7FF65';
-
+// constants/Colors.ts
 export const Colors = {
-  light: {
-    text: '#11181C',
-    background: '#F9FAFA',
-    tint: tintColorLight,
-    icon: '#687076',
-    tabIconDefault: '#687076',
-    tabIconSelected: tintColorLight,
-    primary: '#B2C549',
-    primaryLight: '#E7FF65',
-    cardBackground: '#fff',
-    separator: '#f0f0f0',
-    gray: '#666',
-    lightGray: '#999',
-    red: '#D1524C',
-    border: '#e0e0e0',
-    // 훈련 세션 색상 추가
-    timerBackground: '#75D88B',
-    timerProgress: '#8EFFA1',
-    pauseButton: '#F16D61',
-    resetButton: '#717171',
-    continueButton: '#45BA45',
-    startButton: '#4DD5C1',
-    // 통계 카드 색상 추가
-    statCardBackground: '#F2F2F2',
-    statValueColor: '#6475E0',
-    statLabelColor: '#5A5A5A',
+  // 메인 브랜드 컬러
+  primary: '#ADF263',
+  primaryDark: '#9DE84C',
+
+  // 배경색
+  background: {
+    main: '#F9FAFA',
+    card: '#FFFFFF',
+    button: '#D9D9D9',
+    progressBar: '#E4EAE9',
+    neon: '#F6F7F9',
+    weekday: '#F4C6C6',
   },
-  dark: {
-    text: '#ECEDEE',
-    background: '#151718',
-    tint: tintColorDark,
-    icon: '#9BA1A6',
-    tabIconDefault: '#9BA1A6',
-    tabIconSelected: tintColorDark,
-    primary: '#E7FF65',
-    primaryLight: '#B2C549',
-    cardBackground: '#1f1f1f',
-    separator: '#333',
-    gray: '#9BA1A6',
-    lightGray: '#666',
-    red: '#ff6b6b',
-    border: '#4B5563', // 추가
-    timerBackground: '#5BB574',
-    timerProgress: '#6FE082',
-    pauseButton: '#E55A52',
-    resetButton: '#5A5A5A',
-    continueButton: '#3A9A3A',
-    startButton: '#3BC4B2',
-    statCardBackground: '#2A2A2A',
-    statValueColor: '#7B8CE8',
-    statLabelColor: '#AAAAAA',
+
+  // 텍스트 컬러
+  text: {
+    main: '#333740',
+    secondary: '#6E6E6E',
   },
-};
+
+  // 요일 컬러
+  days: {
+    saturday: '#103D5E',
+    sunday: '#5D69F3',
+  },
+
+  // 기타
+  border: '#E4EAE9',
+  error: '#FF4444',
+  disabled: '#F0F0F0',
+} as const;

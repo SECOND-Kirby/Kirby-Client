@@ -1,50 +1,64 @@
-// src/screens/Auth/SignUpScreen.tsx
 import React from 'react';
 import { Image, StyleSheet, Text, View } from 'react-native';
+import { router } from 'expo-router';
+import { TouchableOpacity } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 
-import { AuthLayout } from '@/components/auth/AuthLayout'; // 공통 레이아웃
-import { SignUpForm } from '@/components/auth/SignUpForm'; // 분리된 폼 컴포넌트
+import { AuthLayout } from '@/components/auth/AuthLayout';
+import { SignUpForm } from '@/components/auth/SignUpForm';
+import { Colors } from '@/constants/Colors';
+import { SPACING } from '@/utils/constants';
 
 const SignUpScreen = () => {
-    // 스크린의 역할: 헤더 정의 및 폼 컴포넌트 조합
     const HeaderComponent = (
-        <View style={styles.headerContent}>
-            <Image
-                source={require('@/assets/images/logo.png')}
-                style={styles.logo}
-                resizeMode="contain"
-            />
-            <Text style={styles.appName}>회원가입</Text>
-            <Text style={styles.subtitle}>간단한 정보를 입력하고 시작하세요.</Text>
+        <View style={styles.headerContainer}>
+            <TouchableOpacity
+                style={styles.backButton}
+                onPress={() => router.back()}
+                activeOpacity={0.7}
+            >
+                <Ionicons name="chevron-back" size={24} color={Colors.text.main} />
+            </TouchableOpacity>
+            <Text style={styles.headerTitle}>회원가입</Text>
+            <View style={styles.placeholder} />
         </View>
     );
 
     return (
-        // AuthLayout으로 화면 전체를 감싸고, 중앙 영역에 SignUpForm을 배치
         <AuthLayout headerComponent={HeaderComponent}>
+            <Text style={styles.subtitle}>
+                회원가입을 위해 정보를 입력해주세요
+            </Text>
             <SignUpForm />
         </AuthLayout>
     );
 };
 
 const styles = StyleSheet.create({
-    headerContent: {
+    headerContainer: {
+        width: '100%',
+        flexDirection: 'row',
         alignItems: 'center',
+        justifyContent: 'space-between',
+        marginBottom: SPACING.lg,
     },
-    logo: {
-        width: 80,
-        height: 80,
-        marginBottom: 10,
+    backButton: {
+        padding: 8,
+        marginLeft: -8,
     },
-    appName: {
-        fontSize: 28,
+    headerTitle: {
+        fontSize: 20,
         fontWeight: 'bold',
-        color: '#333',
-        marginBottom: 5,
+        color: Colors.text.main,
+    },
+    placeholder: {
+        width: 40,
     },
     subtitle: {
-        fontSize: 16,
-        color: '#666',
+        fontSize: 14,
+        color: Colors.text.secondary,
+        marginBottom: SPACING.xl,
+        textAlign: 'center',
     },
 });
 

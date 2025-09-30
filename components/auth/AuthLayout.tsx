@@ -1,8 +1,8 @@
-// src/components/auth/AuthLayout.tsx
 import React, { PropsWithChildren } from 'react';
-import { SafeAreaView, ScrollView, StyleSheet, View } from 'react-native';
+import { SafeAreaView, ScrollView, StyleSheet, View, KeyboardAvoidingView, Platform } from 'react-native';
 
 import { ThemedView } from '@/components/shared/ui/ThemedView';
+import { Colors } from '@/constants/Colors';
 
 interface AuthLayoutProps extends PropsWithChildren {
     headerComponent: React.ReactNode;
@@ -11,16 +11,24 @@ interface AuthLayoutProps extends PropsWithChildren {
 export function AuthLayout({ children, headerComponent }: AuthLayoutProps) {
     return (
         <ThemedView style={styles.container}>
-            <SafeAreaView style={{ flex: 1 }}>
-                <ScrollView
-                    contentContainerStyle={styles.scrollViewContent}
-                    keyboardShouldPersistTaps="handled">
-                    {/* 로고 및 제목 영역 */}
-                    <View style={styles.header}>{headerComponent}</View>
+            <SafeAreaView style={styles.safeArea}>
+                <KeyboardAvoidingView
+                    style={styles.keyboardView}
+                    behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+                    keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
+                >
+                    <ScrollView
+                        contentContainerStyle={styles.scrollContent}
+                        keyboardShouldPersistTaps="handled"
+                        showsVerticalScrollIndicator={false}
+                    >
+                        {/* 헤더 영역 */}
+                        <View style={styles.header}>{headerComponent}</View>
 
-                    {/* 폼 및 내용 영역 */}
-                    <View style={styles.formContainer}>{children}</View>
-                </ScrollView>
+                        {/* 폼 영역 */}
+                        <View style={styles.formContainer}>{children}</View>
+                    </ScrollView>
+                </KeyboardAvoidingView>
             </SafeAreaView>
         </ThemedView>
     );
@@ -29,19 +37,25 @@ export function AuthLayout({ children, headerComponent }: AuthLayoutProps) {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+        backgroundColor: Colors.background.card,
     },
-    scrollViewContent: {
+    safeArea: {
+        flex: 1,
+    },
+    keyboardView: {
+        flex: 1,
+    },
+    scrollContent: {
         flexGrow: 1,
-        justifyContent: 'center',
-        paddingHorizontal: 30,
-        paddingTop: 80, // 상단 로고/헤더 공간 확보
-        paddingBottom: 50, // 하단 버튼 공간 확보
+        paddingHorizontal: 24,
+        paddingTop: 60,
+        paddingBottom: 40,
     },
     header: {
-        alignItems: 'center',
-        marginBottom: 40,
+        width: '100%',
     },
     formContainer: {
         width: '100%',
+        flex: 1,
     },
 });
