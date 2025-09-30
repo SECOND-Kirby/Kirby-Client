@@ -4,11 +4,13 @@ import { SafeAreaView, ScrollView, StyleSheet, View, KeyboardAvoidingView, Platf
 import { ThemedView } from '@/components/shared/ui/ThemedView';
 import { Colors } from '@/constants/Colors';
 
+// AuthLayout.tsx
 interface AuthLayoutProps extends PropsWithChildren {
     headerComponent: React.ReactNode;
+    variant?: 'login' | 'signup'; // 추가
 }
 
-export function AuthLayout({ children, headerComponent }: AuthLayoutProps) {
+export function AuthLayout({ children, headerComponent, variant = 'signup' }: AuthLayoutProps) {
     return (
         <ThemedView style={styles.container}>
             <SafeAreaView style={styles.safeArea}>
@@ -18,14 +20,14 @@ export function AuthLayout({ children, headerComponent }: AuthLayoutProps) {
                     keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
                 >
                     <ScrollView
-                        contentContainerStyle={styles.scrollContent}
+                        contentContainerStyle={[
+                            styles.scrollContent,
+                            variant === 'login' && styles.scrollContentLogin
+                        ]}
                         keyboardShouldPersistTaps="handled"
                         showsVerticalScrollIndicator={false}
                     >
-                        {/* 헤더 영역 */}
                         <View style={styles.header}>{headerComponent}</View>
-
-                        {/* 폼 영역 */}
                         <View style={styles.formContainer}>{children}</View>
                     </ScrollView>
                 </KeyboardAvoidingView>
@@ -48,8 +50,11 @@ const styles = StyleSheet.create({
     scrollContent: {
         flexGrow: 1,
         paddingHorizontal: 24,
-        paddingTop: 60,
+        paddingTop: 40,
         paddingBottom: 40,
+    },
+    scrollContentLogin: {
+        paddingTop: 120,
     },
     header: {
         width: '100%',

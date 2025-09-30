@@ -1,6 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
+import { Platform } from 'react-native';
 import {
     Alert,
     StyleSheet,
@@ -24,7 +25,11 @@ export function LoginForm() {
 
     const handleLogin = async () => {
         if (username.trim() === '' || password.trim() === '') {
-            Alert.alert('알림', '아이디와 비밀번호를 입력해주세요.');
+            if (Platform.OS === 'web') {
+                alert('아이디와 비밀번호를 입력해주세요.');
+            } else {
+                Alert.alert('알림', '아이디와 비밀번호를 입력해주세요.');
+            }
             return;
         }
 
@@ -33,7 +38,11 @@ export function LoginForm() {
         if (success) {
             router.replace('/(tabs)');
         } else {
-            Alert.alert('로그인 실패', '아이디 또는 비밀번호를 확인해주세요.');
+            if (Platform.OS === 'web') {
+                alert('아이디 또는 비밀번호를 확인해주세요.');
+            } else {
+                Alert.alert('로그인 실패', '아이디 또는 비밀번호를 확인해주세요.');
+            }
         }
     };
 
@@ -90,7 +99,7 @@ export function LoginForm() {
             <View style={styles.linkContainer}>
                 <TouchableOpacity onPress={() => router.push('/(auth)/signup')}>
                     <ThemedText style={styles.linkText}>
-                        아직 Kirby 회원이 아니가요?  <ThemedText style={styles.linkTextBold}>가입하기</ThemedText>
+                        아직 RallyWalk 회원이 아닌가요?  <ThemedText style={styles.linkTextBold}>가입하기</ThemedText>
                     </ThemedText>
                 </TouchableOpacity>
             </View>
@@ -122,7 +131,7 @@ const styles = StyleSheet.create({
         marginBottom: SPACING.xl,
     },
     linkContainer: {
-        alignItems: 'center',
+        alignItems: 'flex-end',
     },
     linkText: {
         fontSize: 14,
@@ -130,7 +139,8 @@ const styles = StyleSheet.create({
     },
     linkTextBold: {
         fontSize: 14,
-        color: Colors.text.main,
+        color: Colors.register,
         fontWeight: '600',
+        textDecorationLine: 'underline',
     },
 });

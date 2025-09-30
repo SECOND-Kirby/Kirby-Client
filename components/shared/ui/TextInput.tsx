@@ -27,11 +27,11 @@ const styles = StyleSheet.create({
     inputBase: {
         width: '100%',
         height: INPUT_HEIGHT,
-        backgroundColor: Colors.background.main,
+        backgroundColor: Colors.background.card,
         borderRadius: BORDER_RADIUS,
         paddingHorizontal: 20,
         fontSize: 16,
-        borderWidth: 1,
+        borderWidth: 1.4,
         color: Colors.text.main,
     },
 });

@@ -1,103 +1,67 @@
 import React from 'react';
-import {
-    ActivityIndicator,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    TouchableOpacityProps,
-} from 'react-native';
+import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, ViewStyle } from 'react-native';
 import { Colors } from '@/constants/Colors';
-import { BUTTON_HEIGHT, BORDER_RADIUS } from '@/utils/constants';
 
-interface ButtonProps extends TouchableOpacityProps {
+interface ButtonProps {
     title: string;
-    variant?: 'primary' | 'secondary' | 'danger' | 'ghost';
+    onPress: () => void;
     isLoading?: boolean;
     disabled?: boolean;
-    fullWidth?: boolean;
+    style?: ViewStyle;
 }
 
-export function Button({
-                           title,
-                           variant = 'primary',
-                           isLoading = false,
-                           disabled = false,
-                           fullWidth = true,
-                           style,
-                           ...rest
-                       }: ButtonProps) {
-    const getButtonStyle = () => {
-        switch (variant) {
-            case 'primary':
-                return {
-                    backgroundColor: Colors.primary,
-                    color: Colors.text.main
-                };
-            case 'secondary':
-                return {
-                    backgroundColor: Colors.background.button,
-                    color: Colors.text.main
-                };
-            case 'danger':
-                return {
-                    backgroundColor: '#D1524C',
-                    color: 'white'
-                };
-            case 'ghost':
-                return {
-                    backgroundColor: 'transparent',
-                    color: '#FF3B30'
-                };
-            default:
-                return {
-                    backgroundColor: Colors.primary,
-                    color: Colors.text.main
-                };
-        }
-    };
+export const Button: React.FC<ButtonProps> = ({
+                                                  title,
+                                                  onPress,
+                                                  isLoading = false,
+                                                  disabled = false,
+                                                  style,
+                                              }) => {
+    const buttonStyle = [
+        styles.button,
+        disabled && styles.buttonDisabled,
+        style,
+    ];
 
-    const buttonColors = getButtonStyle();
+    const textStyle = [
+        styles.buttonText,
+        disabled && styles.buttonTextDisabled,
+    ];
 
     return (
         <TouchableOpacity
-            style={[
-                styles.button,
-                fullWidth && styles.fullWidth,
-                { backgroundColor: buttonColors.backgroundColor },
-                (disabled || isLoading) && styles.disabled,
-                style,
-            ]}
-            activeOpacity={0.7}
+            style={buttonStyle}
+            onPress={onPress}
             disabled={disabled || isLoading}
-            {...rest}
+            activeOpacity={0.8}
         >
             {isLoading ? (
-                <ActivityIndicator color={buttonColors.color} />
+                <ActivityIndicator color={Colors.text.secondary} />
             ) : (
-                <Text style={[styles.buttonText, { color: buttonColors.color }]}>
-                    {title}
-                </Text>
+                <Text style={textStyle}>{title}</Text>
             )}
         </TouchableOpacity>
     );
-}
+};
 
 const styles = StyleSheet.create({
     button: {
-        height: BUTTON_HEIGHT,
-        borderRadius: BORDER_RADIUS,
+        backgroundColor: Colors.primary,
+        paddingVertical: 16,
+        borderRadius: 15,
         alignItems: 'center',
         justifyContent: 'center',
+        minHeight: 56,
     },
-    fullWidth: {
-        width: '100%',
+    buttonDisabled: {
+        backgroundColor: Colors.background.neon,
     },
     buttonText: {
+        color: Colors.text.main,
         fontSize: 16,
         fontWeight: '600',
     },
-    disabled: {
-        opacity: 0.5,
-        backgroundColor: Colors.disabled,
+    buttonTextDisabled: {
+        color: Colors.text.secondary,
     },
 });

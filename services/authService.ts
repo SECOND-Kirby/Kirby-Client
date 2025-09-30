@@ -1,5 +1,5 @@
 import { logError } from '@/utils/logger';
-import * as SecureStore from 'expo-secure-store';
+import { storage } from '@/utils/storage';
 import http from "./http";
 
 // 백엔드 API와 정확히 일치하는 타입 정의
@@ -85,8 +85,8 @@ export const authService = {
 
         if (response.data.success && response.data.data) {
             try {
-                await SecureStore.setItemAsync('accessToken', response.data.data.accessToken);
-                await SecureStore.setItemAsync('refreshToken', response.data.data.refreshToken);
+                await storage.setItem('accessToken', response.data.data.accessToken);
+                await storage.setItem('refreshToken', response.data.data.refreshToken);
             } catch (error) {
                 logError('토큰 저장 실패', error);
                 throw new Error('토큰 저장에 실패했습니다.');
@@ -98,25 +98,22 @@ export const authService = {
 
     async logout(accessToken?: string): Promise<AuthResponse<void>> {
         try {
-            // Authorization 헤더에 토큰이 있으면 사용, 없으면 요청 본문에 포함
             const requestBody: LogoutRequest = {};
-            
+
             if (accessToken) {
                 requestBody.accessToken = accessToken;
             }
 
             const response = await http.post<AuthResponse<void>>('/api/auth/logout', requestBody);
-            
-            // 로컬 저장소에서 토큰 제거
-            await SecureStore.deleteItemAsync('accessToken');
-            await SecureStore.deleteItemAsync('refreshToken');
-            
+
+            await storage.deleteItem('accessToken');
+            await storage.deleteItem('refreshToken');
+
             return response.data;
         } catch (error) {
             logError('로그아웃 실패', error);
-            // 로그아웃은 실패해도 로컬 토큰은 제거
-            await SecureStore.deleteItemAsync('accessToken');
-            await SecureStore.deleteItemAsync('refreshToken');
+            await storage.deleteItem('accessToken');
+            await storage.deleteItem('refreshToken');
             throw error;
         }
     },
@@ -128,8 +125,8 @@ export const authService = {
 
     async getStoredTokens(): Promise<{ accessToken: string | null; refreshToken: string | null }> {
         try {
-            const accessToken = await SecureStore.getItemAsync('accessToken');
-            const refreshToken = await SecureStore.getItemAsync('refreshToken');
+            const accessToken = await storage.getItem('accessToken');
+            const refreshToken = await storage.getItem('refreshToken');
             return { accessToken, refreshToken };
         } catch (error) {
             logError('토큰 조회 실패', error);
@@ -139,7 +136,7 @@ export const authService = {
 
     async refreshToken(): Promise<AuthResponse<TokenResponse>> {
         const { refreshToken } = await this.getStoredTokens();
-        
+
         if (!refreshToken) {
             throw new Error('리프레시 토큰이 없습니다.');
         }
@@ -150,8 +147,8 @@ export const authService = {
 
         if (response.data.success && response.data.data) {
             try {
-                await SecureStore.setItemAsync('accessToken', response.data.data.accessToken);
-                await SecureStore.setItemAsync('refreshToken', response.data.data.refreshToken);
+                await storage.setItem('accessToken', response.data.data.accessToken);
+                await storage.setItem('refreshToken', response.data.data.refreshToken);
             } catch (error) {
                 logError('토큰 갱신 후 저장 실패', error);
                 throw new Error('토큰 저장에 실패했습니다.');

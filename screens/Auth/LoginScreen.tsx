@@ -20,7 +20,7 @@ const LoginScreen = () => {
     );
 
     return (
-        <AuthLayout headerComponent={HeaderComponent}>
+        <AuthLayout headerComponent={HeaderComponent} variant="login">
             <LoginForm />
         </AuthLayout>
     );
@@ -29,15 +29,15 @@ const LoginScreen = () => {
 const styles = StyleSheet.create({
     headerContent: {
         alignItems: 'center',
-        marginBottom: SPACING.xl,
+        marginBottom: SPACING.xxl,
     },
     logo: {
         width: 120,
         height: 120,
-        marginBottom: SPACING.md,
+        marginBottom: SPACING.lg,
     },
     appName: {
-        fontSize: 20,
+        fontSize: 25,
         fontWeight: '600',
         color: Colors.text.main,
         marginBottom: 4,

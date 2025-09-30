@@ -1,6 +1,6 @@
 import { router } from 'expo-router';
 import React, { useState } from 'react';
-import { Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
 import { Button } from '@/components/shared/ui/Button';
@@ -173,7 +173,11 @@ export function SignUpForm() {
         }
 
         if (!usernameChecked) {
-            Alert.alert('알림', '아이디 중복 확인을 해주세요.');
+            if (Platform.OS === 'web') {
+                alert('아이디 중복 확인을 해주세요.');
+            } else {
+                Alert.alert('알림', '아이디 중복 확인을 해주세요.');
+            }
             return;
         }
 
@@ -182,16 +186,29 @@ export function SignUpForm() {
         try {
             const response = await authService.signup(formData);
 
-            Alert.alert(
-                '회원가입 완료',
-                response.message || '회원가입이 완료되었습니다.',
-                [
-                    {
-                        text: '확인',
-                        onPress: () => router.replace('/(auth)'),
-                    },
-                ]
-            );
+            if (response.success || response.code === 'S001') {
+                if (Platform.OS === 'web') {
+                    alert(response.message || '회원가입이 완료되었습니다.');
+                    router.replace('/(auth)');
+                } else {
+                    Alert.alert(
+                        '회원가입 완료',
+                        response.message || '회원가입이 완료되었습니다.',
+                        [
+                            {
+                                text: '확인',
+                                onPress: () => router.replace('/(auth)'),
+                            },
+                        ]
+                    );
+                }
+            } else {
+                if (Platform.OS === 'web') {
+                    alert(response.message || '회원가입에 실패했습니다.');
+                } else {
+                    Alert.alert('회원가입', response.message || '회원가입에 실패했습니다.');
+                }
+            }
         } catch (error: unknown) {
             const errorResult = handleApiError(error, '회원가입');
 
@@ -200,9 +217,13 @@ export function SignUpForm() {
             }
 
             if (errorResult.shouldShowAlert) {
-                Alert.alert('회원가입 실패', errorResult.message, [
-                    { text: '확인', style: 'default' }
-                ]);
+                if (Platform.OS === 'web') {
+                    alert(errorResult.message);
+                } else {
+                    Alert.alert('회원가입 실패', errorResult.message, [
+                        { text: '확인', style: 'default' }
+                    ]);
+                }
             }
         } finally {
             setLoading(false);
@@ -215,7 +236,7 @@ export function SignUpForm() {
         <View style={styles.container}>
             {/* 이름 */}
             <View style={styles.inputContainer}>
-                <ThemedText style={styles.label}>이름</ThemedText>
+                <ThemedText style={styles.label}>이름 *</ThemedText>
                 <TextInput
                     placeholder="이름을 입력해주세요"
                     value={formData.name}
@@ -229,7 +250,7 @@ export function SignUpForm() {
 
             {/* 이메일 */}
             <View style={styles.inputContainer}>
-                <ThemedText style={styles.label}>이메일</ThemedText>
+                <ThemedText style={styles.label}>이메일 *</ThemedText>
                 <TextInput
                     placeholder="example@email.com"
                     value={formData.email}
@@ -245,7 +266,7 @@ export function SignUpForm() {
 
             {/* 전화번호 */}
             <View style={styles.inputContainer}>
-                <ThemedText style={styles.label}>전화번호</ThemedText>
+                <ThemedText style={styles.label}>전화번호 *</ThemedText>
                 <TextInput
                     placeholder="010-0000-0000"
                     value={formData.phoneNumber}
@@ -259,7 +280,7 @@ export function SignUpForm() {
 
             {/* 아이디 */}
             <View style={styles.inputContainer}>
-                <ThemedText style={styles.label}>아이디</ThemedText>
+                <ThemedText style={styles.label}>아이디 *</ThemedText>
                 <View style={styles.usernameRow}>
                     <View style={styles.usernameInputWrapper}>
                         <TextInput
@@ -275,8 +296,8 @@ export function SignUpForm() {
                     <TouchableOpacity
                         style={[
                             styles.duplicateButton,
+                            usernameChecked && styles.duplicateButtonChecked,
                             duplicateChecking && styles.duplicateButtonDisabled,
-                            usernameChecked && styles.duplicateButtonChecked
                         ]}
                         onPress={handleDuplicateCheck}
                         disabled={duplicateChecking}
@@ -292,7 +313,7 @@ export function SignUpForm() {
 
             {/* 비밀번호 */}
             <View style={styles.inputContainer}>
-                <ThemedText style={styles.label}>비밀번호</ThemedText>
+                <ThemedText style={styles.label}>비밀번호 *</ThemedText>
                 <View style={styles.passwordWrapper}>
                     <TextInput
                         style={styles.passwordInput}
@@ -325,7 +346,7 @@ export function SignUpForm() {
 
             {/* 비밀번호 확인 */}
             <View style={styles.inputContainer}>
-                <ThemedText style={styles.label}>비밀번호 확인</ThemedText>
+                <ThemedText style={styles.label}>비밀번호 확인 *</ThemedText>
                 <View style={styles.passwordWrapper}>
                     <TextInput
                         style={styles.passwordInput}
@@ -403,22 +424,22 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     duplicateButton: {
-        backgroundColor: Colors.background.button,
+        backgroundColor: Colors.primary,
         paddingHorizontal: SPACING.md,
         justifyContent: 'center',
-        borderRadius: 12,
+        borderRadius: 7,
         minWidth: 90,
+    },
+    duplicateButtonChecked: {
+        backgroundColor: Colors.background.neon,
     },
     duplicateButtonDisabled: {
         opacity: 0.5,
     },
-    duplicateButtonChecked: {
-        backgroundColor: Colors.primary,
-    },
     duplicateButtonText: {
         fontSize: 14,
-        fontWeight: '600',
-        color: Colors.text.main,
+        fontWeight: '500',
+        color: Colors.text.secondary,
         textAlign: 'center',
     },
     passwordWrapper: {
