@@ -5,19 +5,22 @@ import { INPUT_HEIGHT, BORDER_RADIUS } from '@/utils/constants';
 
 interface AppTextInputProps extends TextInputProps {
     error?: string;
+    variant?: 'default' | 'styled';
 }
 
-export function TextInput({ style, error, ...rest }: AppTextInputProps) {
-    const borderColor = error ? Colors.error : Colors.border;
+export function TextInput({ style, error, variant = 'default', ...rest }: AppTextInputProps) {
+    const borderColor = error ? Colors.error : (variant === 'styled' ? Colors.border : Colors.border);
+    const backgroundColor = variant === 'styled' ? Colors.background.neon : Colors.background.card;
 
     return (
         <RNTextInput
             style={[
                 styles.inputBase,
-                { borderColor },
+                { borderColor, backgroundColor },
                 style,
             ]}
             placeholderTextColor={Colors.text.secondary}
+            underlineColorAndroid="transparent"
             {...rest}
         />
     );
@@ -27,7 +30,6 @@ const styles = StyleSheet.create({
     inputBase: {
         width: '100%',
         height: INPUT_HEIGHT,
-        backgroundColor: Colors.background.card,
         borderRadius: BORDER_RADIUS,
         paddingHorizontal: 20,
         fontSize: 16,

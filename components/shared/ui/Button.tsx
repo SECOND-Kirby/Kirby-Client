@@ -7,6 +7,7 @@ interface ButtonProps {
     onPress: () => void;
     isLoading?: boolean;
     disabled?: boolean;
+    variant?: 'primary' | 'danger' | 'info';
     style?: ViewStyle;
 }
 
@@ -15,17 +16,43 @@ export const Button: React.FC<ButtonProps> = ({
                                                   onPress,
                                                   isLoading = false,
                                                   disabled = false,
+                                                  variant = 'primary',
                                                   style,
                                               }) => {
+    const getBackgroundColor = () => {
+        if (disabled) return Colors.background.neon;
+
+        switch (variant) {
+            case 'danger':
+                return Colors.days.sunday; // #F46C6C
+            case 'info':
+                return Colors.days.saturday; // #5D69F3
+            default:
+                return Colors.primary;
+        }
+    };
+
+    const getTextColor = () => {
+        if (disabled) return Colors.text.secondary;
+        return variant === 'primary' ? Colors.text.main : '#FFF';
+    };
+
+    const getBorderRadius = () => {
+        return variant === 'primary' ? 15 : 6;
+    };
+
     const buttonStyle = [
         styles.button,
-        disabled && styles.buttonDisabled,
+        {
+            backgroundColor: getBackgroundColor(),
+            borderRadius: getBorderRadius(),
+        },
         style,
     ];
 
     const textStyle = [
         styles.buttonText,
-        disabled && styles.buttonTextDisabled,
+        { color: getTextColor() },
     ];
 
     return (
@@ -36,7 +63,7 @@ export const Button: React.FC<ButtonProps> = ({
             activeOpacity={0.8}
         >
             {isLoading ? (
-                <ActivityIndicator color={Colors.text.secondary} />
+                <ActivityIndicator color={variant === 'primary' ? Colors.text.secondary : '#FFF'} />
             ) : (
                 <Text style={textStyle}>{title}</Text>
             )}
@@ -46,22 +73,13 @@ export const Button: React.FC<ButtonProps> = ({
 
 const styles = StyleSheet.create({
     button: {
-        backgroundColor: Colors.primary,
         paddingVertical: 16,
-        borderRadius: 15,
         alignItems: 'center',
         justifyContent: 'center',
         minHeight: 56,
     },
-    buttonDisabled: {
-        backgroundColor: Colors.background.neon,
-    },
     buttonText: {
-        color: Colors.text.main,
         fontSize: 16,
         fontWeight: '600',
-    },
-    buttonTextDisabled: {
-        color: Colors.text.secondary,
     },
 });

@@ -1,6 +1,7 @@
 // src/screens/setting/AccountDeletionScreen.tsx
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
+import { Colors } from '@/constants/Colors';
 import React, { useState } from 'react';
 import {
     Alert,
@@ -122,8 +123,8 @@ const AccountDeletionScreen: React.FC = () => {
                 {/* Delete Button */}
                 <View style={styles.buttonContainer}>
                     <Button
-                        title="회원 탈퇴하기"
                         variant="danger"
+                        title="회원 탈퇴하기"
                         onPress={handleAccountDeletion}
                         disabled={!(currentPassword.trim() && isAgreed)}
                     />
@@ -190,9 +191,10 @@ const styles = StyleSheet.create({
         paddingRight: 50,
         fontSize: 16,
         borderWidth: 1,
-        borderColor: '#e0e0e0',
+        borderColor: Colors.border,
         borderRadius: 8,
-        backgroundColor: '#f8f8f8',
+        backgroundColor: Colors.background.neon,
+        color: Colors.text.main,
     },
     eyeButton: {
         position: 'absolute',

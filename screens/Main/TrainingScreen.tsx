@@ -1,4 +1,5 @@
 import { useThemeColor } from '@/hooks/useThemeColor';
+import { useAuthStore } from '@/store/authStore';
 import { router } from 'expo-router';
 import React from 'react';
 import {
@@ -14,6 +15,7 @@ import TrainingModeSelector from '@/components/training/TrainingModeSelector';
 import SettingsCard from '@/components/training/SettingsCard';
 
 const TrainingScreen: React.FC = () => {
+    const { user } = useAuthStore();
     const backgroundColor = useThemeColor({}, 'background');
     const cardBackgroundColor = useThemeColor({}, 'cardBackground');
     const primaryLightColor = useThemeColor({}, 'primaryLight');
@@ -75,7 +77,9 @@ const TrainingScreen: React.FC = () => {
 
                 {/* 인사말 */}
                 <View style={styles.greetingSection}>
-                    <Text style={styles.greeting}>안녕하세요, 김테니스님</Text>
+                    <Text style={styles.greeting}>
+                        안녕하세요, {user?.name || '사용자'}님
+                    </Text>
                 </View>
 
                 {/* 상단 통계 카드들 */}
@@ -89,7 +93,7 @@ const TrainingScreen: React.FC = () => {
                     ))}
                 </View>
 
-                {/* 훈련 설정 카드 - 기존 컴포넌트 사용 */}
+                {/* 훈련 설정 카드 */}
                 <SettingsCard
                     intensity={settings.intensity}
                     direction={settings.direction}
@@ -109,7 +113,7 @@ const TrainingScreen: React.FC = () => {
                     <Text style={styles.startButtonText}>훈련 시작</Text>
                 </TouchableOpacity>
 
-                {/* 훈련 모드 선택 - 기존 컴포넌트 사용 */}
+                {/* 훈련 모드 선택 */}
                 <TrainingModeSelector
                     selectedMode={settings.mode}
                     onModeSelect={updateMode}

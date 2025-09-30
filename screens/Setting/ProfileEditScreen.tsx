@@ -1,11 +1,10 @@
-// src/screens/setting/ProfileEditScreen.tsx
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import { router } from 'expo-router';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
-  Alert,
   Image,
+  Platform,
   SafeAreaView,
   ScrollView,
   StyleSheet,
@@ -17,12 +16,25 @@ import {
 import { SettingsHeader } from '@/components/settings/SettingsHeader';
 import { TextInput } from '@/components/shared/ui/TextInput';
 import { Button } from '@/components/shared/ui/Button';
+import { useAuthStore } from '@/store/authStore';
+import { showAlert, showConfirm } from '@/utils/alert';
 
 const ProfileEditScreen: React.FC = () => {
-  const [name, setName] = useState('김테니스');
-  const [email, setEmail] = useState('tennis@email.com');
-  const [phone, setPhone] = useState('010-1234-5678');
+  const { user } = useAuthStore();
+
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
   const [profileImage, setProfileImage] = useState<string | null>(null);
+
+  // 컴포넌트 마운트 시 사용자 정보 로드
+  useEffect(() => {
+    if (user) {
+      setName(user.name || '');
+      setEmail(user.email || '');
+      setPhone(user.phoneNumber || '');
+    }
+  }, [user]);
 
   const formatPhoneNumber = (text: string) => {
     const numbers = text.replace(/[^\d]/g, '');
@@ -44,23 +56,17 @@ const ProfileEditScreen: React.FC = () => {
   };
 
   const handlePhotoChange = async () => {
-    Alert.alert(
+    if (Platform.OS === 'web') {
+      showAlert('알림', '웹에서는 프로필 사진 변경이 지원되지 않습니다.');
+      return;
+    }
+
+    showConfirm(
         '프로필 사진 변경',
         '사진을 어떻게 변경하시겠습니까?',
-        [
-          {
-            text: '취소',
-            style: 'cancel',
-          },
-          {
-            text: '카메라',
-            onPress: openCamera,
-          },
-          {
-            text: '갤러리',
-            onPress: openGallery,
-          },
-        ]
+        openGallery,
+        '갤러리',
+        '취소'
     );
   };
 
@@ -69,7 +75,7 @@ const ProfileEditScreen: React.FC = () => {
       const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
 
       if (permissionResult.granted === false) {
-        Alert.alert('알림', '카메라 접근 권한이 필요합니다.');
+        showAlert('알림', '카메라 접근 권한이 필요합니다.');
         return;
       }
 
@@ -84,7 +90,7 @@ const ProfileEditScreen: React.FC = () => {
         setProfileImage(result.assets[0].uri);
       }
     } catch (error) {
-      Alert.alert('오류', '카메라를 열 수 없습니다.');
+      showAlert('오류', '카메라를 열 수 없습니다.');
     }
   };
 
@@ -93,7 +99,7 @@ const ProfileEditScreen: React.FC = () => {
       const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
       if (permissionResult.granted === false) {
-        Alert.alert('알림', '갤러리 접근 권한이 필요합니다.');
+        showAlert('알림', '갤러리 접근 권한이 필요합니다.');
         return;
       }
 
@@ -108,25 +114,21 @@ const ProfileEditScreen: React.FC = () => {
         setProfileImage(result.assets[0].uri);
       }
     } catch (error) {
-      Alert.alert('오류', '갤러리를 열 수 없습니다.');
+      showAlert('오류', '갤러리를 열 수 없습니다.');
     }
   };
 
   const handlePasswordChange = () => {
-    router.push('/password-change');
+    router.push('/(tabs)/settings/password-change');
   };
 
   const handleSaveChanges = () => {
-    Alert.alert('알림', '변경사항이 저장되었습니다.', [
-      {
-        text: '확인',
-        onPress: () => router.back(),
-      },
-    ]);
+    // TODO: API 연동하여 프로필 업데이트
+    showAlert('알림', '변경사항이 저장되었습니다.', () => router.back());
   };
 
   const handleAccountDeletion = () => {
-    router.push('/account-deletion');
+    router.push('/(tabs)/settings/account-deletion');
   };
 
   return (
@@ -156,6 +158,7 @@ const ProfileEditScreen: React.FC = () => {
             <View style={styles.inputGroup}>
               <Text style={styles.inputLabel}>이름</Text>
               <TextInput
+                  variant="styled"
                   value={name}
                   onChangeText={setName}
                   placeholder="이름을 입력하세요"
@@ -165,6 +168,7 @@ const ProfileEditScreen: React.FC = () => {
             <View style={styles.inputGroup}>
               <Text style={styles.inputLabel}>이메일</Text>
               <TextInput
+                  variant="styled"
                   value={email}
                   onChangeText={setEmail}
                   placeholder="이메일을 입력하세요"
@@ -176,6 +180,7 @@ const ProfileEditScreen: React.FC = () => {
             <View style={styles.inputGroup}>
               <Text style={styles.inputLabel}>전화번호</Text>
               <TextInput
+                  variant="styled"
                   value={phone}
                   onChangeText={handlePhoneChange}
                   placeholder="010-0000-0000"
@@ -197,7 +202,6 @@ const ProfileEditScreen: React.FC = () => {
           <View style={styles.buttonContainer}>
             <Button
                 title="변경사항 저장"
-                variant="secondary"
                 onPress={handleSaveChanges}
             />
           </View>

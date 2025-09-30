@@ -1,6 +1,7 @@
 // src/screens/setting/PasswordChangeScreen.tsx
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
+import { Colors } from '@/constants/Colors';
 import React, { useRef, useState } from 'react';
 import {
   Alert,
@@ -109,7 +110,7 @@ const PasswordChangeScreen: React.FC = () => {
               value={value}
               onChangeText={onChangeText}
               placeholder={placeholder}
-              placeholderTextColor="#999"
+              placeholderTextColor="#6E6E6E"
               secureTextEntry={!showPassword}
               autoCapitalize="none"
               autoCorrect={false}
@@ -187,6 +188,7 @@ const PasswordChangeScreen: React.FC = () => {
 
             <View style={styles.buttonContainer}>
               <Button
+                  variant="info"
                   title="비밀번호 변경"
                   onPress={handlePasswordChange}
               />
@@ -230,13 +232,14 @@ const styles = StyleSheet.create({
   },
   passwordInput: {
     height: 50,
-    backgroundColor: '#f8f8f8',
+    backgroundColor: Colors.background.neon,
     borderRadius: 12,
     paddingHorizontal: 16,
     paddingRight: 50,
     fontSize: 16,
     borderWidth: 1,
-    borderColor: '#e0e0e0',
+    borderColor: Colors.border,
+    color: Colors.text.main,
   },
   eyeButton: {
     position: 'absolute',
