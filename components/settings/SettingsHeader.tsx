@@ -3,6 +3,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Colors } from '@/constants/Colors';
 
 interface SettingsHeaderProps {
     title: string;
@@ -16,7 +17,7 @@ export const SettingsHeader: React.FC<SettingsHeaderProps> = ({ title }) => {
     return (
         <View style={styles.header}>
             <TouchableOpacity style={styles.backButton} onPress={handleBack}>
-                <Ionicons name="chevron-back" size={24} color="#333" />
+                <Ionicons name="chevron-back" size={24} color={Colors.text.main} />
             </TouchableOpacity>
             <Text style={styles.headerTitle}>{title}</Text>
             <View style={styles.placeholder} />
@@ -32,15 +33,16 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20,
         paddingVertical: 15,
         borderBottomWidth: 1,
-        borderBottomColor: '#f0f0f0',
+        borderBottomColor: Colors.menu.border,
     },
     backButton: {
         padding: 5,
+        paddingTop: 7,  // 화살표를 아래로 2px 이동
     },
     headerTitle: {
         fontSize: 18,
         fontWeight: 'bold',
-        color: '#333',
+        color: Colors.text.main,
     },
     placeholder: {
         width: 34,

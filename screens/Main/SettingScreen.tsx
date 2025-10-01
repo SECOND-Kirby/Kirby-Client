@@ -1,20 +1,26 @@
+// src/screens/setting/SettingScreen.tsx
 import { useThemeColor } from '@/hooks/useThemeColor';
 import { useAuthStore } from '@/store/authStore';
+import { useSettingsStore } from '@/store/settingsStore';
 import { showAlert, showConfirm } from '@/utils/alert';
-import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
-import React, { useCallback, useState } from 'react';
+import { router } from 'expo-router';
+import React from 'react';
 import { SafeAreaView, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { ProfileSection } from '@/components/settings/ProfileSection';
 import { SectionHeader } from '@/components/settings/SectionHeader';
 import { SettingItem } from '@/components/settings/SettingItem';
 
 const SettingsScreen = () => {
-    const params = useLocalSearchParams();
     const { user, logout } = useAuthStore();
-    const [soundEnabled, setSoundEnabled] = useState(true);
-    const [notificationEnabled, setNotificationEnabled] = useState(true);
-    const [dailyGoalHours, setDailyGoalHours] = useState(2);
-    const [serveGoal, setServeGoal] = useState(50);
+    const {
+        dailyGoalHours,
+        serveGoal,
+        soundEnabled,
+        notificationEnabled,
+        setSoundEnabled,
+        setNotificationEnabled,
+        resetSettings,
+    } = useSettingsStore();
 
     const backgroundColor = useThemeColor({}, 'background');
     const cardBackgroundColor = useThemeColor({}, 'cardBackground');
@@ -22,34 +28,16 @@ const SettingsScreen = () => {
     const primaryLightColor = useThemeColor({}, 'primaryLight');
     const redColor = useThemeColor({}, 'red');
 
-    useFocusEffect(
-        useCallback(() => {
-            if (params.updatedDailyGoalHours) {
-                const hours = parseInt(params.updatedDailyGoalHours as string);
-                setDailyGoalHours(hours);
-                showAlert('알림', '목표가 저장되었습니다.', () => router.replace('/(tabs)/settings'));
-            }
-            if (params.updatedServeGoal) {
-                const serves = parseInt(params.updatedServeGoal as string);
-                setServeGoal(serves);
-                showAlert('알림', '목표가 저장되었습니다.', () => router.replace('/(tabs)/settings'));
-            }
-        }, [params.updatedDailyGoalHours, params.updatedServeGoal])
-    );
-
     const handleProfileEdit = () => {
         router.push('/(tabs)/settings/profile-edit');
     };
 
     const handleGoalEdit = (type: 'time' | 'serve') => {
-        router.push({
-            pathname: '/(tabs)/settings/goal-setting',
-            params: {
-                type: type,
-                dailyGoalHours: dailyGoalHours.toString(),
-                serveGoal: serveGoal.toString()
-            }
-        });
+        if (type === 'time') {
+            router.push('/(tabs)/settings/daily-goal-setting');
+        } else {
+            router.push('/(tabs)/settings/serve-goal-setting');
+        }
     };
 
     const handleLanguageSetting = () => {
@@ -61,10 +49,7 @@ const SettingsScreen = () => {
             '데이터 초기화',
             '모든 데이터가 삭제됩니다. 계속하시겠습니까?',
             () => {
-                setSoundEnabled(true);
-                setNotificationEnabled(true);
-                setDailyGoalHours(2);
-                setServeGoal(50);
+                resetSettings();
                 showAlert('알림', '데이터가 초기화되었습니다.');
             },
             '초기화',

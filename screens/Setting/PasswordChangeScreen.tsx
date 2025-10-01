@@ -1,8 +1,7 @@
 // src/screens/setting/PasswordChangeScreen.tsx
-import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { Colors } from '@/constants/Colors';
-import React, { useRef, useState } from 'react';
+import React, { useState } from 'react';
 import {
   Alert,
   KeyboardAvoidingView,
@@ -11,24 +10,17 @@ import {
   ScrollView,
   StyleSheet,
   Text,
-  TextInput,
-  TouchableOpacity,
   View
 } from 'react-native';
 
 import { SettingsHeader } from '@/components/settings/SettingsHeader';
 import { Button } from '@/components/shared/ui/Button';
+import { PasswordInput } from '@/components/shared/ui/PasswordInput';
 
 const PasswordChangeScreen: React.FC = () => {
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
-  const [showNewPassword, setShowNewPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-
-  const newPasswordRef = useRef<TextInput>(null);
-  const confirmPasswordRef = useRef<TextInput>(null);
 
   const validatePassword = (password: string) => {
     if (password.length < 8) {
@@ -83,54 +75,6 @@ const PasswordChangeScreen: React.FC = () => {
     );
   };
 
-  const PasswordInput = ({
-                           label,
-                           value,
-                           onChangeText,
-                           showPassword,
-                           onToggleShow,
-                           placeholder,
-                           onSubmitEditing,
-                           returnKeyType = "next"
-                         }: {
-    label: string;
-    value: string;
-    onChangeText: (text: string) => void;
-    showPassword: boolean;
-    onToggleShow: () => void;
-    placeholder: string;
-    onSubmitEditing?: () => void;
-    returnKeyType?: "next" | "done";
-  }) => (
-      <View style={styles.inputGroup}>
-        <Text style={styles.inputLabel}>{label}</Text>
-        <View style={styles.passwordContainer}>
-          <TextInput
-              style={styles.passwordInput}
-              value={value}
-              onChangeText={onChangeText}
-              placeholder={placeholder}
-              placeholderTextColor="#6E6E6E"
-              secureTextEntry={!showPassword}
-              autoCapitalize="none"
-              autoCorrect={false}
-              returnKeyType={returnKeyType}
-              onSubmitEditing={onSubmitEditing}
-              underlineColorAndroid="transparent"
-              textContentType="none"
-              autoComplete="off"
-          />
-          <TouchableOpacity style={styles.eyeButton} onPress={onToggleShow}>
-            <Ionicons
-                name={showPassword ? "eye" : "eye-off"}
-                size={20}
-                color="#999"
-            />
-          </TouchableOpacity>
-        </View>
-      </View>
-  );
-
   return (
       <SafeAreaView style={styles.container}>
         <SettingsHeader title="비밀번호변경" />
@@ -147,43 +91,43 @@ const PasswordChangeScreen: React.FC = () => {
               contentContainerStyle={styles.scrollViewContent}
           >
             <View style={styles.inputSection}>
-              <PasswordInput
-                  label="현재 비밀번호"
-                  value={currentPassword}
-                  onChangeText={setCurrentPassword}
-                  showPassword={showCurrentPassword}
-                  onToggleShow={() => setShowCurrentPassword(!showCurrentPassword)}
-                  placeholder="현재 비밀번호 입력"
-                  onSubmitEditing={() => newPasswordRef.current?.focus()}
-              />
+              <View style={styles.inputGroup}>
+                <Text style={styles.inputLabel}>현재 비밀번호</Text>
+                <PasswordInput
+                    value={currentPassword}
+                    onChangeText={setCurrentPassword}
+                    placeholder="현재 비밀번호 입력"
+                    returnKeyType="next"
+                />
+              </View>
 
-              <PasswordInput
-                  label="새 비밀번호"
-                  value={newPassword}
-                  onChangeText={setNewPassword}
-                  showPassword={showNewPassword}
-                  onToggleShow={() => setShowNewPassword(!showNewPassword)}
-                  placeholder="새 비밀번호 입력"
-                  onSubmitEditing={() => confirmPasswordRef.current?.focus()}
-              />
+              <View style={styles.inputGroup}>
+                <Text style={styles.inputLabel}>새 비밀번호</Text>
+                <PasswordInput
+                    value={newPassword}
+                    onChangeText={setNewPassword}
+                    placeholder="새 비밀번호 입력"
+                    returnKeyType="next"
+                />
+              </View>
 
-              <PasswordInput
-                  label="새 비밀번호 확인"
-                  value={confirmPassword}
-                  onChangeText={setConfirmPassword}
-                  showPassword={showConfirmPassword}
-                  onToggleShow={() => setShowConfirmPassword(!showConfirmPassword)}
-                  placeholder="새 비밀번호 다시 입력"
-                  onSubmitEditing={handlePasswordChange}
-                  returnKeyType="done"
-              />
+              <View style={styles.inputGroup}>
+                <Text style={styles.inputLabel}>새 비밀번호 확인</Text>
+                <PasswordInput
+                    value={confirmPassword}
+                    onChangeText={setConfirmPassword}
+                    placeholder="새 비밀번호 재입력"
+                    returnKeyType="done"
+                    onSubmitEditing={handlePasswordChange}
+                />
+              </View>
             </View>
 
             <View style={styles.rulesSection}>
-              <Text style={styles.rulesTitle}>비밀번호규칙</Text>
-              <Text style={styles.ruleItem}>• 8자 이상입력</Text>
-              <Text style={styles.ruleItem}>• 영문, 숫자, 특수문자 2가지 이상 조합</Text>
-              <Text style={styles.ruleItem}>• 이전 비밀번호와 동일할 수 없음</Text>
+              <Text style={styles.rulesTitle}>비밀번호 규칙</Text>
+              <Text style={styles.ruleItem}> •  8자 이상 입력</Text>
+              <Text style={styles.ruleItem}> •  영문, 숫자, 특수문자 2가지 이상 조합</Text>
+              <Text style={styles.ruleItem}> •  이전 비밀번호와 동일할 수 없음</Text>
             </View>
 
             <View style={styles.buttonContainer}>
@@ -202,7 +146,7 @@ const PasswordChangeScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'white',
+    backgroundColor: Colors.background.card,
   },
   keyboardView: {
     flex: 1,
@@ -224,34 +168,13 @@ const styles = StyleSheet.create({
   inputLabel: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#333',
-    marginBottom: 8,
-  },
-  passwordContainer: {
-    position: 'relative',
-  },
-  passwordInput: {
-    height: 50,
-    backgroundColor: Colors.background.neon,
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingRight: 50,
-    fontSize: 16,
-    borderWidth: 1,
-    borderColor: Colors.border,
     color: Colors.text.main,
-  },
-  eyeButton: {
-    position: 'absolute',
-    right: 15,
-    top: '40%',
-    transform: [{ translateY: -10 }],
-    padding: 5,
+    marginBottom: 8,
   },
   rulesSection: {
     paddingHorizontal: 20,
     paddingVertical: 20,
-    backgroundColor: '#f8f8f8',
+    backgroundColor: Colors.password.ruleBackground,
     marginHorizontal: 20,
     marginTop: 20,
     borderRadius: 12,
@@ -259,12 +182,12 @@ const styles = StyleSheet.create({
   rulesTitle: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#333',
+    color: Colors.text.main,
     marginBottom: 12,
   },
   ruleItem: {
     fontSize: 14,
-    color: '#666',
+    color: Colors.text.ruleItem,
     lineHeight: 20,
     marginBottom: 4,
   },

@@ -9,17 +9,16 @@ import {
     ScrollView,
     StyleSheet,
     Text,
-    TextInput,
     TouchableOpacity,
     View
 } from 'react-native';
 
 import { SettingsHeader } from '@/components/settings/SettingsHeader';
 import { Button } from '@/components/shared/ui/Button';
+import { PasswordInput } from '@/components/shared/ui/PasswordInput';
 
 const AccountDeletionScreen: React.FC = () => {
     const [currentPassword, setCurrentPassword] = useState('');
-    const [showPassword, setShowPassword] = useState(false);
     const [isAgreed, setIsAgreed] = useState(false);
 
     const handleAccountDeletion = () => {
@@ -54,70 +53,48 @@ const AccountDeletionScreen: React.FC = () => {
         );
     };
 
-    const PasswordInput = () => (
-        <View style={styles.passwordContainer}>
-            <TextInput
-                style={styles.passwordInput}
-                placeholder="현재 비밀번호"
-                secureTextEntry={!showPassword}
-                value={currentPassword}
-                onChangeText={setCurrentPassword}
-            />
-            <TouchableOpacity
-                style={styles.eyeButton}
-                onPress={() => setShowPassword(!showPassword)}
-                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-            >
-                <Ionicons
-                    name={showPassword ? 'eye-off' : 'eye'}
-                    size={24}
-                    color="#888"
-                />
-            </TouchableOpacity>
-        </View>
-    );
-
-    const AgreementCheckbox = () => (
-        <View style={styles.checkboxContainer}>
-            <TouchableOpacity onPress={() => setIsAgreed(!isAgreed)} style={styles.checkboxWrapper}>
-                <View style={[styles.checkbox, isAgreed && styles.checkboxChecked]}>
-                    {isAgreed && <Ionicons name="checkmark" size={16} color="white" />}
-                </View>
-            </TouchableOpacity>
-            <Text style={styles.agreementText}>
-                위 내용을 모두 확인하였으며, 회원 탈퇴에 동의합니다
-            </Text>
-        </View>
-    );
-
     return (
         <SafeAreaView style={styles.container}>
-            <SettingsHeader title="회원 탈퇴" />
+            <SettingsHeader title="회원탈퇴" />
 
             <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
                 {/* Warning Section */}
                 <View style={styles.warningBox}>
-                    <Ionicons name="warning" size={24} color="#D1524C" style={styles.warningIcon} />
-                    <View style={styles.warningTextContainer}>
-                        <Text style={styles.warningTitle}>회원 탈퇴 시 유의사항</Text>
-                        <Text style={styles.warningText}>
-                            - 회원 탈퇴 시 모든 데이터가 영구적으로 삭제되며 복구할 수 없습니다.
-                        </Text>
-                        <Text style={styles.warningText}>
-                            - 기록된 일정, 운동, 분석 데이터 등이 모두 삭제됩니다.
-                        </Text>
-                    </View>
+                    <Ionicons name="warning" size={24} color={Colors.danger.main} style={styles.warningIcon} />
+                    <Text style={styles.warningBoxText}>
+                        회원 탈퇴 시 모든 데이터가 삭제되며 복구가 불가능합니다.
+                    </Text>
+                </View>
+
+                {/* Notice Section */}
+                <View style={styles.noticeSection}>
+                    <Text style={styles.noticeTitle}>탈퇴 시 주의사항</Text>
+                    <Text style={styles.noticeText}> •  계정 정보 및 개인 데이터가 모두 삭제됩니다.</Text>
+                    <Text style={styles.noticeText}> •  현재 이용 중인 서비스가 즉시 중단됩니다.</Text>
                 </View>
 
                 {/* Input Section */}
                 <View style={styles.sectionPadding}>
                     <Text style={styles.inputTitle}>현재 비밀번호를 입력해주세요</Text>
-                    <PasswordInput />
+                    <PasswordInput
+                        value={currentPassword}
+                        onChangeText={setCurrentPassword}
+                        placeholder="현재 비밀번호"
+                    />
                 </View>
 
                 {/* Agreement Section */}
                 <View style={styles.agreementSection}>
-                    <AgreementCheckbox />
+                    <View style={styles.checkboxContainer}>
+                        <TouchableOpacity onPress={() => setIsAgreed(!isAgreed)}>
+                            <View style={[styles.checkbox, isAgreed && styles.checkboxChecked]}>
+                                {isAgreed && <Ionicons name="checkmark" size={16} color={Colors.icon.white} />}
+                            </View>
+                        </TouchableOpacity>
+                        <Text style={styles.agreementText}>
+                            위 내용을 모두 확인하였으며, 회원 탈퇴에 동의합니다.
+                        </Text>
+                    </View>
                 </View>
 
                 {/* Delete Button */}
@@ -139,36 +116,47 @@ const AccountDeletionScreen: React.FC = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: 'white',
+        backgroundColor: Colors.background.card,
     },
     scrollView: {
         flex: 1,
     },
     warningBox: {
         flexDirection: 'row',
-        backgroundColor: '#FFF5F5',
-        padding: 20,
-        margin: 20,
+        backgroundColor: Colors.danger.background,
+        padding: 16,
+        marginHorizontal: 20,
+        marginTop: 20,
         borderRadius: 10,
-        alignItems: 'flex-start',
+        borderWidth: 1,
+        borderColor: Colors.danger.border,
+        alignItems: 'center',
     },
     warningIcon: {
-        marginRight: 10,
-        marginTop: 2,
+        marginRight: 12,
     },
-    warningTextContainer: {
+    warningBoxText: {
         flex: 1,
+        fontSize: 14,
+        color: Colors.danger.main,
+        lineHeight: 20,
     },
-    warningTitle: {
+    noticeSection: {
+        paddingHorizontal: 20,
+        marginTop: 30,
+        marginBottom: 30,
+    },
+    noticeTitle: {
         fontSize: 16,
         fontWeight: '700',
-        color: '#D1524C',
-        marginBottom: 8,
+        color: Colors.text.main,
+        marginBottom: 16,
     },
-    warningText: {
+    noticeText: {
         fontSize: 14,
-        color: '#D1524C',
-        lineHeight: 20,
+        color: Colors.text.main,
+        lineHeight: 24,
+        marginBottom: 4,
     },
     sectionPadding: {
         paddingHorizontal: 20,
@@ -177,63 +165,36 @@ const styles = StyleSheet.create({
     inputTitle: {
         fontSize: 16,
         fontWeight: '600',
-        color: '#333',
-        marginBottom: 12,
-    },
-    passwordContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-    },
-    passwordInput: {
-        flex: 1,
-        height: 50,
-        paddingHorizontal: 16,
-        paddingRight: 50,
-        fontSize: 16,
-        borderWidth: 1,
-        borderColor: Colors.border,
-        borderRadius: 8,
-        backgroundColor: Colors.background.neon,
         color: Colors.text.main,
-    },
-    eyeButton: {
-        position: 'absolute',
-        right: 15,
-        top: '50%',
-        transform: [{ translateY: -15 }],
-        padding: 5,
+        marginBottom: 12,
     },
     agreementSection: {
         paddingHorizontal: 20,
         marginBottom: 40,
     },
-    checkboxWrapper: {
-        paddingRight: 12,
-    },
     checkboxContainer: {
         flexDirection: 'row',
-        alignItems: 'flex-start',
+        alignItems: 'center',
     },
     checkbox: {
         width: 20,
         height: 20,
         borderRadius: 4,
         borderWidth: 2,
-        borderColor: '#e0e0e0',
-        backgroundColor: 'white',
+        borderColor: Colors.checkbox.border,
+        backgroundColor: Colors.background.card,
         justifyContent: 'center',
         alignItems: 'center',
         marginRight: 12,
-        marginTop: 2,
     },
     checkboxChecked: {
-        backgroundColor: '#D1524C',
-        borderColor: '#D1524C',
+        backgroundColor: Colors.danger.main,
+        borderColor: Colors.danger.main,
     },
     agreementText: {
         flex: 1,
         fontSize: 14,
-        color: '#333',
+        color: Colors.text.main,
         lineHeight: 20,
     },
     buttonContainer: {
