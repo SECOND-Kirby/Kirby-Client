@@ -1,7 +1,7 @@
 // components/training/SessionTimer.tsx
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { useThemeColor } from '@/hooks/useThemeColor';
+import { Colors } from '@/constants/Colors';
 import { TrainingMode } from '@/types/training';
 
 interface SessionTimerProps {
@@ -15,10 +15,8 @@ export const SessionTimer: React.FC<SessionTimerProps> = ({
                                                               mode,
                                                               formatTime,
                                                           }) => {
-    const timerBackgroundColor = useThemeColor({}, 'timerBackground');
-
     return (
-        <View style={[styles.timerSection, { backgroundColor: timerBackgroundColor }]}>
+        <View style={styles.timerSection}>
             <Text style={styles.timerText}>{formatTime(timeLeft)}</Text>
             <Text style={styles.modeText}>
                 {mode === 'serve' ? '플랫 서브' : 'AI'} • 와이드 존 타겟
@@ -31,16 +29,17 @@ const styles = StyleSheet.create({
     timerSection: {
         paddingVertical: 40,
         alignItems: 'center',
+        backgroundColor: Colors.training.timer,
     },
     timerText: {
         fontSize: 48,
         fontWeight: 'bold',
-        color: '#fff',
+        color: Colors.text.white,
         marginBottom: 8,
     },
     modeText: {
         fontSize: 16,
-        color: '#fff',
+        color: Colors.text.white,
         opacity: 0.9,
     },
 });

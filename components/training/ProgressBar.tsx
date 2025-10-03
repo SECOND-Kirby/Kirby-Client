@@ -1,22 +1,20 @@
 // components/training/ProgressBar.tsx
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
-import { useThemeColor } from '@/hooks/useThemeColor';
+import { Colors } from '@/constants/Colors';
 
 interface ProgressBarProps {
     progress: number;
 }
 
 export const ProgressBar: React.FC<ProgressBarProps> = ({ progress }) => {
-    const timerProgressColor = useThemeColor({}, 'timerProgress');
-
     return (
         <View style={styles.progressContainer}>
             <View style={styles.progressTrack}>
                 <View
                     style={[
                         styles.progressFill,
-                        { width: `${progress}%`, backgroundColor: timerProgressColor },
+                        { width: `${progress}%` },
                     ]}
                 />
             </View>
@@ -31,12 +29,13 @@ const styles = StyleSheet.create({
     },
     progressTrack: {
         height: 8,
-        backgroundColor: '#e0e0e0',
+        backgroundColor: Colors.background.progressBar,
         borderRadius: 4,
         overflow: 'hidden',
     },
     progressFill: {
         height: '100%',
         borderRadius: 4,
+        backgroundColor: Colors.training.progress,
     },
 });

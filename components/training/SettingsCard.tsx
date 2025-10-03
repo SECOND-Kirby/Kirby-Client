@@ -1,11 +1,7 @@
-import { useThemeColor } from '@/hooks/useThemeColor';
+// components/training/SettingsCard.tsx
 import React from 'react';
-import {
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
-} from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Colors } from '@/constants/Colors';
 
 interface SettingsCardProps {
     intensity: number;
@@ -28,10 +24,6 @@ const SettingsCard: React.FC<SettingsCardProps> = ({
                                                        onFrequencyChange,
                                                        onDurationChange,
                                                    }) => {
-    const cardBackgroundColor = useThemeColor({}, 'cardBackground');
-    const brandGreen = '#9DE84C';
-
-    // 커스텀 슬라이더 컴포넌트
     const CustomSlider = ({
                               value,
                               onValueChange
@@ -41,7 +33,7 @@ const SettingsCard: React.FC<SettingsCardProps> = ({
     }) => {
         const handlePress = (event: any) => {
             const { locationX } = event.nativeEvent;
-            const sliderWidth = 150; // 슬라이더 너비
+            const sliderWidth = 150;
             const newValue = Math.max(0, Math.min(100, Math.round((locationX / sliderWidth) * 100)));
             onValueChange(newValue);
         };
@@ -52,10 +44,7 @@ const SettingsCard: React.FC<SettingsCardProps> = ({
                     <View
                         style={[
                             styles.sliderFill,
-                            {
-                                width: `${value}%`,
-                                backgroundColor: brandGreen
-                            }
+                            { width: `${value}%` }
                         ]}
                     />
                 </View>
@@ -69,7 +58,6 @@ const SettingsCard: React.FC<SettingsCardProps> = ({
         );
     };
 
-    // 슬라이더 설정 컴포넌트
     const SliderSetting = ({
                                label,
                                value,
@@ -89,7 +77,7 @@ const SettingsCard: React.FC<SettingsCardProps> = ({
     );
 
     return (
-        <View style={[styles.settingsCard, { backgroundColor: cardBackgroundColor }]}>
+        <View style={styles.settingsCard}>
             <Text style={styles.cardTitle}>훈련 설정</Text>
 
             <SliderSetting
@@ -104,7 +92,6 @@ const SettingsCard: React.FC<SettingsCardProps> = ({
                 onValueChange={onFrequencyChange}
             />
 
-            {/* 시간 설정 */}
             <View style={styles.timeSection}>
                 <View style={styles.timeRowHorizontal}>
                     <Text style={styles.settingLabel}>시간</Text>
@@ -115,7 +102,7 @@ const SettingsCard: React.FC<SettingsCardProps> = ({
                             disabled={duration <= 5}
                         >
                             <Text style={[styles.timeButtonText, {
-                                color: duration <= 5 ? '#ccc' : '#333'
+                                color: duration <= 5 ? Colors.disabled : Colors.text.main
                             }]}>-</Text>
                         </TouchableOpacity>
 
@@ -127,7 +114,7 @@ const SettingsCard: React.FC<SettingsCardProps> = ({
                             disabled={duration >= 120}
                         >
                             <Text style={[styles.timeButtonText, {
-                                color: duration >= 120 ? '#ccc' : '#333'
+                                color: duration >= 120 ? Colors.disabled : Colors.text.main
                             }]}>+</Text>
                         </TouchableOpacity>
                     </View>
@@ -143,11 +130,9 @@ const styles = StyleSheet.create({
         borderRadius: 12,
         padding: 24,
         marginBottom: 20,
+        backgroundColor: Colors.background.card,
         shadowColor: '#000',
-        shadowOffset: {
-            width: 0,
-            height: 1,
-        },
+        shadowOffset: { width: 0, height: 1 },
         shadowOpacity: 0.05,
         shadowRadius: 2,
         elevation: 2,
@@ -155,13 +140,12 @@ const styles = StyleSheet.create({
     cardTitle: {
         fontSize: 20,
         fontWeight: 'bold',
-        color: '#333',
+        color: Colors.text.main,
         marginBottom: 32,
     },
     settingItem: {
         marginBottom: 24,
     },
-    // 가로 배치용 스타일
     settingRowHorizontal: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -169,17 +153,16 @@ const styles = StyleSheet.create({
     settingLabel: {
         fontSize: 18,
         fontWeight: '500',
-        color: '#333',
+        color: Colors.text.main,
         width: 50,
     },
     valueText: {
         fontSize: 18,
         fontWeight: 'bold',
-        color: '#333',
+        color: Colors.text.main,
         width: 30,
         marginLeft: 20,
     },
-    // 커스텀 슬라이더 스타일
     sliderContainer: {
         position: 'relative',
         width: 150,
@@ -189,13 +172,14 @@ const styles = StyleSheet.create({
     },
     sliderTrack: {
         height: 8,
-        backgroundColor: '#E0E0E0',
+        backgroundColor: Colors.background.progressBar,
         borderRadius: 4,
         width: '100%',
     },
     sliderFill: {
         height: '100%',
         borderRadius: 4,
+        backgroundColor: Colors.primary,
         minWidth: 8,
     },
     sliderThumb: {
@@ -203,20 +187,16 @@ const styles = StyleSheet.create({
         width: 20,
         height: 20,
         borderRadius: 10,
-        backgroundColor: '#FFFFFF',
+        backgroundColor: Colors.background.card,
         borderWidth: 2,
-        borderColor: '#CCCCCC',
+        borderColor: Colors.icon.arrow,
         top: 2,
         shadowColor: '#000',
-        shadowOffset: {
-            width: 0,
-            height: 1,
-        },
+        shadowOffset: { width: 0, height: 1 },
         shadowOpacity: 0.2,
         shadowRadius: 2,
         elevation: 2,
     },
-    // 시간 섹션 스타일
     timeSection: {
         marginBottom: 16,
     },
@@ -234,7 +214,7 @@ const styles = StyleSheet.create({
         width: 32,
         height: 32,
         borderRadius: 16,
-        backgroundColor: '#F5F5F5',
+        backgroundColor: Colors.button.background,
         justifyContent: 'center',
         alignItems: 'center',
     },
@@ -245,7 +225,7 @@ const styles = StyleSheet.create({
     timeValue: {
         fontSize: 18,
         fontWeight: 'bold',
-        color: '#333',
+        color: Colors.text.main,
         minWidth: 60,
         textAlign: 'center',
     },

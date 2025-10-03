@@ -1,8 +1,7 @@
-//
 // components/training/EndTrainingModal.tsx
 import React from 'react';
 import { Modal, View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { useThemeColor } from '@/hooks/useThemeColor';
+import { Colors } from '@/constants/Colors';
 
 interface EndTrainingModalProps {
     visible: boolean;
@@ -15,8 +14,6 @@ const EndTrainingModal: React.FC<EndTrainingModalProps> = ({
                                                                onCancel,
                                                                onConfirm,
                                                            }) => {
-    const resetButtonColor = useThemeColor({}, 'resetButton');
-
     return (
         <Modal
             transparent
@@ -31,17 +28,17 @@ const EndTrainingModal: React.FC<EndTrainingModalProps> = ({
 
                     <View style={styles.modalButtons}>
                         <TouchableOpacity
-                            style={[styles.modalBtn, styles.modalCancel]}
+                            style={styles.modalCancel}
                             onPress={onCancel}
                         >
-                            <Text style={[styles.modalBtnText, { color: resetButtonColor }]}>취소</Text>
+                            <Text style={styles.modalCancelText}>취소</Text>
                         </TouchableOpacity>
 
                         <TouchableOpacity
-                            style={[styles.modalBtn, styles.modalConfirm]}
+                            style={styles.modalConfirm}
                             onPress={onConfirm}
                         >
-                            <Text style={styles.modalBtnText}>종료</Text>
+                            <Text style={styles.modalConfirmText}>종료</Text>
                         </TouchableOpacity>
                     </View>
                 </View>
@@ -53,7 +50,7 @@ const EndTrainingModal: React.FC<EndTrainingModalProps> = ({
 const styles = StyleSheet.create({
     modalOverlay: {
         flex: 1,
-        backgroundColor: 'rgba(0,0,0,0.35)',
+        backgroundColor: Colors.background.modalOverlay,
         alignItems: 'center',
         justifyContent: 'center',
         padding: 24,
@@ -62,18 +59,18 @@ const styles = StyleSheet.create({
         width: '100%',
         maxWidth: 380,
         borderRadius: 16,
-        backgroundColor: '#fff',
+        backgroundColor: Colors.background.card,
         padding: 20,
     },
     modalTitle: {
         fontSize: 18,
         fontWeight: '700',
         marginBottom: 8,
-        color: '#111',
+        color: Colors.text.dark,
     },
     modalDesc: {
         fontSize: 14,
-        color: '#555',
+        color: Colors.text.medium,
         marginBottom: 16,
     },
     modalButtons: {
@@ -81,19 +78,24 @@ const styles = StyleSheet.create({
         gap: 12,
         justifyContent: 'flex-end',
     },
-    modalBtn: {
+    modalCancel: {
         paddingVertical: 12,
         paddingHorizontal: 16,
         borderRadius: 10,
-    },
-    modalCancel: {
-        backgroundColor: '#e5e7eb',
+        backgroundColor: Colors.button.lightGray,
     },
     modalConfirm: {
-        backgroundColor: '#111827',
+        paddingVertical: 12,
+        paddingHorizontal: 16,
+        borderRadius: 10,
+        backgroundColor: Colors.button.darkGray,
     },
-    modalBtnText: {
-        color: '#fff',
+    modalCancelText: {
+        color: Colors.training.reset,
+        fontWeight: '600',
+    },
+    modalConfirmText: {
+        color: Colors.text.white,
         fontWeight: '600',
     },
 });

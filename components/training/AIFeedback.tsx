@@ -2,19 +2,17 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useThemeColor } from '@/hooks/useThemeColor';
+import { Colors } from '@/constants/Colors';
 
 interface AIFeedbackProps {
     feedback: string;
 }
 
 export const AIFeedback: React.FC<AIFeedbackProps> = ({ feedback }) => {
-    const primaryColor = useThemeColor({}, 'primary');
-
     return (
         <View style={styles.feedbackCard}>
             <View style={styles.feedbackHeader}>
-                <Ionicons name="bulb" size={20} color={primaryColor} />
+                <Ionicons name="bulb" size={20} color={Colors.primary} />
                 <Text style={styles.feedbackTitle}>AI 코치 피드백</Text>
             </View>
             <Text style={styles.feedbackText}>{feedback}</Text>
@@ -28,9 +26,9 @@ const styles = StyleSheet.create({
         borderRadius: 12,
         padding: 16,
         marginBottom: 20,
-        backgroundColor: '#E6FFE4',
+        backgroundColor: Colors.background.aiFeedback,
         borderLeftWidth: 4,
-        borderLeftColor: '#5CB33D',
+        borderLeftColor: Colors.training.aiFeedbackBorder,
     },
     feedbackHeader: {
         flexDirection: 'row',
@@ -40,12 +38,12 @@ const styles = StyleSheet.create({
     feedbackTitle: {
         fontSize: 14,
         fontWeight: '600',
-        color: '#527D40',
+        color: Colors.training.aiFeedbackTitle,
         marginLeft: 8,
     },
     feedbackText: {
         fontSize: 14,
-        color: '#6E6E6E',
+        color: Colors.text.secondary,
         lineHeight: 20,
     },
 });

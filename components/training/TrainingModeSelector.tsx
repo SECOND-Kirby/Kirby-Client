@@ -1,12 +1,8 @@
+// components/training/TrainingModeSelector.tsx
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
-import {
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
-} from 'react-native';
-import { useThemeColor } from '@/hooks/useThemeColor';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Colors } from '@/constants/Colors';
 import { TrainingMode, TrainingModeOption } from '@/types/training';
 
 interface TrainingModeSelectorProps {
@@ -18,9 +14,6 @@ const TrainingModeSelector: React.FC<TrainingModeSelectorProps> = ({
                                                                        selectedMode,
                                                                        onModeSelect,
                                                                    }) => {
-    const cardBackgroundColor = useThemeColor({}, 'cardBackground');
-    const primaryColor = useThemeColor({}, 'primary');
-
     const trainingModes: TrainingModeOption[] = [
         {
             id: 'serve',
@@ -45,19 +38,18 @@ const TrainingModeSelector: React.FC<TrainingModeSelectorProps> = ({
                         key={mode.id}
                         style={[
                             styles.modeCard,
-                            { backgroundColor: cardBackgroundColor },
-                            selectedMode === mode.id && { borderColor: primaryColor, borderWidth: 2 }
+                            selectedMode === mode.id && styles.modeCardSelected
                         ]}
                         onPress={() => onModeSelect(mode.id)}
                     >
                         <View style={[
                             styles.modeIcon,
-                            { backgroundColor: selectedMode === mode.id ? primaryColor + '20' : '#f0f0f0' }
+                            { backgroundColor: selectedMode === mode.id ? Colors.primary + '20' : Colors.disabled }
                         ]}>
                             <Ionicons
                                 name={mode.icon as any}
                                 size={24}
-                                color={selectedMode === mode.id ? primaryColor : '#666'}
+                                color={selectedMode === mode.id ? Colors.primary : Colors.text.secondary}
                             />
                         </View>
                         <Text style={styles.modeTitle}>{mode.title}</Text>
@@ -77,7 +69,7 @@ const styles = StyleSheet.create({
     sectionTitle: {
         fontSize: 16,
         fontWeight: 'bold',
-        color: '#333',
+        color: Colors.text.main,
         marginBottom: 16,
         paddingHorizontal: 16,
     },
@@ -92,15 +84,17 @@ const styles = StyleSheet.create({
         padding: 16,
         alignItems: 'center',
         borderWidth: 1,
-        borderColor: '#e0e0e0',
+        borderColor: Colors.border,
+        backgroundColor: Colors.background.card,
         shadowColor: '#000',
-        shadowOffset: {
-            width: 0,
-            height: 1,
-        },
+        shadowOffset: { width: 0, height: 1 },
         shadowOpacity: 0.05,
         shadowRadius: 2,
         elevation: 2,
+    },
+    modeCardSelected: {
+        borderColor: Colors.primary,
+        borderWidth: 2,
     },
     modeIcon: {
         width: 48,
@@ -113,13 +107,13 @@ const styles = StyleSheet.create({
     modeTitle: {
         fontSize: 14,
         fontWeight: '600',
-        color: '#333',
+        color: Colors.text.main,
         marginBottom: 4,
         textAlign: 'center',
     },
     modeSubtitle: {
         fontSize: 12,
-        color: '#666',
+        color: Colors.text.secondary,
         textAlign: 'center',
     },
 });
