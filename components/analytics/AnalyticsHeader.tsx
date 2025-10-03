@@ -4,6 +4,7 @@ import { router } from 'expo-router';
 import React from 'react';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import ScreenHeader from '@/components/shared/layout/ScreenHeader';
+import { Colors } from '@/constants/Colors';
 
 const AnalyticsHeader: React.FC = () => {
     const handleProfilePress = () => {
@@ -15,7 +16,7 @@ const AnalyticsHeader: React.FC = () => {
             title="분석"
             rightComponent={
                 <TouchableOpacity style={styles.profileIcon} onPress={handleProfilePress}>
-                    <Ionicons name="person-outline" size={24} color="#666" />
+                    <Ionicons name="person-outline" size={24} color={Colors.text.secondary} />
                 </TouchableOpacity>
             }
         />

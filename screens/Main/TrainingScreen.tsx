@@ -1,4 +1,5 @@
-import { useThemeColor } from '@/hooks/useThemeColor';
+// screens/Main/TrainingScreen.tsx
+import { Colors } from '@/constants/Colors';
 import { useAuthStore } from '@/store/authStore';
 import { router } from 'expo-router';
 import React from 'react';
@@ -16,9 +17,6 @@ import SettingsCard from '@/components/training/SettingsCard';
 
 const TrainingScreen: React.FC = () => {
     const { user } = useAuthStore();
-    const backgroundColor = useThemeColor({}, 'background');
-    const cardBackgroundColor = useThemeColor({}, 'cardBackground');
-    const primaryLightColor = useThemeColor({}, 'primaryLight');
 
     const {
         settings,
@@ -65,27 +63,24 @@ const TrainingScreen: React.FC = () => {
     ];
 
     return (
-        <View style={[styles.container, {backgroundColor}]}>
+        <View style={styles.container}>
             <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
-                {/* 헤더 */}
-                <View style={[styles.header, {backgroundColor}]}>
+                <View style={styles.header}>
                     <Text style={styles.headerTitle}>오늘의 훈련</Text>
                     <TouchableOpacity style={styles.profileIcon} onPress={handleProfilePress}>
-                        <Ionicons name="person-outline" size={24} color="#666"/>
+                        <Ionicons name="person-outline" size={24} color={Colors.text.secondary}/>
                     </TouchableOpacity>
                 </View>
 
-                {/* 인사말 */}
                 <View style={styles.greetingSection}>
                     <Text style={styles.greeting}>
                         안녕하세요, {user?.name || '사용자'}님
                     </Text>
                 </View>
 
-                {/* 상단 통계 카드들 */}
                 <View style={styles.statsSection}>
                     {statsData.map((stat, index) => (
-                        <View key={index} style={[styles.statCard, {backgroundColor: cardBackgroundColor}]}>
+                        <View key={index} style={styles.statCard}>
                             <Image source={stat.icon} style={styles.statIcon}/>
                             <Text style={styles.statValue}>{stat.value}</Text>
                             <Text style={styles.statLabel}>{stat.label}</Text>
@@ -93,7 +88,6 @@ const TrainingScreen: React.FC = () => {
                     ))}
                 </View>
 
-                {/* 훈련 설정 카드 */}
                 <SettingsCard
                     intensity={settings.intensity}
                     direction={settings.direction}
@@ -105,15 +99,13 @@ const TrainingScreen: React.FC = () => {
                     onDurationChange={adjustDuration}
                 />
 
-                {/* 훈련 시작 버튼 */}
                 <TouchableOpacity
-                    style={[styles.startButton, {backgroundColor: primaryLightColor}]}
+                    style={styles.startButton}
                     onPress={handleStartTraining}
                 >
                     <Text style={styles.startButtonText}>훈련 시작</Text>
                 </TouchableOpacity>
 
-                {/* 훈련 모드 선택 */}
                 <TrainingModeSelector
                     selectedMode={settings.mode}
                     onModeSelect={updateMode}
@@ -124,7 +116,10 @@ const TrainingScreen: React.FC = () => {
 };
 
 const styles = StyleSheet.create({
-    container: { flex: 1 },
+    container: {
+        flex: 1,
+        backgroundColor: Colors.background.main,
+    },
     header: {
         flexDirection: 'row',
         justifyContent: 'space-between',
@@ -132,11 +127,12 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20,
         paddingTop: 50,
         paddingBottom: 16,
+        backgroundColor: Colors.background.main,
     },
     headerTitle: {
         fontSize: 24,
         fontWeight: 'bold',
-        color: '#333',
+        color: Colors.text.main,
     },
     profileIcon: { padding: 8 },
     scrollView: { flex: 1 },
@@ -146,7 +142,7 @@ const styles = StyleSheet.create({
     },
     greeting: {
         fontSize: 16,
-        color: '#666',
+        color: Colors.text.secondary,
     },
     statsSection: {
         flexDirection: 'row',
@@ -156,6 +152,7 @@ const styles = StyleSheet.create({
     },
     statCard: {
         flex: 1,
+        backgroundColor: Colors.background.card,
         borderRadius: 12,
         padding: 16,
         alignItems: 'center',
@@ -174,15 +171,16 @@ const styles = StyleSheet.create({
     statValue: {
         fontSize: 16,
         fontWeight: 'bold',
-        color: '#333',
+        color: Colors.text.main,
         marginBottom: 4,
     },
     statLabel: {
         fontSize: 12,
-        color: '#666',
+        color: Colors.text.secondary,
         textAlign: 'center',
     },
     startButton: {
+        backgroundColor: Colors.primary,
         borderRadius: 12,
         paddingVertical: 16,
         marginHorizontal: 16,
@@ -197,7 +195,7 @@ const styles = StyleSheet.create({
     startButtonText: {
         fontSize: 18,
         fontWeight: 'bold',
-        color: '#333',
+        color: Colors.text.main,
     },
 });
 

@@ -1,5 +1,4 @@
 // screens/Main/HomeScreen.tsx
-import { useThemeColor } from '@/hooks/useThemeColor';
 import { router, useFocusEffect } from 'expo-router';
 import React, { useCallback, useMemo, useState } from 'react';
 import {
@@ -8,6 +7,7 @@ import {
     StyleSheet,
     View,
 } from 'react-native';
+import { Colors } from '@/constants/Colors';
 
 import HomeHeader from '@/components/home/HomeHeader';
 import CalendarSection from '@/components/home/CalendarSection';
@@ -18,9 +18,6 @@ import { useScheduleStore } from '@/store/scheduleStore';
 import { useBallCollectionStore } from '@/store/ballCollectionStore';
 
 const HomeScreen: React.FC = () => {
-    const backgroundColor = useThemeColor({}, 'background');
-
-    // Zustand stores
     const {
         schedules,
         selectedDate,
@@ -36,10 +33,8 @@ const HomeScreen: React.FC = () => {
 
     const { startCollection } = useBallCollectionStore();
 
-    // 로컬 상태
     const [showBallCollection, setShowBallCollection] = useState(false);
 
-    // 달력 데이터 생성
     const calendarData: CalendarData = useMemo(() => {
         const firstDay = new Date(currentYear, currentMonth - 1, 1);
         const lastDay = new Date(currentYear, currentMonth, 0);
@@ -75,7 +70,6 @@ const HomeScreen: React.FC = () => {
         };
     }, [currentMonth, currentYear]);
 
-    // 다음 일정 로드
     const handleNextSchedule = useCallback((): void => {
         const nextSchedule = getNextSchedule();
 
@@ -90,7 +84,6 @@ const HomeScreen: React.FC = () => {
         }
     }, [getNextSchedule]);
 
-    // 달력 네비게이션
     const handleNavigateMonth = useCallback((direction: 'prev' | 'next'): void => {
         let newMonth = direction === 'next' ? currentMonth + 1 : currentMonth - 1;
         let newYear = currentYear;
@@ -107,7 +100,6 @@ const HomeScreen: React.FC = () => {
         setCurrentYear(newYear);
     }, [currentMonth, currentYear, setCurrentMonth, setCurrentYear]);
 
-    // 이벤트 핸들러
     const handleDateSelect = useCallback((day: number): void => {
         setSelectedDate(selectedDate === day ? null : day);
     }, [selectedDate, setSelectedDate]);
@@ -127,24 +119,15 @@ const HomeScreen: React.FC = () => {
         router.push('/schedule-form');
     }, []);
 
-    const handleStartTraining = useCallback((): void => {
-        router.push('/(tabs)/training');
-    }, []);
-
     const handleBallCollection = useCallback((): void => {
         startCollection();
         setShowBallCollection(true);
     }, [startCollection]);
 
-    const handleScheduleTraining = useCallback((): void => {
-        router.push('/schedule-form');
-    }, []);
-
     const handleCloseBallCollection = useCallback((): void => {
         setShowBallCollection(false);
     }, []);
 
-    // 포커스 시 일정 새로고침
     useFocusEffect(
         useCallback(() => {
             loadSchedules();
@@ -152,19 +135,17 @@ const HomeScreen: React.FC = () => {
     );
 
     return (
-        <View style={[styles.container, { backgroundColor }]}>
+        <View style={styles.container}>
             <ScrollView
                 style={styles.scrollView}
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={styles.scrollContent}
             >
-                {/* 헤더 */}
                 <HomeHeader
                     onNextSchedule={handleNextSchedule}
                     isLoading={isLoading}
                 />
 
-                {/* 달력 */}
                 <CalendarSection
                     calendarData={calendarData}
                     selectedDate={selectedDate}
@@ -175,7 +156,6 @@ const HomeScreen: React.FC = () => {
                     schedules={schedules}
                 />
 
-                {/* 일정 목록 */}
                 <ScheduleList
                     schedules={schedules}
                     selectedDate={selectedDate}
@@ -184,7 +164,6 @@ const HomeScreen: React.FC = () => {
                 />
             </ScrollView>
 
-            {/* 공수거 모달 */}
             <BallCollectionModal
                 visible={showBallCollection}
                 onClose={handleCloseBallCollection}
@@ -196,6 +175,7 @@ const HomeScreen: React.FC = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+        backgroundColor: Colors.background.main,
     },
     scrollView: {
         flex: 1,

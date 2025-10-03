@@ -4,10 +4,8 @@ import { Image, Platform } from 'react-native';
 
 import { HapticTab } from '@/components/shared/ui/HapticTab';
 import TabBarBackground from '@/components/shared/ui/TabBarBackground';
-import { useColorScheme } from '@/hooks/useColorScheme';
 
 export default function TabLayout() {
-    const colorScheme = useColorScheme();
 
     return (
         <Tabs

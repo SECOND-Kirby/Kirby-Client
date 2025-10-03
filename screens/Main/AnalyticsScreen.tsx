@@ -1,35 +1,23 @@
 // src/screens/AnalyticsScreen.tsx
 import React from 'react';
 import { ScrollView, StyleSheet } from 'react-native';
-import { useThemeColor } from '@/hooks/useThemeColor';
+import { Colors } from '@/constants/Colors';
+import { useSettingsStore } from '@/store/settingsStore';
 
-// 분리된 컴포넌트 임포트
 import AnalyticsHeader from '@/components/analytics/AnalyticsHeader';
 import PerformanceAnalysisSection from '@/components/analytics/PerformanceAnalysisSection';
 import StatSummarySection from '@/components/analytics/StatSummarySection';
 import GoalProgressSection from '@/components/analytics/GoalProgressSection';
 
 const AnalyticsScreen: React.FC = () => {
-    const backgroundColor = useThemeColor({}, 'background');
-
-    // 목표 값 (실제로는 상태나 API에서 가져와야 합니다)
-    const dailyGoalHours = 2;
-    const serveGoal = 50;
+    const { dailyGoalHours, serveGoal } = useSettingsStore();
 
     return (
-        <ScrollView style={[styles.container, { backgroundColor }]} contentContainerStyle={styles.contentContainer}>
-            {/* 1. 헤더 */}
+        <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
             <AnalyticsHeader />
-
-            {/* 2. 훈련성과 분석 섹션 */}
             <PerformanceAnalysisSection />
-
-            {/* 3. 통계 요약 섹션 (주간 활동 차트 및 카드) */}
-            <StatSummarySection />
-
-            {/* 4. 목표 달성 현황 섹션 (원형 차트) */}
             <GoalProgressSection dailyGoalHours={dailyGoalHours} serveGoal={serveGoal} />
-
+            <StatSummarySection />
         </ScrollView>
     );
 };
@@ -37,9 +25,10 @@ const AnalyticsScreen: React.FC = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+        backgroundColor: Colors.background.main,
     },
     contentContainer: {
-        paddingVertical: 15, // 상하 패딩 추가
+        paddingVertical: 15,
     }
 });
 

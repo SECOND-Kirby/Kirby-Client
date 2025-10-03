@@ -1,21 +1,19 @@
+// src/components/analytics/GoalProgressSection.tsx
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { useThemeColor } from '@/hooks/useThemeColor';
+import { Colors } from '@/constants/Colors';
 
 interface CircularProgressProps {
     percentage: number;
     size?: number;
 }
 
-const CircularProgress: React.FC<CircularProgressProps> = ({ percentage, size = 120 }) => {
-    const primaryLightColor = useThemeColor({}, 'primaryLight');
-
+const CircularProgress: React.FC<CircularProgressProps> = ({ percentage, size = 100 }) => {
     return (
-        <View style={[circularStyles.container, { width: size, height: size }]}>
-            {/* 배경 원 */}
+        <View style={[styles.container, { width: size, height: size }]}>
             <View
                 style={[
-                    circularStyles.backgroundCircle,
+                    styles.backgroundCircle,
                     {
                         width: size,
                         height: size,
@@ -25,54 +23,29 @@ const CircularProgress: React.FC<CircularProgressProps> = ({ percentage, size = 
                 ]}
             />
 
-            {/* 진행률 원 */}
             <View
                 style={[
-                    circularStyles.progressCircle,
+                    styles.progressCircle,
                     {
                         width: size,
                         height: size,
                         borderRadius: size / 2,
                         borderWidth: 8,
-                        borderColor: primaryLightColor,
-                        borderTopColor: percentage > 25 ? primaryLightColor : '#e0e0e0',
-                        borderRightColor: percentage > 50 ? primaryLightColor : '#e0e0e0',
-                        borderBottomColor: percentage > 75 ? primaryLightColor : '#e0e0e0',
-                        borderLeftColor: percentage > 0 ? primaryLightColor : '#e0e0e0',
+                        borderColor: Colors.primary,
+                        borderTopColor: percentage > 25 ? Colors.primary : Colors.background.progressBar,
+                        borderRightColor: percentage > 50 ? Colors.primary : Colors.background.progressBar,
+                        borderBottomColor: percentage > 75 ? Colors.primary : Colors.background.progressBar,
+                        borderLeftColor: percentage > 0 ? Colors.primary : Colors.background.progressBar,
                     }
                 ]}
             />
 
-            <View style={circularStyles.textContainer}>
-                <Text style={circularStyles.percentageText}>{percentage}%</Text>
+            <View style={styles.textContainer}>
+                <Text style={styles.percentageText}>{percentage}%</Text>
             </View>
         </View>
     );
 };
-
-const circularStyles = StyleSheet.create({
-    container: {
-        position: 'relative',
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    backgroundCircle: {
-        position: 'absolute',
-        borderColor: '#e0e0e0',
-    },
-    progressCircle: {
-        position: 'absolute',
-        transform: [{ rotate: '-90deg' }],
-    },
-    textContainer: {
-        alignItems: 'center',
-    },
-    percentageText: {
-        fontSize: 24,
-        fontWeight: 'bold',
-        color: '#333',
-    },
-});
 
 interface GoalProgressSectionProps {
     dailyGoalHours: number;
@@ -80,9 +53,6 @@ interface GoalProgressSectionProps {
 }
 
 const GoalProgressSection: React.FC<GoalProgressSectionProps> = ({ dailyGoalHours, serveGoal }) => {
-    const cardBackgroundColor = useThemeColor({}, 'cardBackground');
-
-    // 더미 데이터
     const currentHours = 1.5;
     const currentServe = 35;
 
@@ -92,10 +62,9 @@ const GoalProgressSection: React.FC<GoalProgressSectionProps> = ({ dailyGoalHour
     return (
         <View style={styles.section}>
             <Text style={styles.sectionTitle}>목표 달성 현황</Text>
-            <View style={[styles.cardContainer, { backgroundColor: cardBackgroundColor }]}>
-                {/* 훈련 시간 목표 */}
-                <View style={styles.progressContainer}>
-                    <CircularProgress percentage={Math.round(timeProgress)} size={120} />
+            <View style={styles.cardRow}>
+                <View style={styles.goalCard}>
+                    <CircularProgress percentage={Math.round(timeProgress)} size={100} />
                     <View style={styles.summaryContainer}>
                         <Text style={styles.summaryValue}>
                             {currentHours}h / {dailyGoalHours}h
@@ -104,11 +73,8 @@ const GoalProgressSection: React.FC<GoalProgressSectionProps> = ({ dailyGoalHour
                     </View>
                 </View>
 
-                <View style={styles.divider} />
-
-                {/* 서브 성공률 목표 */}
-                <View style={styles.progressContainer}>
-                    <CircularProgress percentage={Math.round(serveProgress)} size={120} />
+                <View style={styles.goalCard}>
+                    <CircularProgress percentage={Math.round(serveProgress)} size={100} />
                     <View style={styles.summaryContainer}>
                         <Text style={styles.summaryValue}>
                             {currentServe}회 / {serveGoal}회
@@ -129,41 +95,60 @@ const styles = StyleSheet.create({
     sectionTitle: {
         fontSize: 18,
         fontWeight: 'bold',
-        color: '#333',
+        color: Colors.text.main,
         marginBottom: 15,
     },
-    cardContainer: {
+    cardRow: {
+        flexDirection: 'row',
+        gap: 12,
+    },
+    goalCard: {
+        flex: 1,
+        backgroundColor: Colors.background.card,
         borderRadius: 12,
         padding: 20,
+        alignItems: 'center',
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 1 },
         shadowOpacity: 0.05,
         shadowRadius: 2,
         elevation: 2,
     },
-    progressContainer: {
+    container: {
+        position: 'relative',
+        justifyContent: 'center',
         alignItems: 'center',
-        paddingVertical: 10,
+        marginBottom: 15,
+    },
+    backgroundCircle: {
+        position: 'absolute',
+        borderColor: Colors.background.progressBar,
+    },
+    progressCircle: {
+        position: 'absolute',
+        transform: [{ rotate: '-90deg' }],
+    },
+    textContainer: {
+        alignItems: 'center',
+    },
+    percentageText: {
+        fontSize: 20,
+        fontWeight: 'bold',
+        color: Colors.text.main,
     },
     summaryContainer: {
-        marginTop: 15,
         alignItems: 'center',
     },
     summaryValue: {
-        fontSize: 16,
+        fontSize: 14,
         fontWeight: 'bold',
-        color: '#333',
+        color: Colors.text.main,
         marginBottom: 4,
     },
     summaryLabel: {
-        fontSize: 14,
-        color: '#666',
-    },
-    divider: {
-        height: 1,
-        backgroundColor: '#f0f0f0',
-        marginVertical: 15,
-        marginHorizontal: 10,
+        fontSize: 12,
+        color: Colors.text.secondary,
+        textAlign: 'center',
     },
 });
 

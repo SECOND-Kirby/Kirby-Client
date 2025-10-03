@@ -1,5 +1,5 @@
 // src/screens/setting/SettingScreen.tsx
-import { useThemeColor } from '@/hooks/useThemeColor';
+import { Colors } from '@/constants/Colors';
 import { useAuthStore } from '@/store/authStore';
 import { useSettingsStore } from '@/store/settingsStore';
 import { showAlert, showConfirm } from '@/utils/alert';
@@ -21,12 +21,6 @@ const SettingsScreen = () => {
         setNotificationEnabled,
         resetSettings,
     } = useSettingsStore();
-
-    const backgroundColor = useThemeColor({}, 'background');
-    const cardBackgroundColor = useThemeColor({}, 'cardBackground');
-    const primaryColor = useThemeColor({}, 'primary');
-    const primaryLightColor = useThemeColor({}, 'primaryLight');
-    const redColor = useThemeColor({}, 'red');
 
     const handleProfileEdit = () => {
         router.push('/(tabs)/settings/profile-edit');
@@ -77,8 +71,8 @@ const SettingsScreen = () => {
     };
 
     return (
-        <SafeAreaView style={[styles.container, { backgroundColor }]}>
-            <View style={[styles.header, { backgroundColor }]}>
+        <SafeAreaView style={styles.container}>
+            <View style={styles.header}>
                 <Text style={styles.headerTitle}>설정</Text>
             </View>
 
@@ -86,36 +80,36 @@ const SettingsScreen = () => {
                 <ProfileSection
                     user={user}
                     onEditPress={handleProfileEdit}
-                    cardBackgroundColor={cardBackgroundColor}
-                    primaryLightColor={primaryLightColor}
+                    cardBackgroundColor={Colors.background.card}
+                    primaryLightColor={Colors.primary}
                 />
 
                 <SectionHeader title="목표" />
-                <View style={[styles.section, { backgroundColor: cardBackgroundColor }]}>
+                <View style={styles.section}>
                     <SettingItem
                         icon="time-outline"
                         title="일일 운동 시간"
                         value={`${dailyGoalHours}시간`}
                         onPress={() => handleGoalEdit('time')}
-                        iconColor={primaryColor}
+                        iconColor={Colors.primary}
                     />
                     <SettingItem
                         icon="golf-outline"
                         title="서브 횟수 목표"
                         value={`${serveGoal}회`}
                         onPress={() => handleGoalEdit('serve')}
-                        iconColor={primaryColor}
+                        iconColor={Colors.primary}
                     />
                 </View>
 
                 <SectionHeader title="앱 설정" />
-                <View style={[styles.section, { backgroundColor: cardBackgroundColor }]}>
+                <View style={styles.section}>
                     <SettingItem
                         icon="globe-outline"
                         title="언어설정"
                         value="한국어"
                         onPress={handleLanguageSetting}
-                        iconColor={primaryColor}
+                        iconColor={Colors.primary}
                     />
                     <SettingItem
                         icon="volume-high-outline"
@@ -124,7 +118,7 @@ const SettingsScreen = () => {
                         toggleValue={soundEnabled}
                         onToggleChange={setSoundEnabled}
                         showArrow={false}
-                        iconColor={primaryColor}
+                        iconColor={Colors.primary}
                     />
                     <SettingItem
                         icon="notifications-outline"
@@ -133,32 +127,32 @@ const SettingsScreen = () => {
                         toggleValue={notificationEnabled}
                         onToggleChange={setNotificationEnabled}
                         showArrow={false}
-                        iconColor={primaryColor}
+                        iconColor={Colors.primary}
                     />
                     <SettingItem
                         icon="trash-outline"
                         title="데이터 초기화"
                         onPress={handleDataReset}
                         showArrow={false}
-                        iconColor={redColor}
+                        iconColor={Colors.error}
                     />
                 </View>
 
                 <SectionHeader title="계정관리" />
-                <View style={[styles.section, { backgroundColor: cardBackgroundColor }]}>
+                <View style={styles.section}>
                     <SettingItem
                         icon="log-out-outline"
                         title="로그아웃"
                         onPress={handleLogout}
                         showArrow={false}
-                        iconColor={redColor}
+                        iconColor={Colors.error}
                     />
                     <SettingItem
                         icon="person-remove-outline"
                         title="회원 탈퇴"
                         onPress={handleAccountDeletion}
                         showArrow={false}
-                        iconColor={redColor}
+                        iconColor={Colors.error}
                     />
                 </View>
             </ScrollView>
@@ -169,8 +163,10 @@ const SettingsScreen = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+        backgroundColor: Colors.background.main,
     },
     header: {
+        backgroundColor: Colors.background.main,
         paddingHorizontal: 20,
         paddingVertical: 15,
         paddingTop: 50,
@@ -179,12 +175,13 @@ const styles = StyleSheet.create({
     headerTitle: {
         fontSize: 24,
         fontWeight: 'bold',
-        color: '#333',
+        color: Colors.text.main,
     },
     scrollView: {
         flex: 1,
     },
     section: {
+        backgroundColor: Colors.background.card,
         marginBottom: 20,
         marginHorizontal: 16,
         borderRadius: 12,
