@@ -4,7 +4,6 @@ import { router } from 'expo-router';
 import { Colors } from '@/constants/Colors';
 import React, { useState } from 'react';
 import {
-    Alert,
     SafeAreaView,
     ScrollView,
     StyleSheet,
@@ -16,40 +15,33 @@ import {
 import { SettingsHeader } from '@/components/settings/SettingsHeader';
 import { Button } from '@/components/shared/ui/Button';
 import { PasswordInput } from '@/components/shared/ui/PasswordInput';
+import { useAlert } from '@/hooks';
 
 const AccountDeletionScreen: React.FC = () => {
     const [currentPassword, setCurrentPassword] = useState('');
     const [isAgreed, setIsAgreed] = useState(false);
+    const { showAlert, showConfirm } = useAlert();
 
     const handleAccountDeletion = () => {
         if (!currentPassword.trim()) {
-            Alert.alert('알림', '현재 비밀번호를 입력해주세요.');
+            showAlert('알림', '현재 비밀번호를 입력해주세요.');
             return;
         }
 
         if (!isAgreed) {
-            Alert.alert('알림', '탈퇴 동의 사항을 확인해주세요.');
+            showAlert('알림', '탈퇴 동의 사항을 확인해주세요.');
             return;
         }
 
-        Alert.alert(
+        showConfirm(
             '회원 탈퇴',
             '정말 회원 탈퇴하시겠습니까?\n이 작업은 되돌릴 수 없습니다.',
-            [
-                {
-                    text: '취소',
-                    style: 'cancel',
-                },
-                {
-                    text: '탈퇴',
-                    style: 'destructive',
-                    onPress: () => {
-                        Alert.alert('알림', '회원 탈퇴가 완료되었습니다.', [
-                            { text: '확인', onPress: () => router.replace('/') }
-                        ]);
-                    },
-                },
-            ]
+            () => {
+                showAlert('알림', '회원 탈퇴가 완료되었습니다.', () => router.replace('/'));
+            },
+            '탈퇴',
+            '취소',
+            true
         );
     };
 
@@ -77,6 +69,7 @@ const AccountDeletionScreen: React.FC = () => {
                 <View style={styles.sectionPadding}>
                     <Text style={styles.inputTitle}>현재 비밀번호를 입력해주세요</Text>
                     <PasswordInput
+                        variant="styled"
                         value={currentPassword}
                         onChangeText={setCurrentPassword}
                         placeholder="현재 비밀번호"

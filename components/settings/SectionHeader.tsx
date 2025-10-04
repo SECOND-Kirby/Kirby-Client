@@ -1,5 +1,6 @@
 import React from 'react';
 import { StyleSheet, Text } from 'react-native';
+import { Colors } from '@/constants/Colors';
 
 interface SectionHeaderProps {
     title: string;
@@ -13,7 +14,7 @@ const styles = StyleSheet.create({
     sectionHeader: {
         fontSize: 14,
         fontWeight: '600',
-        color: '#666',
+        color: Colors.text.secondary,
         marginLeft: 20,
         marginRight: 20,
         marginBottom: 8,

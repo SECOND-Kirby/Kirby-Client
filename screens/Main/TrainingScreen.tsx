@@ -1,7 +1,7 @@
 // screens/Main/TrainingScreen.tsx
 import React from 'react';
 import {
-    Image, ScrollView,
+    ScrollView,
     StyleSheet,
     Text,
     TouchableOpacity,
@@ -9,9 +9,10 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
+
 import { Colors } from '@/constants/Colors';
 import { useAuthStore } from '@/store/authStore';
-import { useTrainingSettings } from '@/hooks/useTrainingSettings';
+import { useTrainingSettings } from '@/hooks';
 import TrainingModeSelector from '@/components/training/TrainingModeSelector';
 import SettingsCard from '@/components/training/SettingsCard';
 import StatsCard from '@/components/shared/ui/StatsCard';
@@ -125,8 +126,12 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         color: Colors.text.main,
     },
-    profileIcon: { padding: 8 },
-    scrollView: { flex: 1 },
+    profileIcon: {
+        padding: 8
+    },
+    scrollView: {
+        flex: 1
+    },
     greetingSection: {
         paddingHorizontal: 16,
         marginBottom: 24,

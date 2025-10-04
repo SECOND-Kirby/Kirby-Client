@@ -1,8 +1,8 @@
-// src/screens/setting/SettingScreen.tsx
+// src/screens/Main/SettingScreen.tsx
 import { Colors } from '@/constants/Colors';
 import { useAuthStore } from '@/store/authStore';
 import { useSettingsStore } from '@/store/settingsStore';
-import { useAlert } from '@/hooks/useAlert';
+import { useAlert } from '@/hooks';
 import { router } from 'expo-router';
 import React from 'react';
 import { SafeAreaView, ScrollView, StyleSheet, Text, View } from 'react-native';
@@ -81,8 +81,6 @@ const SettingsScreen = () => {
                 <ProfileSection
                     user={user}
                     onEditPress={handleProfileEdit}
-                    cardBackgroundColor={Colors.background.card}
-                    primaryLightColor={Colors.primary}
                 />
 
                 <SectionHeader title="목표" />

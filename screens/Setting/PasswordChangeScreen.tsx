@@ -3,7 +3,6 @@ import { router } from 'expo-router';
 import { Colors } from '@/constants/Colors';
 import React, { useState } from 'react';
 import {
-  Alert,
   KeyboardAvoidingView,
   Platform,
   SafeAreaView,
@@ -16,11 +15,13 @@ import {
 import { SettingsHeader } from '@/components/settings/SettingsHeader';
 import { Button } from '@/components/shared/ui/Button';
 import { PasswordInput } from '@/components/shared/ui/PasswordInput';
+import { useAlert } from '@/hooks';
 
 const PasswordChangeScreen: React.FC = () => {
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const { showAlert } = useAlert();
 
   const validatePassword = (password: string) => {
     if (password.length < 8) {
@@ -43,36 +44,27 @@ const PasswordChangeScreen: React.FC = () => {
 
   const handlePasswordChange = () => {
     if (!currentPassword.trim()) {
-      Alert.alert('알림', '현재 비밀번호를 입력해주세요.');
+      showAlert('알림', '현재 비밀번호를 입력해주세요.');
       return;
     }
 
     const passwordError = validatePassword(newPassword);
     if (passwordError) {
-      Alert.alert('알림', passwordError);
+      showAlert('알림', passwordError);
       return;
     }
 
     if (newPassword !== confirmPassword) {
-      Alert.alert('알림', '새 비밀번호가 일치하지 않습니다.');
+      showAlert('알림', '새 비밀번호가 일치하지 않습니다.');
       return;
     }
 
     if (currentPassword === newPassword) {
-      Alert.alert('알림', '현재 비밀번호와 새 비밀번호가 같습니다.');
+      showAlert('알림', '현재 비밀번호와 새 비밀번호가 같습니다.');
       return;
     }
 
-    Alert.alert(
-        '비밀번호 변경',
-        '비밀번호가 성공적으로 변경되었습니다.',
-        [
-          {
-            text: '확인',
-            onPress: () => router.back(),
-          },
-        ]
-    );
+    showAlert('비밀번호 변경', '비밀번호가 성공적으로 변경되었습니다.', () => router.back());
   };
 
   return (
@@ -94,6 +86,7 @@ const PasswordChangeScreen: React.FC = () => {
               <View style={styles.inputGroup}>
                 <Text style={styles.inputLabel}>현재 비밀번호</Text>
                 <PasswordInput
+                    variant="styled"
                     value={currentPassword}
                     onChangeText={setCurrentPassword}
                     placeholder="현재 비밀번호 입력"
@@ -104,6 +97,7 @@ const PasswordChangeScreen: React.FC = () => {
               <View style={styles.inputGroup}>
                 <Text style={styles.inputLabel}>새 비밀번호</Text>
                 <PasswordInput
+                    variant="styled"
                     value={newPassword}
                     onChangeText={setNewPassword}
                     placeholder="새 비밀번호 입력"
@@ -114,6 +108,7 @@ const PasswordChangeScreen: React.FC = () => {
               <View style={styles.inputGroup}>
                 <Text style={styles.inputLabel}>새 비밀번호 확인</Text>
                 <PasswordInput
+                    variant="styled"
                     value={confirmPassword}
                     onChangeText={setConfirmPassword}
                     placeholder="새 비밀번호 재입력"

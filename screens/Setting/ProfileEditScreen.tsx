@@ -18,7 +18,8 @@ import { SettingsHeader } from '@/components/settings/SettingsHeader';
 import { TextInput } from '@/components/shared/ui/TextInput';
 import { Button } from '@/components/shared/ui/Button';
 import { useAuthStore } from '@/store/authStore';
-import { useAlert } from '@/hooks/useAlert';
+import { useAlert } from '@/hooks';
+import { formatPhoneNumber } from '@/utils/formatters';
 import { Colors } from '@/constants/Colors';
 
 const ProfileEditScreen: React.FC = () => {
@@ -38,20 +39,6 @@ const ProfileEditScreen: React.FC = () => {
     }
   }, [user]);
 
-  const formatPhoneNumber = (text: string) => {
-    const numbers = text.replace(/[^\d]/g, '');
-    if (numbers.length > 11) {
-      return phone;
-    }
-    if (numbers.length <= 3) {
-      return numbers;
-    } else if (numbers.length <= 7) {
-      return `${numbers.slice(0, 3)}-${numbers.slice(3)}`;
-    } else {
-      return `${numbers.slice(0, 3)}-${numbers.slice(3, 7)}-${numbers.slice(7)}`;
-    }
-  };
-
   const handlePhoneChange = (text: string) => {
     const formatted = formatPhoneNumber(text);
     setPhone(formatted);
@@ -70,30 +57,6 @@ const ProfileEditScreen: React.FC = () => {
         '갤러리',
         '취소'
     );
-  };
-
-  const openCamera = async () => {
-    try {
-      const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
-
-      if (permissionResult.granted === false) {
-        showAlert('알림', '카메라 접근 권한이 필요합니다.');
-        return;
-      }
-
-      const result = await ImagePicker.launchCameraAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        allowsEditing: true,
-        aspect: [1, 1],
-        quality: 0.8,
-      });
-
-      if (!result.canceled) {
-        setProfileImage(result.assets[0].uri);
-      }
-    } catch (error) {
-      showAlert('오류', '카메라를 열 수 없습니다.');
-    }
   };
 
   const openGallery = async () => {

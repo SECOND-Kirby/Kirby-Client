@@ -2,25 +2,22 @@ import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { UserInfo } from '@/services/authService';
+import { Colors } from '@/constants/Colors';
 
 interface ProfileSectionProps {
     user: UserInfo | null;
     onEditPress: () => void;
-    cardBackgroundColor: string;
-    primaryLightColor: string;
 }
 
 export const ProfileSection: React.FC<ProfileSectionProps> = ({
                                                                   user,
                                                                   onEditPress,
-                                                                  cardBackgroundColor,
-                                                                  primaryLightColor
                                                               }) => {
     return (
-        <View style={[styles.profileSection, { backgroundColor: cardBackgroundColor }]}>
+        <View style={styles.profileSection}>
             <View style={styles.profileInfo}>
                 <View style={styles.profileImageContainer}>
-                    <Ionicons name="person" size={30} color="#999" />
+                    <Ionicons name="person" size={30} color={Colors.icon.placeholder} />
                 </View>
                 <View style={styles.profileText}>
                     <Text style={styles.profileName}>{user?.name || '사용자'}</Text>
@@ -28,7 +25,7 @@ export const ProfileSection: React.FC<ProfileSectionProps> = ({
                 </View>
             </View>
             <TouchableOpacity
-                style={[styles.editButton, { backgroundColor: primaryLightColor }]}
+                style={styles.editButton}
                 onPress={onEditPress}
             >
                 <Text style={styles.editButtonText}>프로필 편집</Text>
@@ -39,6 +36,7 @@ export const ProfileSection: React.FC<ProfileSectionProps> = ({
 
 const styles = StyleSheet.create({
     profileSection: {
+        backgroundColor: Colors.background.card,
         padding: 20,
         marginBottom: 30,
         marginHorizontal: 16,
@@ -61,7 +59,7 @@ const styles = StyleSheet.create({
         width: 60,
         height: 60,
         borderRadius: 30,
-        backgroundColor: '#e0e0e0',
+        backgroundColor: Colors.profile.background,
         justifyContent: 'center',
         alignItems: 'center',
         marginRight: 15,
@@ -72,14 +70,15 @@ const styles = StyleSheet.create({
     profileName: {
         fontSize: 18,
         fontWeight: 'bold',
-        color: '#333',
+        color: Colors.text.main,
         marginBottom: 4,
     },
     profileEmail: {
         fontSize: 14,
-        color: '#666',
+        color: Colors.text.secondary,
     },
     editButton: {
+        backgroundColor: Colors.primary,
         borderRadius: 12,
         paddingVertical: 12,
         alignItems: 'center',
@@ -87,6 +86,6 @@ const styles = StyleSheet.create({
     editButtonText: {
         fontSize: 16,
         fontWeight: '600',
-        color: '#333',
+        color: Colors.text.secondary,
     },
 });

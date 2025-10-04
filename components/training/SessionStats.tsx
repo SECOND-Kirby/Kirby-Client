@@ -13,7 +13,7 @@ export const SessionStats: React.FC<SessionStatsProps> = ({ sessionData }) => {
         <View style={styles.statsContainer}>
             <View style={styles.statCard}>
                 <Text style={styles.statValue}>{sessionData.totalServes}</Text>
-                <Text style={styles.statLabel}>이 서브</Text>
+                <Text style={styles.statLabel}>총 서브</Text>
             </View>
 
             <View style={styles.statCard}>
@@ -23,7 +23,7 @@ export const SessionStats: React.FC<SessionStatsProps> = ({ sessionData }) => {
 
             <View style={styles.statCard}>
                 <Text style={styles.statValue}>{sessionData.avgSpeed}km/h</Text>
-                <Text style={styles.statLabel}>평균속도</Text>
+                <Text style={styles.statLabel}>평균 속도</Text>
             </View>
         </View>
     );

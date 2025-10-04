@@ -63,7 +63,7 @@ export const SettingItem: React.FC<SettingItemProps> = ({
                 ) : (
                     <>
                         {value && <Text style={styles.settingValue}>{value}</Text>}
-                        {showArrow && <Ionicons name="chevron-forward" size={16} color="#ccc" />}
+                        {showArrow && <Ionicons name="chevron-forward" size={16} color={Colors.icon.arrow} />}
                     </>
                 )}
             </View>
@@ -94,7 +94,7 @@ const styles = StyleSheet.create({
     },
     settingTitle: {
         fontSize: 16,
-        color: '#333',
+        color: Colors.text.main,
         fontWeight: '500',
     },
     settingRight: {
@@ -103,7 +103,7 @@ const styles = StyleSheet.create({
     },
     settingValue: {
         fontSize: 14,
-        color: '#666',
+        color: Colors.text.secondary,
         marginRight: 8,
     },
     customToggle: {
@@ -118,13 +118,13 @@ const styles = StyleSheet.create({
     },
     toggleActive: {},
     toggleInactive: {
-        backgroundColor: '#e0e0e0',
+        backgroundColor: Colors.disabled,
     },
     toggleThumb: {
         width: 22,
         height: 22,
         borderRadius: 11,
-        backgroundColor: 'white',
+        backgroundColor: Colors.background.card,
         position: 'absolute',
         shadowColor: '#000',
         shadowOffset: {
