@@ -9,20 +9,31 @@ interface PasswordInputProps extends TextInputProps {
     value: string;
     onChangeText: (text: string) => void;
     placeholder?: string;
+    variant?: 'default' | 'styled'; // default: 로그인/회원가입용, styled: 설정화면용
+    error?: string;
 }
 
 export const PasswordInput: React.FC<PasswordInputProps> = ({
                                                                 value,
                                                                 onChangeText,
                                                                 placeholder = '비밀번호',
+                                                                variant = 'default',
+                                                                error,
                                                                 ...rest
                                                             }) => {
     const [showPassword, setShowPassword] = useState(false);
 
+    const eyeButtonStyle = variant === 'styled'
+        ? styles.eyeButtonStyled
+        : styles.eyeButtonDefault;
+
+    const iconSize = variant === 'styled' ? 24 : 20;
+    const iconColor = variant === 'styled' ? Colors.icon.secondary : Colors.text.secondary;
+
     return (
         <View style={styles.container}>
             <TextInput
-                variant="styled"
+                variant={variant}
                 placeholder={placeholder}
                 secureTextEntry={!showPassword}
                 value={value}
@@ -30,17 +41,19 @@ export const PasswordInput: React.FC<PasswordInputProps> = ({
                 autoCorrect={false}
                 autoCapitalize="none"
                 style={styles.input}
+                error={error}
                 {...rest}
             />
             <TouchableOpacity
-                style={styles.eyeButton}
+                style={eyeButtonStyle}
                 onPress={() => setShowPassword(!showPassword)}
-                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                activeOpacity={0.7}
+                hitSlop={variant === 'styled' ? { top: 10, bottom: 10, left: 10, right: 10 } : undefined}
             >
                 <Ionicons
                     name={showPassword ? 'eye' : 'eye-off'}
-                    color={Colors.icon.secondary}
-                    size={24}
+                    size={iconSize}
+                    color={iconColor}
                 />
             </TouchableOpacity>
         </View>
@@ -54,7 +67,15 @@ const styles = StyleSheet.create({
     input: {
         paddingRight: 50,
     },
-    eyeButton: {
+    // 로그인/회원가입용 (배경 하얀색)
+    eyeButtonDefault: {
+        position: 'absolute',
+        right: 15,
+        top: 10,
+        padding: 5,
+    },
+    // 설정화면용 (배경 회색)
+    eyeButtonStyled: {
         position: 'absolute',
         right: 20,
         top: '50%',

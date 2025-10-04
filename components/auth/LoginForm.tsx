@@ -1,35 +1,26 @@
-import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
-import { Platform } from 'react-native';
-import {
-    Alert,
-    StyleSheet,
-    TouchableOpacity,
-    View,
-} from 'react-native';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
 
 import { Button } from '@/components/shared/ui/Button';
 import { TextInput } from '@/components/shared/ui/TextInput';
+import { PasswordInput } from '@/components/shared/ui/PasswordInput';
 import { ThemedText } from '@/components/shared/ui/ThemedText';
 import { useAuthStore } from '@/store/authStore';
+import { useAlert } from '@/hooks';
 import { Colors } from '@/constants/Colors';
 import { SPACING } from '@/constants';
 
 export function LoginForm() {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
-    const [showPassword, setShowPassword] = useState(false);
 
     const { login, isLoading } = useAuthStore();
+    const { showAlert } = useAlert();
 
     const handleLogin = async () => {
         if (username.trim() === '' || password.trim() === '') {
-            if (Platform.OS === 'web') {
-                alert('아이디와 비밀번호를 입력해주세요.');
-            } else {
-                Alert.alert('알림', '아이디와 비밀번호를 입력해주세요.');
-            }
+            showAlert('알림', '아이디와 비밀번호를 입력해주세요.');
             return;
         }
 
@@ -38,11 +29,7 @@ export function LoginForm() {
         if (success) {
             router.replace('/(tabs)');
         } else {
-            if (Platform.OS === 'web') {
-                alert('아이디 또는 비밀번호를 확인해주세요.');
-            } else {
-                Alert.alert('로그인 실패', '아이디 또는 비밀번호를 확인해주세요.');
-            }
+            showAlert('로그인 실패', '아이디 또는 비밀번호를 확인해주세요.');
         }
     };
 
@@ -61,28 +48,11 @@ export function LoginForm() {
 
             {/* 비밀번호 입력 */}
             <View style={styles.inputContainer}>
-                <View style={styles.passwordWrapper}>
-                    <TextInput
-                        style={styles.passwordInput}
-                        placeholder="비밀번호"
-                        value={password}
-                        onChangeText={setPassword}
-                        secureTextEntry={!showPassword}
-                        autoCapitalize="none"
-                        autoCorrect={false}
-                    />
-                    <TouchableOpacity
-                        style={styles.eyeButton}
-                        onPress={() => setShowPassword(!showPassword)}
-                        activeOpacity={0.7}
-                    >
-                        <Ionicons
-                            name={showPassword ? 'eye' : 'eye-off'}
-                            size={20}
-                            color={Colors.text.secondary}
-                        />
-                    </TouchableOpacity>
-                </View>
+                <PasswordInput
+                    value={password}
+                    onChangeText={setPassword}
+                    placeholder="비밀번호"
+                />
             </View>
 
             {/* 로그인 버튼 */}
@@ -113,18 +83,6 @@ const styles = StyleSheet.create({
     },
     inputContainer: {
         marginBottom: SPACING.md,
-    },
-    passwordWrapper: {
-        position: 'relative',
-    },
-    passwordInput: {
-        paddingRight: 50,
-    },
-    eyeButton: {
-        position: 'absolute',
-        right: 15,
-        top: 15,
-        padding: 5,
     },
     buttonContainer: {
         marginTop: SPACING.lg,

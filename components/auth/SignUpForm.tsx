@@ -1,43 +1,21 @@
 import { router } from 'expo-router';
 import React, { useState } from 'react';
-import { Alert, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 import { Button } from '@/components/shared/ui/Button';
 import { TextInput } from '@/components/shared/ui/TextInput';
+import { PasswordInput } from '@/components/shared/ui/PasswordInput';
 import { ThemedText } from '@/components/shared/ui/ThemedText';
 import { authService } from '@/services/authService';
 import { handleApiError } from '@/utils/errorHandler';
+import { formatPhoneNumber } from '@/utils/formatters';
+import { useAlert } from '@/hooks';
 import { Colors } from '@/constants/Colors';
 import { SPACING } from '@/constants';
-
-interface FieldErrors {
-    name: string;
-    email: string;
-    phoneNumber: string;
-    username: string;
-    password: string;
-    passwordConfirm: string;
-}
-
-const formatPhoneNumber = (text: string): string => {
-    const numbers = text.replace(/[^\d]/g, '');
-
-    if (numbers.length > 11) {
-        return text.slice(0, -1);
-    }
-
-    if (numbers.length <= 3) {
-        return numbers;
-    } else if (numbers.length <= 7) {
-        return `${numbers.slice(0, 3)}-${numbers.slice(3)}`;
-    } else {
-        return `${numbers.slice(0, 3)}-${numbers.slice(3, 7)}-${numbers.slice(7)}`;
-    }
-};
+import type { SignupFormData, FieldErrors } from '@/types/auth';
 
 export function SignUpForm() {
-    const [formData, setFormData] = useState({
+    const [formData, setFormData] = useState<SignupFormData>({
         name: '',
         email: '',
         phoneNumber: '',
@@ -46,21 +24,14 @@ export function SignUpForm() {
         passwordConfirm: '',
     });
 
-    const [showPassword, setShowPassword] = useState(false);
-    const [showPasswordConfirm, setShowPasswordConfirm] = useState(false);
     const [loading, setLoading] = useState(false);
     const [duplicateChecking, setDuplicateChecking] = useState(false);
     const [usernameChecked, setUsernameChecked] = useState(false);
-    const [fieldErrors, setFieldErrors] = useState<FieldErrors>({
-        name: '',
-        email: '',
-        phoneNumber: '',
-        username: '',
-        password: '',
-        passwordConfirm: '',
-    });
+    const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
 
-    const updateField = (field: keyof typeof formData, value: string) => {
+    const { showAlert } = useAlert();
+
+    const updateField = (field: keyof SignupFormData, value: string) => {
         setFormData(prev => ({ ...prev, [field]: value }));
         if (fieldErrors[field]) {
             setFieldErrors(prev => ({ ...prev, [field]: '' }));
@@ -76,15 +47,7 @@ export function SignUpForm() {
     };
 
     const validateFields = (): boolean => {
-        const errors: FieldErrors = {
-            name: '',
-            email: '',
-            phoneNumber: '',
-            username: '',
-            password: '',
-            passwordConfirm: '',
-        };
-
+        const errors: FieldErrors = {};
         let hasError = false;
 
         if (!formData.name.trim()) {
@@ -144,9 +107,7 @@ export function SignUpForm() {
 
             if (response.success) {
                 setUsernameChecked(true);
-                Alert.alert('아이디 중복확인', '사용 가능한 아이디입니다.', [
-                    { text: '확인', style: 'default' }
-                ]);
+                showAlert('아이디 중복확인', '사용 가능한 아이디입니다.');
             }
         } catch (error: unknown) {
             setUsernameChecked(false);
@@ -158,9 +119,7 @@ export function SignUpForm() {
             }
 
             if (errorResult.shouldShowAlert) {
-                Alert.alert('아이디 중복확인', errorResult.message, [
-                    { text: '확인', style: 'cancel' }
-                ]);
+                showAlert('아이디 중복확인', errorResult.message);
             }
         } finally {
             setDuplicateChecking(false);
@@ -173,11 +132,7 @@ export function SignUpForm() {
         }
 
         if (!usernameChecked) {
-            if (Platform.OS === 'web') {
-                alert('아이디 중복 확인을 해주세요.');
-            } else {
-                Alert.alert('알림', '아이디 중복 확인을 해주세요.');
-            }
+            showAlert('알림', '아이디 중복 확인을 해주세요.');
             return;
         }
 
@@ -187,27 +142,13 @@ export function SignUpForm() {
             const response = await authService.signup(formData);
 
             if (response.success || response.code === 'S001') {
-                if (Platform.OS === 'web') {
-                    alert(response.message || '회원가입이 완료되었습니다.');
-                    router.replace('/(auth)');
-                } else {
-                    Alert.alert(
-                        '회원가입 완료',
-                        response.message || '회원가입이 완료되었습니다.',
-                        [
-                            {
-                                text: '확인',
-                                onPress: () => router.replace('/(auth)'),
-                            },
-                        ]
-                    );
-                }
+                showAlert(
+                    '회원가입 완료',
+                    response.message || '회원가입이 완료되었습니다.',
+                    () => router.replace('/(auth)')
+                );
             } else {
-                if (Platform.OS === 'web') {
-                    alert(response.message || '회원가입에 실패했습니다.');
-                } else {
-                    Alert.alert('회원가입', response.message || '회원가입에 실패했습니다.');
-                }
+                showAlert('회원가입', response.message || '회원가입에 실패했습니다.');
             }
         } catch (error: unknown) {
             const errorResult = handleApiError(error, '회원가입');
@@ -217,13 +158,7 @@ export function SignUpForm() {
             }
 
             if (errorResult.shouldShowAlert) {
-                if (Platform.OS === 'web') {
-                    alert(errorResult.message);
-                } else {
-                    Alert.alert('회원가입 실패', errorResult.message, [
-                        { text: '확인', style: 'default' }
-                    ]);
-                }
+                showAlert('회원가입 실패', errorResult.message);
             }
         } finally {
             setLoading(false);
@@ -314,30 +249,12 @@ export function SignUpForm() {
             {/* 비밀번호 */}
             <View style={styles.inputContainer}>
                 <ThemedText style={styles.label}>비밀번호 *</ThemedText>
-                <View style={styles.passwordWrapper}>
-                    <TextInput
-                        style={styles.passwordInput}
-                        placeholder="비밀번호를 입력해주세요"
-                        value={formData.password}
-                        onChangeText={(text) => updateField('password', text)}
-                        secureTextEntry={!showPassword}
-                        autoCapitalize="none"
-                        autoCorrect={false}
-                        maxLength={20}
-                        error={fieldErrors.password}
-                    />
-                    <TouchableOpacity
-                        style={styles.eyeButton}
-                        onPress={() => setShowPassword(!showPassword)}
-                        activeOpacity={0.7}
-                    >
-                        <Ionicons
-                            name={showPassword ? "eye" : "eye-off"}
-                            size={20}
-                            color={Colors.text.secondary}
-                        />
-                    </TouchableOpacity>
-                </View>
+                <PasswordInput
+                    value={formData.password}
+                    onChangeText={(text) => updateField('password', text)}
+                    placeholder="비밀번호를 입력해주세요"
+                    maxLength={20}
+                />
                 {fieldErrors.password ? <Text style={styles.errorText}>{fieldErrors.password}</Text> : null}
                 <Text style={styles.hint}>
                     8자 이상 20자 이하, 영문자/숫자/특수문자 모두 포함
@@ -347,30 +264,12 @@ export function SignUpForm() {
             {/* 비밀번호 확인 */}
             <View style={styles.inputContainer}>
                 <ThemedText style={styles.label}>비밀번호 확인 *</ThemedText>
-                <View style={styles.passwordWrapper}>
-                    <TextInput
-                        style={styles.passwordInput}
-                        placeholder="비밀번호를 다시 입력해주세요"
-                        value={formData.passwordConfirm}
-                        onChangeText={(text) => updateField('passwordConfirm', text)}
-                        secureTextEntry={!showPasswordConfirm}
-                        autoCapitalize="none"
-                        autoCorrect={false}
-                        maxLength={20}
-                        error={fieldErrors.passwordConfirm}
-                    />
-                    <TouchableOpacity
-                        style={styles.eyeButton}
-                        onPress={() => setShowPasswordConfirm(!showPasswordConfirm)}
-                        activeOpacity={0.7}
-                    >
-                        <Ionicons
-                            name={showPasswordConfirm ? "eye" : "eye-off"}
-                            size={20}
-                            color={Colors.text.secondary}
-                        />
-                    </TouchableOpacity>
-                </View>
+                <PasswordInput
+                    value={formData.passwordConfirm}
+                    onChangeText={(text) => updateField('passwordConfirm', text)}
+                    placeholder="비밀번호를 다시 입력해주세요"
+                    maxLength={20}
+                />
                 {fieldErrors.passwordConfirm ? <Text style={styles.errorText}>{fieldErrors.passwordConfirm}</Text> : null}
             </View>
 
@@ -441,18 +340,6 @@ const styles = StyleSheet.create({
         fontWeight: '500',
         color: Colors.text.secondary,
         textAlign: 'center',
-    },
-    passwordWrapper: {
-        position: 'relative',
-    },
-    passwordInput: {
-        paddingRight: 50,
-    },
-    eyeButton: {
-        position: 'absolute',
-        right: 15,
-        top: 15,
-        padding: 5,
     },
     buttonContainer: {
         marginTop: SPACING.md,
