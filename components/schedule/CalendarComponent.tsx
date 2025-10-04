@@ -1,15 +1,16 @@
 // components/schedule/CalendarComponent.tsx
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { CalendarData } from '@/types/schedule';
-import { BRAND_COLORS, DAY_NAMES } from '@/utils/constants';
+import { Colors } from '@/constants/Colors';
+import { CalendarData, Schedule } from '@/types/schedule';
+import { DAY_NAMES } from '@/constants';
 
 interface CalendarComponentProps {
   calendarData: CalendarData;
   selectedDate: number | null;
   onDateSelect: (day: number) => void;
-  schedules: any[];
-  showHeader?: boolean; // 요일 헤더 표시 여부
+  schedules: Schedule[];
+  showHeader?: boolean;
 }
 
 const CalendarComponent: React.FC<CalendarComponentProps> = ({
@@ -41,18 +42,23 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({
 
   return (
       <View style={styles.container}>
-        {/* 요일 헤더 */}
         {showHeader && (
             <View style={styles.dayHeader}>
               {DAY_NAMES.map((day, index) => (
-                  <Text key={index} style={styles.dayHeaderText}>
+                  <Text
+                      key={index}
+                      style={[
+                        styles.dayHeaderText,
+                        index === 0 && styles.sundayHeaderText,
+                        index === 6 && styles.saturdayHeaderText,
+                      ]}
+                  >
                     {day}
                   </Text>
               ))}
             </View>
         )}
 
-        {/* 달력 그리드 */}
         <View style={styles.calendarGrid}>
           {calendarData.calendar.map((week, weekIndex) => (
               <View key={weekIndex} style={styles.weekRow}>
@@ -72,6 +78,8 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({
                           style={[
                             styles.dateText,
                             !date.isCurrentMonth && styles.otherMonthText,
+                            dayIndex === 0 && date.isCurrentMonth && styles.sundayText,
+                            dayIndex === 6 && date.isCurrentMonth && styles.saturdayText,
                             isToday(date.day) && styles.todayText,
                             isSelected(date.day) && styles.selectedText,
                           ]}
@@ -92,7 +100,7 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: 'white',
+    backgroundColor: Colors.background.card,
     borderRadius: 12,
     padding: 16,
     marginHorizontal: 16,
@@ -111,9 +119,15 @@ const styles = StyleSheet.create({
   dayHeaderText: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#666',
+    color: Colors.text.secondary,
     width: 40,
     textAlign: 'center',
+  },
+  sundayHeaderText: {
+    color: Colors.days.sunday,
+  },
+  saturdayHeaderText: {
+    color: Colors.days.saturday,
   },
   calendarGrid: {
     gap: 4,
@@ -135,25 +149,33 @@ const styles = StyleSheet.create({
     opacity: 0.3,
   },
   todayCell: {
-    backgroundColor: BRAND_COLORS.green,
+    backgroundColor: Colors.primary,
   },
   selectedCell: {
-    backgroundColor: BRAND_COLORS.yellowHighlight,
+    backgroundColor: Colors.background.scheduleHighlight,
+    borderWidth: 2,
+    borderColor: Colors.primary,
   },
   dateText: {
     fontSize: 16,
     fontWeight: '500',
-    color: '#333',
+    color: Colors.text.main,
   },
   otherMonthText: {
-    color: '#999',
+    color: Colors.text.lightGray,
+  },
+  sundayText: {
+    color: Colors.days.sunday,
+  },
+  saturdayText: {
+    color: Colors.days.saturday,
   },
   todayText: {
-    color: 'white',
+    color: Colors.text.white,
     fontWeight: 'bold',
   },
   selectedText: {
-    color: '#333',
+    color: Colors.text.main,
     fontWeight: 'bold',
   },
   scheduleDot: {
@@ -162,7 +184,7 @@ const styles = StyleSheet.create({
     width: 6,
     height: 6,
     borderRadius: 3,
-    backgroundColor: BRAND_COLORS.green,
+    backgroundColor: Colors.primary,
   },
 });
 

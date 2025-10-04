@@ -3,7 +3,7 @@ import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Colors } from '@/constants/Colors';
-import { TrainingMode, TrainingModeOption } from '@/types/training';
+import { TrainingMode, TRAINING_MODE_OPTIONS } from '@/types/training';
 
 interface TrainingModeSelectorProps {
     selectedMode: TrainingMode;
@@ -14,26 +14,11 @@ const TrainingModeSelector: React.FC<TrainingModeSelectorProps> = ({
                                                                        selectedMode,
                                                                        onModeSelect,
                                                                    }) => {
-    const trainingModes: TrainingModeOption[] = [
-        {
-            id: 'serve',
-            title: '서브 훈련',
-            subtitle: '속도 및 방향 조절',
-            icon: 'search-outline'
-        },
-        {
-            id: 'ai',
-            title: 'AI 추천',
-            subtitle: '맞춤 훈련 모드',
-            icon: 'bulb-outline'
-        }
-    ];
-
     return (
         <View style={styles.container}>
             <Text style={styles.sectionTitle}>훈련 모드</Text>
             <View style={styles.modeContainer}>
-                {trainingModes.map((mode) => (
+                {TRAINING_MODE_OPTIONS.map((mode) => (
                     <TouchableOpacity
                         key={mode.id}
                         style={[

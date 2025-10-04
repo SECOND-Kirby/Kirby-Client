@@ -7,7 +7,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { AuthLayout } from '@/components/auth/AuthLayout';
 import { SignUpForm } from '@/components/auth/SignUpForm';
 import { Colors } from '@/constants/Colors';
-import { SPACING } from '@/utils/constants';
+import { SPACING } from '@/constants';
 
 const SignUpScreen = () => {
     const HeaderComponent = (

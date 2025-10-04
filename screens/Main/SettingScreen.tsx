@@ -2,7 +2,7 @@
 import { Colors } from '@/constants/Colors';
 import { useAuthStore } from '@/store/authStore';
 import { useSettingsStore } from '@/store/settingsStore';
-import { showAlert, showConfirm } from '@/utils/alert';
+import { useAlert } from '@/hooks/useAlert';
 import { router } from 'expo-router';
 import React from 'react';
 import { SafeAreaView, ScrollView, StyleSheet, Text, View } from 'react-native';
@@ -12,6 +12,7 @@ import { SettingItem } from '@/components/settings/SettingItem';
 
 const SettingsScreen = () => {
     const { user, logout } = useAuthStore();
+    const { showAlert, showConfirm } = useAlert();
     const {
         dailyGoalHours,
         serveGoal,

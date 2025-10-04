@@ -8,7 +8,7 @@ import {
     FlatList,
     StyleSheet,
 } from 'react-native';
-import { BRAND_COLORS } from '@/utils/constants';
+import { Colors } from '@/constants/Colors';
 
 interface TimePickerModalProps {
     visible: boolean;
@@ -23,7 +23,6 @@ const TimePickerModal: React.FC<TimePickerModalProps> = ({
                                                              onSelect,
                                                              onClose,
                                                          }) => {
-    // 시간 목록 생성 (00:00 ~ 23:30, 30분 단위)
     const generateTimeList = (): string[] => {
         const times: string[] = [];
         for (let hour = 0; hour < 24; hour++) {
@@ -89,11 +88,11 @@ const TimePickerModal: React.FC<TimePickerModalProps> = ({
 const styles = StyleSheet.create({
     modalOverlay: {
         flex: 1,
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        backgroundColor: Colors.background.modalOverlay,
         justifyContent: 'flex-end',
     },
     modalContent: {
-        backgroundColor: '#FFFFFF',
+        backgroundColor: Colors.background.card,
         borderTopLeftRadius: 20,
         borderTopRightRadius: 20,
         maxHeight: '60%',
@@ -104,34 +103,34 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         padding: 20,
         borderBottomWidth: 1,
-        borderBottomColor: '#F0F0F0',
+        borderBottomColor: Colors.menu.border,
     },
     modalCancelText: {
         fontSize: 16,
-        color: '#888',
+        color: Colors.text.secondary,
     },
     modalTitle: {
         fontSize: 18,
         fontWeight: '700',
-        color: '#333',
+        color: Colors.text.main,
     },
     modalDoneText: {
         fontSize: 16,
         fontWeight: '600',
-        color: BRAND_COLORS.green,
+        color: Colors.primary,
     },
     timeItem: {
         padding: 15,
         borderBottomWidth: 1,
-        borderBottomColor: '#F9F9F9',
+        borderBottomColor: Colors.background.neon,
         alignItems: 'center',
     },
     timeText: {
         fontSize: 18,
-        color: '#333',
+        color: Colors.text.main,
     },
     selectedTimeText: {
-        color: BRAND_COLORS.green,
+        color: Colors.primary,
         fontWeight: 'bold',
     },
 });

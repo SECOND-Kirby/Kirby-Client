@@ -2,7 +2,7 @@
 import React, { useCallback, useState } from 'react';
 import { SafeAreaView, ScrollView, StyleSheet } from 'react-native';
 import { router, useFocusEffect } from 'expo-router';
-import { useThemeColor } from '@/hooks/useThemeColor';
+import { Colors } from '@/constants/Colors';
 import { useScheduleStore } from '@/store/scheduleStore';
 import ScheduleHeader from '@/components/schedule/ScheduleHeader';
 import ScheduleCalendarWrapper from '@/components/schedule/ScheduleCalendarWrapper';
@@ -19,43 +19,35 @@ interface Schedule {
 }
 
 const ScheduleScreen: React.FC = () => {
-  const backgroundColor = useThemeColor({}, 'background');
-
-  // Zustand store 사용
   const { schedules: storeSchedules, loadSchedules } = useScheduleStore();
 
-  // 로컬 상태
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
 
-  // store의 schedules를 로컬 형식으로 변환
   const schedules: Schedule[] = storeSchedules.map(schedule => ({
     ...schedule,
     date: new Date(schedule.date)
   }));
 
-  // 화면이 포커스될 때마다 스케줄 데이터 새로고침
   useFocusEffect(
       useCallback(() => {
         loadSchedules();
       }, [loadSchedules])
   );
 
-  // 일정 추가 핸들러
   const handleAddSchedule = useCallback(() => {
     const targetDate = selectedDate || new Date();
     router.push({
-      pathname: '/schedule-form',
+      pathname: '/(tabs)/schedule/form',
       params: {
         presetDate: targetDate.toISOString(),
       }
     });
   }, [selectedDate]);
 
-  // 일정 편집 핸들러
   const handleEditSchedule = useCallback((schedule: Schedule) => {
     router.push({
-      pathname: '/schedule-form',
+      pathname: '/(tabs)/schedule/form',
       params: {
         mode: 'edit',
         scheduleId: schedule.id,
@@ -69,13 +61,11 @@ const ScheduleScreen: React.FC = () => {
     });
   }, []);
 
-  // 날짜 선택 핸들러
   const handleDateSelect = useCallback((day: number) => {
     const newSelectedDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
     setSelectedDate(newSelectedDate);
   }, [currentDate]);
 
-  // 월 변경 핸들러
   const handlePrevMonth = useCallback(() => {
     setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1));
   }, [currentDate]);
@@ -84,12 +74,10 @@ const ScheduleScreen: React.FC = () => {
     setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1));
   }, [currentDate]);
 
-  // 뒤로가기 핸들러
   const handleBack = useCallback(() => {
     router.push('/(tabs)');
   }, []);
 
-  // 선택된 날짜의 일정들 필터링
   const getSchedulesForDate = useCallback((date: Date): Schedule[] => {
     return schedules.filter(schedule =>
         schedule.date.getDate() === date.getDate() &&
@@ -101,15 +89,13 @@ const ScheduleScreen: React.FC = () => {
   const selectedDateSchedules = selectedDate ? getSchedulesForDate(selectedDate) : [];
 
   return (
-      <SafeAreaView style={[styles.container, { backgroundColor }]}>
-        {/* 헤더 */}
+      <SafeAreaView style={styles.container}>
         <ScheduleHeader
             onBack={handleBack}
             onAdd={handleAddSchedule}
         />
 
         <ScrollView showsVerticalScrollIndicator={false}>
-          {/* 캘린더 섹션 - CalendarComponent 재사용 */}
           <ScheduleCalendarWrapper
               currentDate={currentDate}
               selectedDate={selectedDate}
@@ -119,7 +105,6 @@ const ScheduleScreen: React.FC = () => {
               onNextMonth={handleNextMonth}
           />
 
-          {/* 선택된 날짜의 일정 목록 */}
           <ScheduleCardList
               schedules={selectedDateSchedules}
               selectedDate={selectedDate}
@@ -134,6 +119,7 @@ const ScheduleScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: Colors.background.main,
   },
 });
 

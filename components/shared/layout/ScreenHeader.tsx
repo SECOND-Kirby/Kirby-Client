@@ -1,12 +1,8 @@
+// components/shared/layout/ScreenHeader.tsx
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
-import {
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
-} from 'react-native';
-import { useThemeColor } from '@/hooks/useThemeColor';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Colors } from '@/constants/Colors';
 
 interface ScreenHeaderProps {
     title: string;
@@ -21,14 +17,12 @@ const ScreenHeader: React.FC<ScreenHeaderProps> = ({
                                                        onProfilePress,
                                                        rightComponent,
                                                    }) => {
-    const backgroundColor = useThemeColor({}, 'background');
-
     return (
-        <View style={[styles.header, { backgroundColor }]}>
+        <View style={styles.header}>
             <Text style={styles.headerTitle}>{title}</Text>
             {rightComponent || (showProfile && (
                 <TouchableOpacity style={styles.profileIcon} onPress={onProfilePress}>
-                    <Ionicons name="person-outline" size={24} color="#666" />
+                    <Ionicons name="person-outline" size={24} color={Colors.text.secondary} />
                 </TouchableOpacity>
             ))}
         </View>
@@ -43,11 +37,12 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20,
         paddingTop: 50,
         paddingBottom: 16,
+        backgroundColor: Colors.background.main,
     },
     headerTitle: {
         fontSize: 24,
         fontWeight: 'bold',
-        color: '#333',
+        color: Colors.text.main,
     },
     profileIcon: {
         padding: 8,

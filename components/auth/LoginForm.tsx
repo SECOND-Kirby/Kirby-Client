@@ -14,7 +14,7 @@ import { TextInput } from '@/components/shared/ui/TextInput';
 import { ThemedText } from '@/components/shared/ui/ThemedText';
 import { useAuthStore } from '@/store/authStore';
 import { Colors } from '@/constants/Colors';
-import { SPACING } from '@/utils/constants';
+import { SPACING } from '@/constants';
 
 export function LoginForm() {
     const [username, setUsername] = useState('');

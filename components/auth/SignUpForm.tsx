@@ -9,7 +9,7 @@ import { ThemedText } from '@/components/shared/ui/ThemedText';
 import { authService } from '@/services/authService';
 import { handleApiError } from '@/utils/errorHandler';
 import { Colors } from '@/constants/Colors';
-import { SPACING } from '@/utils/constants';
+import { SPACING } from '@/constants';
 
 interface FieldErrors {
     name: string;

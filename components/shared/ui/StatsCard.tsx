@@ -1,11 +1,7 @@
+// components/shared/ui/StatsCard.tsx
 import React from 'react';
-import {
-    Image,
-    StyleSheet,
-    Text,
-    View,
-} from 'react-native';
-import { useThemeColor } from '@/hooks/useThemeColor';
+import { Image, StyleSheet, Text, View } from 'react-native';
+import { Colors } from '@/constants/Colors';
 
 interface StatsCardProps {
     icon?: any;
@@ -20,10 +16,8 @@ const StatsCard: React.FC<StatsCardProps> = ({
                                                  value,
                                                  label,
                                              }) => {
-    const cardBackgroundColor = useThemeColor({}, 'cardBackground');
-
     return (
-        <View style={[styles.statCard, { backgroundColor: cardBackgroundColor }]}>
+        <View style={styles.statCard}>
             {iconComponent || (
                 icon && <Image source={icon} style={styles.statIcon} />
             )}
@@ -39,6 +33,7 @@ const styles = StyleSheet.create({
         borderRadius: 12,
         padding: 16,
         alignItems: 'center',
+        backgroundColor: Colors.background.card,
         shadowColor: '#000',
         shadowOffset: {
             width: 0,
@@ -57,12 +52,12 @@ const styles = StyleSheet.create({
     statValue: {
         fontSize: 16,
         fontWeight: 'bold',
-        color: '#333',
+        color: Colors.text.main,
         marginBottom: 4,
     },
     statLabel: {
         fontSize: 12,
-        color: '#666',
+        color: Colors.text.secondary,
         textAlign: 'center',
     },
 });

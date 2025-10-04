@@ -4,7 +4,7 @@ import { Image, StyleSheet, Text, View } from 'react-native';
 import { AuthLayout } from '@/components/auth/AuthLayout';
 import { LoginForm } from '@/components/auth/LoginForm';
 import { Colors } from '@/constants/Colors';
-import { SPACING } from '@/utils/constants';
+import { SPACING } from '@/constants';
 
 const LoginScreen = () => {
     const HeaderComponent = (

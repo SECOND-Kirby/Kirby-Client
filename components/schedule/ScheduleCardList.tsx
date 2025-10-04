@@ -2,7 +2,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { BRAND_COLORS } from '@/utils/constants';
+import { Colors } from '@/constants/Colors';
 
 interface Schedule {
     id: string;
@@ -27,7 +27,6 @@ const ScheduleCardList: React.FC<ScheduleCardListProps> = ({
                                                                onEditSchedule,
                                                                onAddSchedule,
                                                            }) => {
-    // 시간을 AM/PM 형식으로 변환하는 함수
     const formatTimeWithAMPM = (time: string): string => {
         const [hours, minutes] = time.split(':');
         const hour = parseInt(hours);
@@ -52,7 +51,7 @@ const ScheduleCardList: React.FC<ScheduleCardListProps> = ({
                     onPress={onAddSchedule}
                     activeOpacity={0.7}
                 >
-                    <Ionicons name="add" size={20} color="#333" />
+                    <Ionicons name="add" size={20} color={Colors.text.main} />
                     <Text style={styles.addScheduleButtonText}>일정 추가</Text>
                 </TouchableOpacity>
             </View>
@@ -81,7 +80,7 @@ const ScheduleCardList: React.FC<ScheduleCardListProps> = ({
                                     onPress={() => onEditSchedule(schedule)}
                                     activeOpacity={0.7}
                                 >
-                                    <Ionicons name="pencil" size={16} color="#666" />
+                                    <Ionicons name="pencil" size={16} color={Colors.text.secondary} />
                                 </TouchableOpacity>
                             </View>
                             <Text style={styles.scheduleTime}>
@@ -107,7 +106,7 @@ const styles = StyleSheet.create({
         borderRadius: 12,
         padding: 16,
         marginBottom: 12,
-        backgroundColor: '#FFFFFF',
+        backgroundColor: Colors.background.card,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 1 },
         shadowOpacity: 0.05,
@@ -125,13 +124,13 @@ const styles = StyleSheet.create({
     },
     scheduleDateText: {
         fontSize: 12,
-        color: '#666',
+        color: Colors.text.secondary,
         marginBottom: 4,
     },
     scheduleNumber: {
         fontSize: 24,
         fontWeight: 'bold',
-        color: '#333',
+        color: Colors.text.main,
     },
     scheduleInfo: {
         flex: 1,
@@ -146,12 +145,12 @@ const styles = StyleSheet.create({
         height: 8,
         borderRadius: 4,
         marginRight: 8,
-        backgroundColor: BRAND_COLORS.green,
+        backgroundColor: Colors.primary,
     },
     scheduleTitle: {
         fontSize: 16,
         fontWeight: '600',
-        color: '#333',
+        color: Colors.text.main,
         flex: 1,
     },
     editButton: {
@@ -159,7 +158,7 @@ const styles = StyleSheet.create({
     },
     scheduleTime: {
         fontSize: 14,
-        color: '#666',
+        color: Colors.text.secondary,
         marginLeft: 16,
     },
     noScheduleSection: {
@@ -169,7 +168,7 @@ const styles = StyleSheet.create({
     },
     noScheduleText: {
         fontSize: 16,
-        color: '#666',
+        color: Colors.text.secondary,
         marginBottom: 20,
     },
     addScheduleButton: {
@@ -178,12 +177,12 @@ const styles = StyleSheet.create({
         paddingVertical: 12,
         paddingHorizontal: 20,
         borderRadius: 25,
-        backgroundColor: BRAND_COLORS.green,
+        backgroundColor: Colors.primary,
     },
     addScheduleButtonText: {
         fontSize: 16,
         fontWeight: '600',
-        color: '#333',
+        color: Colors.text.main,
         marginLeft: 8,
     },
 });

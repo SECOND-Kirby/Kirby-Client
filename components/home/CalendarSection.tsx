@@ -4,7 +4,6 @@ import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import CalendarComponent from '@/components/schedule/CalendarComponent';
 import { CalendarData } from '@/types/schedule';
-import { MONTH_NAMES } from '@/utils/constants';
 
 interface CalendarSectionProps {
     calendarData: CalendarData;
@@ -16,6 +15,11 @@ interface CalendarSectionProps {
     schedules: any[];
 }
 
+const MONTH_NAMES = [
+    '1월', '2월', '3월', '4월', '5월', '6월',
+    '7월', '8월', '9월', '10월', '11월', '12월'
+];
+
 const CalendarSection: React.FC<CalendarSectionProps> = ({
                                                              calendarData,
                                                              selectedDate,
@@ -26,15 +30,15 @@ const CalendarSection: React.FC<CalendarSectionProps> = ({
                                                              schedules,
                                                          }) => {
     return (
-        <View style={styles.calendarSection}>
-            <View style={styles.calendarHeader}>
-                <TouchableOpacity onPress={() => onNavigateMonth('prev')}>
+        <View style={styles.container}>
+            <View style={styles.header}>
+                <TouchableOpacity onPress={() => onNavigateMonth('prev')} style={styles.navButton}>
                     <Ionicons name="chevron-back" size={24} color="#666" />
                 </TouchableOpacity>
                 <Text style={styles.monthYearText}>
-                    {currentYear}년 {MONTH_NAMES[currentMonth]}
+                    {currentYear}년 {MONTH_NAMES[currentMonth - 1]}
                 </Text>
-                <TouchableOpacity onPress={() => onNavigateMonth('next')}>
+                <TouchableOpacity onPress={() => onNavigateMonth('next')} style={styles.navButton}>
                     <Ionicons name="chevron-forward" size={24} color="#666" />
                 </TouchableOpacity>
             </View>
@@ -50,20 +54,23 @@ const CalendarSection: React.FC<CalendarSectionProps> = ({
 };
 
 const styles = StyleSheet.create({
-    calendarSection: {
-        marginTop: 8,
+    container: {
+        marginBottom: 16,
     },
-    calendarHeader: {
+    header: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
         paddingHorizontal: 16,
         marginBottom: 8,
     },
+    navButton: {
+        padding: 8,
+    },
     monthYearText: {
         fontSize: 18,
         fontWeight: 'bold',
-        color: '#333',
+        color: '#1A1A1A',
     },
 });
 

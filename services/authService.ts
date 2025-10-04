@@ -1,5 +1,7 @@
+// services/authService.ts
 import { logError } from '@/utils/logger';
 import { storage } from '@/utils/storage';
+import { ERROR_CODES } from '@/constants';
 import http from "./http";
 
 // 백엔드 API와 정확히 일치하는 타입 정의
@@ -47,27 +49,6 @@ export interface LogoutRequest {
     accessToken?: string;
     refreshToken?: string;
 }
-
-// 에러 코드 상수 정의
-export const ERROR_CODES = {
-    // 인증 관련
-    INVALID_TOKEN: 'A001',
-    TOKEN_EXPIRED: 'A002',
-    UNAUTHORIZED: 'A003',
-    
-    // 사용자 관련
-    USER_NOT_FOUND: 'U001',
-    USERNAME_ALREADY_EXISTS: 'U002',
-    EMAIL_ALREADY_EXISTS: 'U003',
-    PHONE_NUMBER_ALREADY_EXISTS: 'U004',
-    INVALID_PASSWORD: 'U005',
-    PASSWORD_MISMATCH: 'U006',
-    SAME_AS_CURRENT_PASSWORD: 'U007',
-    
-    // 일반 에러
-    INTERNAL_SERVER_ERROR: 'E001',
-    INVALID_INPUT_VALUE: 'E002',
-} as const;
 
 export const authService = {
     async signup(request: SignupRequest): Promise<AuthResponse<void>> {

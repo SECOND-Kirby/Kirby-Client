@@ -2,6 +2,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { Colors } from '@/constants/Colors';
 
 interface ScheduleHeaderProps {
     onBack: () => void;
@@ -16,7 +17,7 @@ const ScheduleHeader: React.FC<ScheduleHeaderProps> = ({ onBack, onAdd }) => {
                 onPress={onBack}
                 activeOpacity={0.7}
             >
-                <Ionicons name="chevron-back" size={24} color="#333" />
+                <Ionicons name="chevron-back" size={24} color={Colors.text.main} />
             </TouchableOpacity>
             <Text style={styles.headerTitle}>스케줄</Text>
             <TouchableOpacity
@@ -24,7 +25,7 @@ const ScheduleHeader: React.FC<ScheduleHeaderProps> = ({ onBack, onAdd }) => {
                 onPress={onAdd}
                 activeOpacity={0.7}
             >
-                <Ionicons name="add" size={24} color="#333" />
+                <Ionicons name="add" size={24} color={Colors.text.main} />
             </TouchableOpacity>
         </View>
     );
@@ -45,7 +46,7 @@ const styles = StyleSheet.create({
     headerTitle: {
         fontSize: 24,
         fontWeight: 'bold',
-        color: '#333',
+        color: Colors.text.main,
         flex: 1,
         textAlign: 'center',
     },

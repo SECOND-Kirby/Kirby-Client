@@ -1,7 +1,4 @@
 // screens/Main/TrainingScreen.tsx
-import { Colors } from '@/constants/Colors';
-import { useAuthStore } from '@/store/authStore';
-import { router } from 'expo-router';
 import React from 'react';
 import {
     Image, ScrollView,
@@ -11,9 +8,13 @@ import {
     View
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { router } from 'expo-router';
+import { Colors } from '@/constants/Colors';
+import { useAuthStore } from '@/store/authStore';
 import { useTrainingSettings } from '@/hooks/useTrainingSettings';
 import TrainingModeSelector from '@/components/training/TrainingModeSelector';
 import SettingsCard from '@/components/training/SettingsCard';
+import StatsCard from '@/components/shared/ui/StatsCard';
 
 const TrainingScreen: React.FC = () => {
     const { user } = useAuthStore();
@@ -44,24 +45,6 @@ const TrainingScreen: React.FC = () => {
         });
     };
 
-    const statsData = [
-        {
-            icon: require('@/assets/images/clock.png'),
-            value: '1시간30분',
-            label: '훈련 시간'
-        },
-        {
-            icon: require('@/assets/images/serve.png'),
-            value: '56회',
-            label: '서브 횟수'
-        },
-        {
-            icon: require('@/assets/images/battery.png'),
-            value: '85%',
-            label: '배터리'
-        }
-    ];
-
     return (
         <View style={styles.container}>
             <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
@@ -79,13 +62,21 @@ const TrainingScreen: React.FC = () => {
                 </View>
 
                 <View style={styles.statsSection}>
-                    {statsData.map((stat, index) => (
-                        <View key={index} style={styles.statCard}>
-                            <Image source={stat.icon} style={styles.statIcon}/>
-                            <Text style={styles.statValue}>{stat.value}</Text>
-                            <Text style={styles.statLabel}>{stat.label}</Text>
-                        </View>
-                    ))}
+                    <StatsCard
+                        icon={require('@/assets/images/clock.png')}
+                        value="1시간30분"
+                        label="훈련 시간"
+                    />
+                    <StatsCard
+                        icon={require('@/assets/images/serve.png')}
+                        value="56회"
+                        label="서브 횟수"
+                    />
+                    <StatsCard
+                        icon={require('@/assets/images/battery.png')}
+                        value="85%"
+                        label="배터리"
+                    />
                 </View>
 
                 <SettingsCard
@@ -149,35 +140,6 @@ const styles = StyleSheet.create({
         paddingHorizontal: 16,
         marginBottom: 20,
         gap: 8,
-    },
-    statCard: {
-        flex: 1,
-        backgroundColor: Colors.background.card,
-        borderRadius: 12,
-        padding: 16,
-        alignItems: 'center',
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.05,
-        shadowRadius: 2,
-        elevation: 2,
-    },
-    statIcon: {
-        width: 24,
-        height: 24,
-        marginBottom: 8,
-        resizeMode: 'contain',
-    },
-    statValue: {
-        fontSize: 16,
-        fontWeight: 'bold',
-        color: Colors.text.main,
-        marginBottom: 4,
-    },
-    statLabel: {
-        fontSize: 12,
-        color: Colors.text.secondary,
-        textAlign: 'center',
     },
     startButton: {
         backgroundColor: Colors.primary,

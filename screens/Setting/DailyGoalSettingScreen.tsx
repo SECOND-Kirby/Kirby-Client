@@ -7,13 +7,14 @@ import { router, useFocusEffect } from 'expo-router';
 import React, { useState, useCallback, useRef } from 'react';
 import { SafeAreaView, StyleSheet, Text, View } from 'react-native';
 import { useSettingsStore } from '@/store/settingsStore';
-import { showAlert } from '@/utils/alert';
+import { useAlert } from '@/hooks/useAlert';
 
 const MIN_VALUE = 1;
 const MAX_VALUE = 24;
 
 const DailyGoalSettingScreen: React.FC = () => {
     const { dailyGoalHours, setDailyGoalHours } = useSettingsStore();
+    const { showAlert } = useAlert();
     const [tempValue, setTempValue] = useState(dailyGoalHours);
     const adjusterRef = useRef<GoalAdjusterRef>(null);
 

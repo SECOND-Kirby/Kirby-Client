@@ -1,12 +1,12 @@
-// 공통 타입 정의
+// types/schedule.ts
 export interface Schedule {
   id: string;
   title: string;
-  date: string;
-  startTime: string;
-  endTime: string;
+  date: string; // ISO 형식
+  startTime: string; // "HH:MM"
+  endTime: string; // "HH:MM"
   isAllDay: boolean;
-  duration?: string;
+  memo?: string;
 }
 
 export interface CalendarDate {
@@ -20,11 +20,4 @@ export interface CalendarData {
   today: number | null;
   month: number;
   year: number;
-}
-
-export interface TrainingParams {
-  duration: string;
-  mode: string;
-  difficulty: string;
-  ballCount: string;
 }

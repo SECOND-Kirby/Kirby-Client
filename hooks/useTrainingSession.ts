@@ -1,3 +1,4 @@
+// hooks/useTrainingSession.ts
 import { useState, useEffect, useCallback } from 'react';
 import { TrainingSessionData, TrainingSettings } from '@/types/training';
 
@@ -13,7 +14,7 @@ export const useTrainingSession = (settings: TrainingSettings) => {
     });
 
     useEffect(() => {
-        let interval: number;
+        let interval: NodeJS.Timeout | null = null;
 
         if (isRunning && timeLeft > 0) {
             interval = setInterval(() => {
@@ -25,7 +26,7 @@ export const useTrainingSession = (settings: TrainingSettings) => {
                     return prev - 1;
                 });
 
-                // 더미 데이터 업데이트
+                // 더미 데이터 업데이트 (10% 확률)
                 if (Math.random() < 0.1) {
                     setSessionData(prev => ({
                         ...prev,
@@ -38,8 +39,18 @@ export const useTrainingSession = (settings: TrainingSettings) => {
             }, 1000);
         }
 
-        return () => clearInterval(interval);
+        return () => {
+            if (interval) {
+                clearInterval(interval);
+            }
+        };
     }, [isRunning, timeLeft, settings.duration]);
+
+    const formatTime = useCallback((seconds: number): string => {
+        const mins = Math.floor(seconds / 60);
+        const secs = seconds % 60;
+        return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    }, []);
 
     const handleStart = useCallback(() => {
         setIsRunning(true);
@@ -65,12 +76,6 @@ export const useTrainingSession = (settings: TrainingSettings) => {
             timeElapsed: 0,
         });
     }, [settings.duration]);
-
-    const formatTime = useCallback((seconds: number) => {
-        const minutes = Math.floor(seconds / 60);
-        const remainingSeconds = seconds % 60;
-        return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
-    }, []);
 
     const progress = ((settings.duration * 60 - timeLeft) / (settings.duration * 60)) * 100;
 

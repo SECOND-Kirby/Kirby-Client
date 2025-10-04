@@ -1,6 +1,7 @@
 // components/schedule/FormRow.tsx
 import React, { ReactNode } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import { Colors } from '@/constants/Colors';
 
 interface FormRowProps {
     label: string;
@@ -26,12 +27,12 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         paddingVertical: 10,
         borderBottomWidth: 1,
-        borderBottomColor: '#f0f0f0',
+        borderBottomColor: Colors.menu.border,
     },
     formLabel: {
         fontSize: 16,
         fontWeight: '500',
-        color: '#333',
+        color: Colors.text.main,
     },
     formValue: {
         flexDirection: 'row',

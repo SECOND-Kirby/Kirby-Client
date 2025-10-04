@@ -14,11 +14,10 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
-import { useThemeColor } from '@/hooks/useThemeColor';
+import { Colors } from '@/constants/Colors';
 import { useScheduleStore } from '@/store/scheduleStore';
 import FormRow from '@/components/schedule/FormRow';
 import TimePickerModal from '@/components/schedule/TimePickerModal';
-import { BRAND_COLORS } from '@/utils/constants';
 
 interface DayOfWeek {
     key: string;
@@ -30,10 +29,8 @@ const ScheduleFormScreen: React.FC = () => {
     const params = useLocalSearchParams();
     const isEditMode = params.mode === 'edit';
 
-    // Zustand store
     const { addSchedule, updateSchedule, deleteSchedule } = useScheduleStore();
 
-    // 폼 상태
     const [title, setTitle] = useState('');
     const [isAllDay, setIsAllDay] = useState(false);
     const [date, setDate] = useState(new Date());
@@ -41,17 +38,9 @@ const ScheduleFormScreen: React.FC = () => {
     const [endTime, setEndTime] = useState('10:00');
     const [memo, setMemo] = useState('');
 
-    // 모달 상태
     const [showStartTimePicker, setShowStartTimePicker] = useState(false);
     const [showEndTimePicker, setShowEndTimePicker] = useState(false);
 
-    // 테마 색상
-    const backgroundColor = useThemeColor({}, 'background');
-    const cardBackgroundColor = useThemeColor({}, 'cardBackground');
-    const textColor = useThemeColor({}, 'text');
-    const inputBorderColor = useThemeColor({}, 'border');
-
-    // 반복 요일 데이터
     const [selectedDays, setSelectedDays] = useState<DayOfWeek[]>([
         { key: 'M', label: '월', isSelected: false },
         { key: 'T', label: '화', isSelected: false },
@@ -62,7 +51,6 @@ const ScheduleFormScreen: React.FC = () => {
         { key: 'Su', label: '일', isSelected: false },
     ]);
 
-    // 데이터 로드 (수정 모드 시)
     useEffect(() => {
         if (isEditMode && params.title) {
             setTitle(params.title as string);
@@ -72,12 +60,10 @@ const ScheduleFormScreen: React.FC = () => {
             setEndTime(params.endTime as string);
             setMemo(params.memo as string || '');
         } else if (params.presetDate) {
-            // 미리 설정된 날짜가 있으면 설정
             setDate(new Date(params.presetDate as string));
         }
     }, [isEditMode, params]);
 
-    // 요일 토글 핸들러
     const handleToggleDay = useCallback((key: string) => {
         setSelectedDays(prevDays =>
             prevDays.map(day =>
@@ -86,7 +72,6 @@ const ScheduleFormScreen: React.FC = () => {
         );
     }, []);
 
-    // 저장 핸들러
     const handleSave = useCallback(async () => {
         if (!title.trim()) {
             Alert.alert('알림', '제목을 입력해주세요.');
@@ -116,7 +101,6 @@ const ScheduleFormScreen: React.FC = () => {
         }
     }, [title, isAllDay, date, startTime, endTime, isEditMode, params, addSchedule, updateSchedule]);
 
-    // 삭제 핸들러
     const handleDelete = useCallback(() => {
         Alert.alert('삭제 확인', '정말 이 일정을 삭제하시겠습니까?', [
             { text: '취소', style: 'cancel' },
@@ -135,8 +119,7 @@ const ScheduleFormScreen: React.FC = () => {
     }, [params.scheduleId, deleteSchedule]);
 
     return (
-        <SafeAreaView style={[styles.container, { backgroundColor }]}>
-            {/* Time Picker Modals */}
+        <SafeAreaView style={styles.container}>
             <TimePickerModal
                 visible={showStartTimePicker}
                 time={startTime}
@@ -150,12 +133,11 @@ const ScheduleFormScreen: React.FC = () => {
                 onClose={() => setShowEndTimePicker(false)}
             />
 
-            {/* Header */}
             <View style={styles.header}>
                 <TouchableOpacity onPress={router.back} style={styles.headerButton}>
-                    <Ionicons name="close" size={24} color={textColor} />
+                    <Ionicons name="close" size={24} color={Colors.text.main} />
                 </TouchableOpacity>
-                <Text style={[styles.headerTitle, { color: textColor }]}>
+                <Text style={styles.headerTitle}>
                     {isEditMode ? '일정 수정' : '새 일정'}
                 </Text>
                 <TouchableOpacity onPress={handleSave} style={styles.headerButton}>
@@ -164,30 +146,28 @@ const ScheduleFormScreen: React.FC = () => {
             </View>
 
             <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
-                {/* 일정 제목 */}
-                <View style={[styles.card, { backgroundColor: cardBackgroundColor }]}>
+                <View style={styles.card}>
                     <TextInput
-                        style={[styles.titleInput, { color: textColor }]}
+                        style={styles.titleInput}
                         placeholder="일정 제목"
-                        placeholderTextColor={inputBorderColor}
+                        placeholderTextColor={Colors.text.secondary}
                         value={title}
                         onChangeText={setTitle}
                     />
                 </View>
 
-                {/* 시간 설정 */}
-                <View style={[styles.card, { backgroundColor: cardBackgroundColor }]}>
+                <View style={styles.card}>
                     <FormRow label="종일" isSwitch>
                         <Switch
-                            trackColor={{ false: inputBorderColor, true: BRAND_COLORS.green }}
-                            thumbColor="white"
+                            trackColor={{ false: Colors.border, true: Colors.primary }}
+                            thumbColor={Colors.background.card}
                             onValueChange={setIsAllDay}
                             value={isAllDay}
                         />
                     </FormRow>
                     <FormRow label="날짜">
                         <TouchableOpacity>
-                            <Text style={{ color: textColor }}>
+                            <Text style={{ color: Colors.text.main }}>
                                 {date.toLocaleDateString('ko-KR')}
                             </Text>
                         </TouchableOpacity>
@@ -196,21 +176,20 @@ const ScheduleFormScreen: React.FC = () => {
                         <>
                             <FormRow label="시작 시간">
                                 <TouchableOpacity onPress={() => setShowStartTimePicker(true)}>
-                                    <Text style={{ color: textColor }}>{startTime}</Text>
+                                    <Text style={{ color: Colors.text.main }}>{startTime}</Text>
                                 </TouchableOpacity>
                             </FormRow>
                             <FormRow label="종료 시간">
                                 <TouchableOpacity onPress={() => setShowEndTimePicker(true)}>
-                                    <Text style={{ color: textColor }}>{endTime}</Text>
+                                    <Text style={{ color: Colors.text.main }}>{endTime}</Text>
                                 </TouchableOpacity>
                             </FormRow>
                         </>
                     )}
                 </View>
 
-                {/* 반복 설정 */}
-                <View style={[styles.card, { backgroundColor: cardBackgroundColor }]}>
-                    <Text style={[styles.sectionTitle, { color: textColor }]}>반복 설정</Text>
+                <View style={styles.card}>
+                    <Text style={styles.sectionTitle}>반복 설정</Text>
                     <View style={styles.daySelectionContainer}>
                         <FlatList
                             data={selectedDays}
@@ -240,24 +219,22 @@ const ScheduleFormScreen: React.FC = () => {
                     </View>
                 </View>
 
-                {/* 메모 입력 */}
-                <View style={[styles.card, { backgroundColor: cardBackgroundColor }]}>
-                    <Text style={[styles.sectionTitle, { color: textColor }]}>메모</Text>
+                <View style={styles.card}>
+                    <Text style={styles.sectionTitle}>메모</Text>
                     <TextInput
-                        style={[styles.memoInput, { color: textColor, borderColor: inputBorderColor }]}
+                        style={styles.memoInput}
                         placeholder="메모를 입력하세요..."
-                        placeholderTextColor={inputBorderColor}
+                        placeholderTextColor={Colors.text.secondary}
                         multiline
                         value={memo}
                         onChangeText={setMemo}
                     />
                 </View>
 
-                {/* 삭제 버튼 (수정 모드 시에만) */}
                 {isEditMode && (
                     <View style={styles.deleteContainer}>
                         <TouchableOpacity onPress={handleDelete} style={styles.deleteButton}>
-                            <Ionicons name="trash-bin-outline" size={20} color="#FF6B6B" />
+                            <Ionicons name="trash-bin-outline" size={20} color={Colors.schedule.delete} />
                             <Text style={styles.deleteButtonText}>일정 삭제</Text>
                         </TouchableOpacity>
                     </View>
@@ -270,6 +247,7 @@ const ScheduleFormScreen: React.FC = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+        backgroundColor: Colors.background.main,
     },
     header: {
         flexDirection: 'row',
@@ -278,7 +256,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 15,
         paddingVertical: 10,
         borderBottomWidth: 1,
-        borderBottomColor: '#f0f0f0',
+        borderBottomColor: Colors.menu.border,
     },
     headerButton: {
         padding: 5,
@@ -286,16 +264,18 @@ const styles = StyleSheet.create({
     headerTitle: {
         fontSize: 18,
         fontWeight: '700',
+        color: Colors.text.main,
     },
     saveButtonText: {
         fontSize: 16,
         fontWeight: '600',
-        color: BRAND_COLORS.green,
+        color: Colors.primary,
     },
     scrollView: {
         padding: 10,
     },
     card: {
+        backgroundColor: Colors.background.card,
         borderRadius: 10,
         padding: 15,
         marginBottom: 10,
@@ -308,20 +288,24 @@ const styles = StyleSheet.create({
     sectionTitle: {
         fontSize: 16,
         fontWeight: '700',
+        color: Colors.text.main,
         marginBottom: 10,
     },
     titleInput: {
         fontSize: 20,
         fontWeight: '700',
+        color: Colors.text.main,
         paddingBottom: 5,
     },
     memoInput: {
         minHeight: 100,
         borderWidth: 1,
+        borderColor: Colors.border,
         borderRadius: 8,
         padding: 10,
         textAlignVertical: 'top',
         fontSize: 15,
+        color: Colors.text.main,
     },
     daySelectionContainer: {
         marginTop: 5,
@@ -334,23 +318,23 @@ const styles = StyleSheet.create({
         height: 35,
         borderRadius: 17.5,
         borderWidth: 1,
-        borderColor: '#e0e0e0',
+        borderColor: Colors.border,
         marginRight: 8,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: 'white',
+        backgroundColor: Colors.background.card,
     },
     dayButtonSelected: {
-        backgroundColor: BRAND_COLORS.green,
-        borderColor: BRAND_COLORS.green,
+        backgroundColor: Colors.primary,
+        borderColor: Colors.primary,
     },
     dayText: {
         fontSize: 14,
         fontWeight: '500',
-        color: '#333',
+        color: Colors.text.main,
     },
     dayTextSelected: {
-        color: 'white',
+        color: Colors.text.white,
     },
     deleteContainer: {
         padding: 10,
@@ -361,17 +345,17 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         paddingVertical: 15,
         paddingHorizontal: 25,
-        backgroundColor: '#FFF5F5',
+        backgroundColor: Colors.schedule.deleteBackground,
         borderRadius: 10,
         borderWidth: 2,
-        borderColor: '#FF6B6B',
+        borderColor: Colors.schedule.delete,
         minHeight: 50,
         minWidth: 150,
         justifyContent: 'center',
     },
     deleteButtonText: {
         fontSize: 16,
-        color: '#FF6B6B',
+        color: Colors.schedule.delete,
         marginLeft: 8,
         fontWeight: '500',
     },

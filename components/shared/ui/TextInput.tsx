@@ -1,7 +1,8 @@
+// components/shared/ui/TextInput.tsx
 import React from 'react';
 import { StyleSheet, TextInput as RNTextInput, TextInputProps } from 'react-native';
 import { Colors } from '@/constants/Colors';
-import { INPUT_HEIGHT, BORDER_RADIUS } from '@/utils/constants';
+import { INPUT_HEIGHT, BORDER_RADIUS } from '@/constants';
 
 interface AppTextInputProps extends TextInputProps {
     error?: string;

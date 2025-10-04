@@ -7,13 +7,14 @@ import { router, useFocusEffect } from 'expo-router';
 import React, { useState, useCallback, useRef } from 'react';
 import { SafeAreaView, StyleSheet, Text, View } from 'react-native';
 import { useSettingsStore } from '@/store/settingsStore';
-import { showAlert } from '@/utils/alert';
+import { useAlert } from '@/hooks/useAlert';
 
 const MIN_VALUE = 1;
 const MAX_VALUE = 99;
 
 const ServeGoalSettingScreen: React.FC = () => {
     const { serveGoal, setServeGoal } = useSettingsStore();
+    const { showAlert } = useAlert();
     const [tempValue, setTempValue] = useState(serveGoal);
     const adjusterRef = useRef<GoalAdjusterRef>(null);
 

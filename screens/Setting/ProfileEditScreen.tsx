@@ -18,11 +18,12 @@ import { SettingsHeader } from '@/components/settings/SettingsHeader';
 import { TextInput } from '@/components/shared/ui/TextInput';
 import { Button } from '@/components/shared/ui/Button';
 import { useAuthStore } from '@/store/authStore';
-import { showAlert, showConfirm } from '@/utils/alert';
+import { useAlert } from '@/hooks/useAlert';
 import { Colors } from '@/constants/Colors';
 
 const ProfileEditScreen: React.FC = () => {
   const { user } = useAuthStore();
+  const { showAlert, showConfirm } = useAlert();
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');

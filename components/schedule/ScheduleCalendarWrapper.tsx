@@ -4,7 +4,9 @@ import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import CalendarComponent from './CalendarComponent';
 import { CalendarData } from '@/types/schedule';
-import { MONTH_NAMES, BRAND_COLORS } from '@/utils/constants';
+import { Colors } from '@/constants/Colors';
+
+const MONTH_NAMES = ['', '1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'];
 
 interface ScheduleCalendarWrapperProps {
     currentDate: Date;
@@ -23,7 +25,6 @@ const ScheduleCalendarWrapper: React.FC<ScheduleCalendarWrapperProps> = ({
                                                                              onPrevMonth,
                                                                              onNextMonth,
                                                                          }) => {
-    // 달력 데이터 생성
     const calendarData: CalendarData = useMemo(() => {
         const year = currentDate.getFullYear();
         const month = currentDate.getMonth();
@@ -38,7 +39,6 @@ const ScheduleCalendarWrapper: React.FC<ScheduleCalendarWrapperProps> = ({
         const calendar: CalendarData['calendar'] = [];
         let weeks: any[] = [];
 
-        // 이전 달의 마지막 날짜들 추가
         for (let i = firstDay - 1; i >= 0; i--) {
             weeks.push({
                 day: daysInPrevMonth - i,
@@ -47,7 +47,6 @@ const ScheduleCalendarWrapper: React.FC<ScheduleCalendarWrapperProps> = ({
             });
         }
 
-        // 현재 달의 날짜들 추가
         for (let day = 1; day <= daysInMonth; day++) {
             weeks.push({
                 day: day,
@@ -56,7 +55,6 @@ const ScheduleCalendarWrapper: React.FC<ScheduleCalendarWrapperProps> = ({
             });
         }
 
-        // 다음 달의 첫 날짜들 추가
         const remainingCells = 42 - weeks.length;
         for (let day = 1; day <= remainingCells; day++) {
             weeks.push({
@@ -66,7 +64,6 @@ const ScheduleCalendarWrapper: React.FC<ScheduleCalendarWrapperProps> = ({
             });
         }
 
-        // 주 단위로 나누기
         for (let i = 0; i < weeks.length; i += 7) {
             calendar.push(weeks.slice(i, i + 7));
         }
@@ -85,7 +82,6 @@ const ScheduleCalendarWrapper: React.FC<ScheduleCalendarWrapperProps> = ({
 
     return (
         <View style={styles.container}>
-            {/* 월 네비게이션 헤더 */}
             <View style={styles.header}>
                 <TouchableOpacity
                     style={styles.navButton}
@@ -93,7 +89,7 @@ const ScheduleCalendarWrapper: React.FC<ScheduleCalendarWrapperProps> = ({
                     hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                     activeOpacity={0.7}
                 >
-                    <Ionicons name="chevron-back" size={24} color="#666" />
+                    <Ionicons name="chevron-back" size={24} color={Colors.text.secondary} />
                 </TouchableOpacity>
                 <Text style={styles.title}>
                     {calendarData.year}년 {MONTH_NAMES[calendarData.month]}
@@ -104,11 +100,10 @@ const ScheduleCalendarWrapper: React.FC<ScheduleCalendarWrapperProps> = ({
                     hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                     activeOpacity={0.7}
                 >
-                    <Ionicons name="chevron-forward" size={24} color="#666" />
+                    <Ionicons name="chevron-forward" size={24} color={Colors.text.secondary} />
                 </TouchableOpacity>
             </View>
 
-            {/* 달력 컴포넌트 */}
             <CalendarComponent
                 calendarData={calendarData}
                 selectedDate={selectedDay}
@@ -134,7 +129,7 @@ const styles = StyleSheet.create({
     title: {
         fontSize: 20,
         fontWeight: 'bold',
-        color: BRAND_COLORS.green,
+        color: Colors.primary,
     },
     navButton: {
         padding: 8,
