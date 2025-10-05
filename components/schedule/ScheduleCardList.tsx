@@ -3,21 +3,13 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '@/constants/Colors';
-
-interface Schedule {
-    id: string;
-    title: string;
-    date: Date;
-    startTime: string;
-    endTime: string;
-    isAllDay: boolean;
-    memo?: string;
-}
+import { Schedule } from '@/types/schedule';
 
 interface ScheduleCardListProps {
     schedules: Schedule[];
     selectedDate: Date | null;
     onEditSchedule: (schedule: Schedule) => void;
+    onViewSchedule?: (schedule: Schedule) => void;
     onAddSchedule: () => void;
 }
 
@@ -25,6 +17,7 @@ const ScheduleCardList: React.FC<ScheduleCardListProps> = ({
                                                                schedules,
                                                                selectedDate,
                                                                onEditSchedule,
+                                                               onViewSchedule,
                                                                onAddSchedule,
                                                            }) => {
     const formatTimeWithAMPM = (time: string): string => {
@@ -35,11 +28,30 @@ const ScheduleCardList: React.FC<ScheduleCardListProps> = ({
         return `${displayHour}:${minutes}${ampm}`;
     };
 
+    const getDayOfWeek = (date: Date): string => {
+        const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+        return days[date.getDay()];
+    };
+
+    const handleCardPress = (schedule: Schedule) => {
+        if (onViewSchedule) {
+            onViewSchedule(schedule);
+        } else {
+            onEditSchedule(schedule);
+        }
+    };
+
+    const handleEditPress = (e: any, schedule: Schedule) => {
+        e.stopPropagation(); // 카드 클릭 이벤트 전파 방지
+        onEditSchedule(schedule);
+    };
+
     if (!selectedDate) return null;
 
     if (schedules.length === 0) {
         return (
             <View style={styles.noScheduleSection}>
+                <Ionicons name="calendar-outline" size={48} color={Colors.text.secondary} />
                 <Text style={styles.noScheduleText}>
                     {selectedDate.toLocaleDateString('ko-KR', {
                         month: 'long',
@@ -51,7 +63,7 @@ const ScheduleCardList: React.FC<ScheduleCardListProps> = ({
                     onPress={onAddSchedule}
                     activeOpacity={0.7}
                 >
-                    <Ionicons name="add" size={20} color={Colors.text.main} />
+                    <Ionicons name="add" size={20} color={Colors.text.white} />
                     <Text style={styles.addScheduleButtonText}>일정 추가</Text>
                 </TouchableOpacity>
             </View>
@@ -60,57 +72,75 @@ const ScheduleCardList: React.FC<ScheduleCardListProps> = ({
 
     return (
         <View style={styles.scheduleListSection}>
-            {schedules.map((schedule) => (
-                <View key={schedule.id} style={styles.scheduleCard}>
-                    <View style={styles.scheduleCardContent}>
-                        <View style={styles.scheduleDate}>
-                            <Text style={styles.scheduleDateText}>
-                                {schedule.date.toLocaleDateString('en-US', { weekday: 'short' })}
-                            </Text>
-                            <Text style={styles.scheduleNumber}>
-                                {schedule.date.getDate()}
-                            </Text>
-                        </View>
-                        <View style={styles.scheduleInfo}>
-                            <View style={styles.scheduleHeader}>
-                                <View style={styles.scheduleBadge} />
-                                <Text style={styles.scheduleTitle}>{schedule.title}</Text>
-                                <TouchableOpacity
-                                    style={styles.editButton}
-                                    onPress={() => onEditSchedule(schedule)}
-                                    activeOpacity={0.7}
-                                >
-                                    <Ionicons name="pencil" size={16} color={Colors.text.secondary} />
-                                </TouchableOpacity>
+            {schedules.map((schedule) => {
+                const scheduleDate = new Date(schedule.date);
+                return (
+                    <TouchableOpacity
+                        key={schedule.id}
+                        style={styles.scheduleCard}
+                        onPress={() => handleCardPress(schedule)}
+                        activeOpacity={0.7}
+                    >
+                        <View style={styles.scheduleCardContent}>
+                            <View style={styles.scheduleDate}>
+                                <Text style={styles.scheduleDayText}>
+                                    {getDayOfWeek(scheduleDate)}
+                                </Text>
+                                <Text style={styles.scheduleDateNumber}>
+                                    {scheduleDate.getDate()}
+                                </Text>
                             </View>
-                            <Text style={styles.scheduleTime}>
-                                {schedule.isAllDay
-                                    ? '하루종일'
-                                    : `${formatTimeWithAMPM(schedule.startTime)} - ${formatTimeWithAMPM(schedule.endTime)}`
-                                }
-                            </Text>
+                            <View style={styles.scheduleInfo}>
+                                <View style={styles.scheduleHeader}>
+                                    <View style={styles.scheduleBadge} />
+                                    <Text style={styles.scheduleTitle} numberOfLines={1}>
+                                        {schedule.title}
+                                    </Text>
+                                </View>
+                                <Text style={styles.scheduleTime}>
+                                    {schedule.isAllDay
+                                        ? '하루종일'
+                                        : `${formatTimeWithAMPM(schedule.startTime)} - ${formatTimeWithAMPM(schedule.endTime)}`
+                                    }
+                                </Text>
+                                {schedule.repeatDays && schedule.repeatDays.length > 0 && (
+                                    <View style={styles.repeatContainer}>
+                                        <Ionicons name="repeat" size={14} color={Colors.text.secondary} />
+                                        <Text style={styles.repeatText}>
+                                            매주 반복
+                                        </Text>
+                                    </View>
+                                )}
+                            </View>
+                            <TouchableOpacity
+                                style={styles.editButton}
+                                onPress={(e) => handleEditPress(e, schedule)}
+                                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                            >
+                                <Ionicons name="pencil" size={20} color={Colors.text.secondary} />
+                            </TouchableOpacity>
                         </View>
-                    </View>
-                </View>
-            ))}
+                    </TouchableOpacity>
+                );
+            })}
         </View>
     );
 };
 
 const styles = StyleSheet.create({
     scheduleListSection: {
-        marginHorizontal: 16,
+        marginHorizontal: 20,
         marginBottom: 32,
     },
     scheduleCard: {
-        borderRadius: 12,
-        padding: 16,
+        borderRadius: 16,
+        padding: 20,
         marginBottom: 12,
         backgroundColor: Colors.background.card,
         shadowColor: '#000',
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.05,
-        shadowRadius: 2,
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.06,
+        shadowRadius: 8,
         elevation: 2,
     },
     scheduleCardContent: {
@@ -119,32 +149,34 @@ const styles = StyleSheet.create({
     },
     scheduleDate: {
         alignItems: 'center',
-        marginRight: 16,
-        minWidth: 60,
+        marginRight: 20,
+        minWidth: 50,
     },
-    scheduleDateText: {
+    scheduleDayText: {
         fontSize: 12,
+        fontWeight: '600',
         color: Colors.text.secondary,
         marginBottom: 4,
     },
-    scheduleNumber: {
-        fontSize: 24,
-        fontWeight: 'bold',
+    scheduleDateNumber: {
+        fontSize: 28,
+        fontWeight: '700',
         color: Colors.text.main,
     },
     scheduleInfo: {
         flex: 1,
+        marginRight: 8,
     },
     scheduleHeader: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginBottom: 4,
+        marginBottom: 6,
     },
     scheduleBadge: {
-        width: 8,
-        height: 8,
-        borderRadius: 4,
-        marginRight: 8,
+        width: 6,
+        height: 6,
+        borderRadius: 3,
+        marginRight: 10,
         backgroundColor: Colors.primary,
     },
     scheduleTitle: {
@@ -153,37 +185,51 @@ const styles = StyleSheet.create({
         color: Colors.text.main,
         flex: 1,
     },
-    editButton: {
-        padding: 4,
-    },
     scheduleTime: {
         fontSize: 14,
         color: Colors.text.secondary,
         marginLeft: 16,
     },
+    repeatContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginTop: 4,
+        marginLeft: 16,
+    },
+    repeatText: {
+        fontSize: 12,
+        color: Colors.text.secondary,
+        marginLeft: 4,
+    },
+    editButton: {
+        padding: 8,
+        borderRadius: 8,
+        backgroundColor: Colors.background.neon,
+    },
     noScheduleSection: {
         alignItems: 'center',
-        paddingVertical: 40,
-        marginHorizontal: 16,
+        paddingVertical: 60,
+        marginHorizontal: 20,
     },
     noScheduleText: {
-        fontSize: 16,
+        fontSize: 15,
         color: Colors.text.secondary,
-        marginBottom: 20,
+        marginTop: 16,
+        marginBottom: 24,
     },
     addScheduleButton: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingVertical: 12,
-        paddingHorizontal: 20,
-        borderRadius: 25,
+        paddingVertical: 14,
+        paddingHorizontal: 24,
+        borderRadius: 12,
         backgroundColor: Colors.primary,
     },
     addScheduleButtonText: {
-        fontSize: 16,
+        fontSize: 15,
         fontWeight: '600',
-        color: Colors.text.main,
-        marginLeft: 8,
+        color: Colors.text.white,
+        marginLeft: 6,
     },
 });
 

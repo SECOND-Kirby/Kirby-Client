@@ -9,7 +9,7 @@ const ActionButtons: React.FC = () => {
     };
 
     const handleTrainingStart = () => {
-        router.push('/(tabs)/schedule');
+        router.push('/(tabs)/training');
     };
 
     return (

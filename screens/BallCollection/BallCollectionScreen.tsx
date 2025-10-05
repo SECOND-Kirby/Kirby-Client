@@ -8,6 +8,7 @@ import {
   View
 } from 'react-native';
 import { useBallCollectionStore } from '@/store/ballCollectionStore';
+import { Colors } from '@/constants/Colors';
 
 interface BallCollectionScreenProps {
   onStop?: () => void;
@@ -60,7 +61,7 @@ const BallCollectionScreen: React.FC<BallCollectionScreenProps> = ({ onStop, onC
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'white',
+    backgroundColor: Colors.background.card,
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 20,
@@ -69,26 +70,26 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 30,
+    marginBottom: 50,
   },
   statusText: {
-    fontSize: 20,
+    fontSize: 22,
     fontWeight: 'bold',
-    color: '#333',
+    color: Colors.text.main,
     flex: 1,
   },
   closeButton: {
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: '#ccc',
+    backgroundColor: Colors.text.lightGray,
     justifyContent: 'center',
     alignItems: 'center',
   },
   closeButtonText: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#333',
+    color: Colors.text.main,
   },
   vehicleContainer: {
     marginBottom: 30,
@@ -100,7 +101,7 @@ const styles = StyleSheet.create({
     height: 200,
   },
   statusCard: {
-    backgroundColor: 'white',
+    backgroundColor: Colors.background.card,
     borderRadius: 12,
     padding: 20,
     marginBottom: 40,
@@ -117,7 +118,7 @@ const styles = StyleSheet.create({
   cardTitle: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#333',
+    color: Colors.text.main,
     marginBottom: 16,
     textAlign: 'center',
   },
@@ -132,22 +133,22 @@ const styles = StyleSheet.create({
     height: 60,
     borderRadius: 30,
     borderWidth: 4,
-    borderColor: '#E7FF65',
+    borderColor: Colors.primary,
     justifyContent: 'center',
     alignItems: 'center',
   },
   percentageText: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#333',
+    color: Colors.text.main,
   },
   countText: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#333',
+    color: Colors.text.main,
   },
   stopButton: {
-    backgroundColor: '#E7FF65',
+    backgroundColor: Colors.primary,
     borderRadius: 12,
     paddingVertical: 16,
     width: '100%',
@@ -164,7 +165,7 @@ const styles = StyleSheet.create({
   stopButtonText: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#333',
+    color: Colors.text.white,
   },
 });
 

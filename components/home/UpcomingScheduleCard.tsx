@@ -1,38 +1,62 @@
 // components/home/UpcomingScheduleCard.tsx
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { router } from 'expo-router';
 import { Schedule } from '@/types/schedule';
+import { Colors } from '@/constants/Colors';
 
 interface UpcomingScheduleCardProps {
-    schedule: Schedule;
+    schedule: Schedule | null;
+    onPress: () => void;
 }
 
-const UpcomingScheduleCard: React.FC<UpcomingScheduleCardProps> = ({ schedule }) => {
-    const handlePress = () => {
-        router.push('/(tabs)/schedule');
-    };
-
+const UpcomingScheduleCard: React.FC<UpcomingScheduleCardProps> = ({ schedule, onPress }) => {
     const formatDate = (dateString: string) => {
         const date = new Date(dateString);
         const month = date.getMonth() + 1;
         const day = date.getDate();
-        const days = ['일요일', '월요일', '화요일', '수요일', '목요일', '금요일', '토요일'];
-        const dayName = days[date.getDay()];
-
-        return `${month}월 ${day}일 ${dayName}`;
+        return `${month}월 ${day}일`;
     };
 
+    const formatTime = (time: string) => {
+        return time;
+    };
+
+    // 일정이 있는 경우
+    if (schedule) {
+        return (
+            <TouchableOpacity
+                style={[styles.card, styles.cardWithSchedule]}
+                onPress={onPress}
+                activeOpacity={0.8}
+            >
+                <View style={styles.iconContainer}>
+                    <Ionicons name="calendar" size={24} color={Colors.text.main} />
+                </View>
+                <View style={styles.content}>
+                    <Text style={styles.label}>예정된 일정</Text>
+                    <Text style={styles.dateText}>
+                        {formatDate(schedule.date)} {formatTime(schedule.startTime)} ~ {formatTime(schedule.endTime)}
+                    </Text>
+                    <Text style={styles.title}>{schedule.title}</Text>
+                </View>
+            </TouchableOpacity>
+        );
+    }
+
+    // 일정이 없는 경우
     return (
-        <TouchableOpacity style={styles.card} onPress={handlePress} activeOpacity={0.8}>
-            <View style={styles.iconContainer}>
-                <Ionicons name="calendar" size={24} color="#2D5016" />
+        <TouchableOpacity
+            style={[styles.card, styles.cardWithoutSchedule]}
+            onPress={onPress}
+            activeOpacity={0.8}
+        >
+            <View style={styles.iconContainerGray}>
+                <Ionicons name="calendar-outline" size={24} color={Colors.text.secondary} />
             </View>
             <View style={styles.content}>
-                <Text style={styles.label}>예정된 일정</Text>
-                <Text style={styles.date}>{formatDate(schedule.date)}</Text>
-                <Text style={styles.title}>{schedule.title}</Text>
+                <Text style={styles.labelGray}>예정된 일정 없음</Text>
+                <Text style={styles.emptyText}>새로운 일정을 추가해보세요</Text>
             </View>
         </TouchableOpacity>
     );
@@ -40,7 +64,6 @@ const UpcomingScheduleCard: React.FC<UpcomingScheduleCardProps> = ({ schedule })
 
 const styles = StyleSheet.create({
     card: {
-        backgroundColor: '#A4D65E',
         borderRadius: 16,
         padding: 20,
         marginHorizontal: 16,
@@ -49,9 +72,17 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
+        shadowOpacity: 0.05,
         shadowRadius: 4,
-        elevation: 3,
+        elevation: 2,
+    },
+    cardWithSchedule: {
+        backgroundColor: Colors.primary,
+    },
+    cardWithoutSchedule: {
+        backgroundColor: Colors.background.neon,
+        borderWidth: 1,
+        borderColor: Colors.border,
     },
     iconContainer: {
         width: 48,
@@ -62,25 +93,44 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         marginRight: 16,
     },
+    iconContainerGray: {
+        width: 48,
+        height: 48,
+        borderRadius: 24,
+        backgroundColor: Colors.background.card,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginRight: 16,
+    },
     content: {
         flex: 1,
     },
     label: {
         fontSize: 14,
         fontWeight: '600',
-        color: '#2D5016',
+        color: Colors.text.main,
         marginBottom: 4,
     },
-    date: {
-        fontSize: 16,
-        fontWeight: 'bold',
-        color: '#1A1A1A',
+    labelGray: {
+        fontSize: 14,
+        fontWeight: '600',
+        color: Colors.text.secondary,
+        marginBottom: 4,
+    },
+    dateText: {
+        fontSize: 14,
+        fontWeight: '500',
+        color: Colors.text.main,
         marginBottom: 4,
     },
     title: {
-        fontSize: 20,
+        fontSize: 18,
         fontWeight: 'bold',
-        color: '#1A1A1A',
+        color: Colors.text.main,
+    },
+    emptyText: {
+        fontSize: 14,
+        color: Colors.text.secondary,
     },
 });
 

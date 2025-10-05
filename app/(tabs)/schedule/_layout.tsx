@@ -17,10 +17,8 @@ export default function ScheduleStackLayout() {
             <Stack.Screen
                 name="form"
                 options={{
-                    // 폼 화면은 상단에 제목과 닫기 버튼을 표시하기 위해 헤더를 씁니다.
-                    headerTitle: '스케줄 작성',
-                    headerShown: true,
-                    presentation: 'modal',
+                    // 스크린 헤더를 사용하므로 헤더를 숨깁니다.
+                    headerShown: false,
                 }}
             />
         </Stack>

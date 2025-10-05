@@ -3,16 +3,15 @@ import React, { useMemo } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import CalendarComponent from './CalendarComponent';
-import { CalendarData } from '@/types/schedule';
+import { CalendarData, Schedule } from '@/types/schedule';
 import { Colors } from '@/constants/Colors';
-
-const MONTH_NAMES = ['', '1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'];
+import { MONTH_NAMES } from '@/constants';
 
 interface ScheduleCalendarWrapperProps {
     currentDate: Date;
     selectedDate: Date | null;
-    schedules: any[];
-    onDateSelect: (day: number) => void;
+    schedules: Schedule[];
+    onDateSelect: (date: Date) => void;
     onPrevMonth: () => void;
     onNextMonth: () => void;
 }
@@ -28,9 +27,10 @@ const ScheduleCalendarWrapper: React.FC<ScheduleCalendarWrapperProps> = ({
     const calendarData: CalendarData = useMemo(() => {
         const year = currentDate.getFullYear();
         const month = currentDate.getMonth();
-        const today = new Date().getDate();
-        const todayMonth = new Date().getMonth();
-        const todayYear = new Date().getFullYear();
+        const today = new Date();
+        const todayDate = today.getDate();
+        const todayMonth = today.getMonth();
+        const todayYear = today.getFullYear();
 
         const firstDay = new Date(year, month, 1).getDay();
         const daysInMonth = new Date(year, month + 1, 0).getDate();
@@ -39,6 +39,7 @@ const ScheduleCalendarWrapper: React.FC<ScheduleCalendarWrapperProps> = ({
         const calendar: CalendarData['calendar'] = [];
         let weeks: any[] = [];
 
+        // 이전 달 날짜들
         for (let i = firstDay - 1; i >= 0; i--) {
             weeks.push({
                 day: daysInPrevMonth - i,
@@ -47,6 +48,7 @@ const ScheduleCalendarWrapper: React.FC<ScheduleCalendarWrapperProps> = ({
             });
         }
 
+        // 현재 달 날짜들
         for (let day = 1; day <= daysInMonth; day++) {
             weeks.push({
                 day: day,
@@ -55,6 +57,7 @@ const ScheduleCalendarWrapper: React.FC<ScheduleCalendarWrapperProps> = ({
             });
         }
 
+        // 다음 달 날짜들
         const remainingCells = 42 - weeks.length;
         for (let day = 1; day <= remainingCells; day++) {
             weeks.push({
@@ -64,6 +67,7 @@ const ScheduleCalendarWrapper: React.FC<ScheduleCalendarWrapperProps> = ({
             });
         }
 
+        // 주 단위로 분할
         for (let i = 0; i < weeks.length; i += 7) {
             calendar.push(weeks.slice(i, i + 7));
         }
@@ -72,13 +76,16 @@ const ScheduleCalendarWrapper: React.FC<ScheduleCalendarWrapperProps> = ({
 
         return {
             calendar,
-            today: isCurrentMonthToday ? today : null,
+            today: isCurrentMonthToday ? todayDate : null,
             month: month + 1,
             year
         };
     }, [currentDate]);
 
-    const selectedDay = selectedDate?.getDate() || null;
+    const handleDateSelect = (day: number) => {
+        const newDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
+        onDateSelect(newDate);
+    };
 
     return (
         <View style={styles.container}>
@@ -106,8 +113,8 @@ const ScheduleCalendarWrapper: React.FC<ScheduleCalendarWrapperProps> = ({
 
             <CalendarComponent
                 calendarData={calendarData}
-                selectedDate={selectedDay}
-                onDateSelect={onDateSelect}
+                selectedDate={selectedDate}
+                onDateSelect={handleDateSelect}
                 schedules={schedules}
                 showHeader={true}
             />
@@ -123,13 +130,13 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        paddingHorizontal: 16,
-        marginBottom: 8,
+        paddingHorizontal: 20,
+        marginBottom: 12,
     },
     title: {
-        fontSize: 20,
-        fontWeight: 'bold',
-        color: Colors.primary,
+        fontSize: 18,
+        fontWeight: '700',
+        color: Colors.text.main,
     },
     navButton: {
         padding: 8,

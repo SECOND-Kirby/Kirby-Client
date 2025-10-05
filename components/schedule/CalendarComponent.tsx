@@ -7,7 +7,7 @@ import { DAY_NAMES } from '@/constants';
 
 interface CalendarComponentProps {
   calendarData: CalendarData;
-  selectedDate: number | null;
+  selectedDate: Date | null;
   onDateSelect: (day: number) => void;
   schedules: Schedule[];
   showHeader?: boolean;
@@ -30,14 +30,14 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({
   };
 
   const isToday = (day: number): boolean => {
-    const today = new Date();
-    return day === today.getDate() &&
-        calendarData.month === today.getMonth() + 1 &&
-        calendarData.year === today.getFullYear();
+    return calendarData.today === day;
   };
 
   const isSelected = (day: number): boolean => {
-    return selectedDate === day;
+    if (!selectedDate) return false;
+    return selectedDate.getDate() === day &&
+        selectedDate.getMonth() + 1 === calendarData.month &&
+        selectedDate.getFullYear() === calendarData.year;
   };
 
   return (
@@ -68,11 +68,12 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({
                         style={[
                           styles.dateCell,
                           !date.isCurrentMonth && styles.otherMonthCell,
-                          isToday(date.day) && styles.todayCell,
+                          isToday(date.day) && date.isCurrentMonth && styles.todayCell,
                           isSelected(date.day) && styles.selectedCell,
                         ]}
                         onPress={() => date.isCurrentMonth && onDateSelect(date.day)}
                         disabled={!date.isCurrentMonth}
+                        activeOpacity={0.7}
                     >
                       <Text
                           style={[
@@ -80,13 +81,13 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({
                             !date.isCurrentMonth && styles.otherMonthText,
                             dayIndex === 0 && date.isCurrentMonth && styles.sundayText,
                             dayIndex === 6 && date.isCurrentMonth && styles.saturdayText,
-                            isToday(date.day) && styles.todayText,
+                            isToday(date.day) && date.isCurrentMonth && styles.todayText,
                             isSelected(date.day) && styles.selectedText,
                           ]}
                       >
                         {date.day}
                       </Text>
-                      {hasSchedule(date.day) && date.isCurrentMonth && (
+                      {hasSchedule(date.day) && date.isCurrentMonth && !isToday(date.day) && (
                           <View style={styles.scheduleDot} />
                       )}
                     </TouchableOpacity>
@@ -101,26 +102,28 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({
 const styles = StyleSheet.create({
   container: {
     backgroundColor: Colors.background.card,
-    borderRadius: 12,
-    padding: 16,
-    marginHorizontal: 16,
-    marginVertical: 8,
+    borderRadius: 16,
+    padding: 20,
+    marginHorizontal: 20,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
     elevation: 3,
   },
   dayHeader: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    marginBottom: 8,
+    marginBottom: 12,
+    paddingBottom: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.background.neon,
   },
   dayHeaderText: {
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: '600',
     color: Colors.text.secondary,
-    width: 40,
+    width: 36,
     textAlign: 'center',
   },
   sundayHeaderText: {
@@ -130,23 +133,23 @@ const styles = StyleSheet.create({
     color: Colors.days.saturday,
   },
   calendarGrid: {
-    gap: 4,
+    gap: 2,
   },
   weekRow: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    marginBottom: 4,
+    marginBottom: 8,
   },
   dateCell: {
-    width: 40,
-    height: 40,
+    width: 36,
+    height: 36,
     justifyContent: 'center',
     alignItems: 'center',
-    borderRadius: 20,
+    borderRadius: 18,
     position: 'relative',
   },
   otherMonthCell: {
-    opacity: 0.3,
+    opacity: 0,
   },
   todayCell: {
     backgroundColor: Colors.primary,
@@ -157,7 +160,7 @@ const styles = StyleSheet.create({
     borderColor: Colors.primary,
   },
   dateText: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: '500',
     color: Colors.text.main,
   },
@@ -172,18 +175,18 @@ const styles = StyleSheet.create({
   },
   todayText: {
     color: Colors.text.white,
-    fontWeight: 'bold',
+    fontWeight: '700',
   },
   selectedText: {
     color: Colors.text.main,
-    fontWeight: 'bold',
+    fontWeight: '700',
   },
   scheduleDot: {
     position: 'absolute',
-    bottom: 4,
-    width: 6,
-    height: 6,
-    borderRadius: 3,
+    bottom: 2,
+    width: 4,
+    height: 4,
+    borderRadius: 2,
     backgroundColor: Colors.primary,
   },
 });

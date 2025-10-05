@@ -2,32 +2,19 @@
 import React, { useCallback, useState } from 'react';
 import { SafeAreaView, ScrollView, StyleSheet } from 'react-native';
 import { router, useFocusEffect } from 'expo-router';
+
 import { Colors } from '@/constants/Colors';
 import { useScheduleStore } from '@/store/scheduleStore';
-import ScheduleHeader from '@/components/schedule/ScheduleHeader';
 import ScheduleCalendarWrapper from '@/components/schedule/ScheduleCalendarWrapper';
 import ScheduleCardList from '@/components/schedule/ScheduleCardList';
-
-interface Schedule {
-  id: string;
-  title: string;
-  date: Date;
-  startTime: string;
-  endTime: string;
-  isAllDay: boolean;
-  memo?: string;
-}
+import ScreenHeader from '@/components/shared/layout/ScreenHeader';
+import { Schedule } from '@/types/schedule';
 
 const ScheduleScreen: React.FC = () => {
   const { schedules: storeSchedules, loadSchedules } = useScheduleStore();
 
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
-
-  const schedules: Schedule[] = storeSchedules.map(schedule => ({
-    ...schedule,
-    date: new Date(schedule.date)
-  }));
 
   useFocusEffect(
       useCallback(() => {
@@ -52,54 +39,57 @@ const ScheduleScreen: React.FC = () => {
         mode: 'edit',
         scheduleId: schedule.id,
         title: schedule.title,
-        date: schedule.date.toISOString(),
+        date: schedule.date,
         startTime: schedule.startTime,
         endTime: schedule.endTime,
         isAllDay: schedule.isAllDay.toString(),
         memo: schedule.memo || '',
+        repeatDays: schedule.repeatDays?.join(',') || '',
       },
     });
   }, []);
 
-  const handleDateSelect = useCallback((day: number) => {
-    const newSelectedDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
-    setSelectedDate(newSelectedDate);
-  }, [currentDate]);
+  const handleDateSelect = useCallback((date: Date) => {
+    setSelectedDate(date);
+  }, []);
 
   const handlePrevMonth = useCallback(() => {
-    setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1));
-  }, [currentDate]);
+    setCurrentDate(prev => new Date(prev.getFullYear(), prev.getMonth() - 1, 1));
+  }, []);
 
   const handleNextMonth = useCallback(() => {
-    setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1));
-  }, [currentDate]);
+    setCurrentDate(prev => new Date(prev.getFullYear(), prev.getMonth() + 1, 1));
+  }, []);
 
-  const handleBack = useCallback(() => {
+  // 홈 화면으로 이동하는 함수
+  const handleBackToHome = useCallback(() => {
     router.push('/(tabs)');
   }, []);
 
   const getSchedulesForDate = useCallback((date: Date): Schedule[] => {
-    return schedules.filter(schedule =>
-        schedule.date.getDate() === date.getDate() &&
-        schedule.date.getMonth() === date.getMonth() &&
-        schedule.date.getFullYear() === date.getFullYear()
-    );
-  }, [schedules]);
+    return storeSchedules.filter(schedule => {
+      const scheduleDate = new Date(schedule.date);
+      return scheduleDate.toDateString() === date.toDateString();
+    });
+  }, [storeSchedules]);
 
   const selectedDateSchedules = selectedDate ? getSchedulesForDate(selectedDate) : [];
 
   return (
       <SafeAreaView style={styles.container}>
-        <ScheduleHeader
-            onBack={handleBack}
-            onAdd={handleAddSchedule}
+        <ScreenHeader
+            title="스케줄"
+            showBack={true}
+            showAdd={true}
+            onBackPress={handleBackToHome}  // 홈으로 이동
+            onAddPress={handleAddSchedule}
         />
 
         <ScrollView showsVerticalScrollIndicator={false}>
           <ScheduleCalendarWrapper
               currentDate={currentDate}
               selectedDate={selectedDate}
-              schedules={schedules}
+              schedules={storeSchedules}
               onDateSelect={handleDateSelect}
               onPrevMonth={handlePrevMonth}
               onNextMonth={handleNextMonth}

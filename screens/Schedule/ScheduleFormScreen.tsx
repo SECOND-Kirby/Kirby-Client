@@ -1,8 +1,6 @@
 // screens/Schedule/ScheduleFormScreen.tsx
 import React, { useEffect, useState, useCallback } from 'react';
 import {
-    Alert,
-    FlatList,
     SafeAreaView,
     ScrollView,
     StyleSheet,
@@ -14,22 +12,21 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
+
 import { Colors } from '@/constants/Colors';
 import { useScheduleStore } from '@/store/scheduleStore';
-import FormRow from '@/components/schedule/FormRow';
+import { useAlert } from '@/hooks';
 import TimePickerModal from '@/components/schedule/TimePickerModal';
-
-interface DayOfWeek {
-    key: string;
-    label: string;
-    isSelected: boolean;
-}
+import DatePickerModal from '@/components/schedule/DatePickerModal';
+import ScreenHeader from '@/components/shared/layout/ScreenHeader';
+import { DayOfWeek, DAY_OF_WEEK_OPTIONS, RepeatDay } from '@/types/schedule';
 
 const ScheduleFormScreen: React.FC = () => {
     const params = useLocalSearchParams();
     const isEditMode = params.mode === 'edit';
 
     const { addSchedule, updateSchedule, deleteSchedule } = useScheduleStore();
+    const { showAlert, showConfirm } = useAlert();
 
     const [title, setTitle] = useState('');
     const [isAllDay, setIsAllDay] = useState(false);
@@ -40,16 +37,9 @@ const ScheduleFormScreen: React.FC = () => {
 
     const [showStartTimePicker, setShowStartTimePicker] = useState(false);
     const [showEndTimePicker, setShowEndTimePicker] = useState(false);
+    const [showDatePicker, setShowDatePicker] = useState(false);
 
-    const [selectedDays, setSelectedDays] = useState<DayOfWeek[]>([
-        { key: 'M', label: '월', isSelected: false },
-        { key: 'T', label: '화', isSelected: false },
-        { key: 'W', label: '수', isSelected: false },
-        { key: 'Th', label: '목', isSelected: false },
-        { key: 'F', label: '금', isSelected: false },
-        { key: 'Sa', label: '토', isSelected: false },
-        { key: 'Su', label: '일', isSelected: false },
-    ]);
+    const [selectedDays, setSelectedDays] = useState<DayOfWeek[]>(DAY_OF_WEEK_OPTIONS);
 
     useEffect(() => {
         if (isEditMode && params.title) {
@@ -59,14 +49,24 @@ const ScheduleFormScreen: React.FC = () => {
             setStartTime(params.startTime as string);
             setEndTime(params.endTime as string);
             setMemo(params.memo as string || '');
+
+            if (params.repeatDays) {
+                const repeatDaysArray = (params.repeatDays as string).split(',') as RepeatDay[];
+                setSelectedDays(prev =>
+                    prev.map(day => ({
+                        ...day,
+                        isSelected: repeatDaysArray.includes(day.key)
+                    }))
+                );
+            }
         } else if (params.presetDate) {
             setDate(new Date(params.presetDate as string));
         }
     }, [isEditMode, params]);
 
-    const handleToggleDay = useCallback((key: string) => {
-        setSelectedDays(prevDays =>
-            prevDays.map(day =>
+    const handleToggleDay = useCallback((key: RepeatDay) => {
+        setSelectedDays(prev =>
+            prev.map(day =>
                 day.key === key ? { ...day, isSelected: !day.isSelected } : day
             )
         );
@@ -74,171 +74,224 @@ const ScheduleFormScreen: React.FC = () => {
 
     const handleSave = useCallback(async () => {
         if (!title.trim()) {
-            Alert.alert('알림', '제목을 입력해주세요.');
+            showAlert('알림', '제목을 입력해주세요.');
             return;
         }
+
+        const repeatDays = selectedDays
+            .filter(day => day.isSelected)
+            .map(day => day.key);
+
+        // 로컬 타임존 기준으로 날짜 문자열 생성
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        const dateString = `${year}-${month}-${day}`;
 
         const scheduleData = {
             id: isEditMode ? (params.scheduleId as string) : Date.now().toString(),
             title,
             isAllDay,
-            date: date.toISOString().split('T')[0],
+            date: dateString,
             startTime,
             endTime,
+            memo,
+            repeatDays: repeatDays.length > 0 ? repeatDays : undefined,
         };
 
         try {
             if (isEditMode) {
                 updateSchedule(scheduleData.id, scheduleData);
-                Alert.alert('알림', '일정이 수정되었습니다.');
+                showAlert('알림', '일정이 수정되었습니다.', () => router.back());
             } else {
                 addSchedule(scheduleData);
-                Alert.alert('알림', '일정이 저장되었습니다.');
+                showAlert('알림', '일정이 저장되었습니다.', () => router.back());
             }
-            router.back();
         } catch (e) {
-            Alert.alert('오류', '저장에 실패했습니다.');
+            showAlert('오류', '저장에 실패했습니다.');
         }
-    }, [title, isAllDay, date, startTime, endTime, isEditMode, params, addSchedule, updateSchedule]);
+    }, [title, isAllDay, date, startTime, endTime, memo, selectedDays, isEditMode, params, addSchedule, updateSchedule, showAlert]);
 
     const handleDelete = useCallback(() => {
-        Alert.alert('삭제 확인', '정말 이 일정을 삭제하시겠습니까?', [
-            { text: '취소', style: 'cancel' },
-            {
-                text: '삭제',
-                style: 'destructive',
-                onPress: () => {
-                    if (params.scheduleId) {
-                        deleteSchedule(params.scheduleId as string);
-                        Alert.alert('알림', '일정이 삭제되었습니다.');
-                        router.back();
-                    }
-                },
+        showConfirm(
+            '삭제 확인',
+            '정말 이 일정을 삭제하시겠습니까?',
+            () => {
+                if (params.scheduleId) {
+                    deleteSchedule(params.scheduleId as string);
+                    showAlert('알림', '일정이 삭제되었습니다.', () => router.back());
+                }
             },
-        ]);
-    }, [params.scheduleId, deleteSchedule]);
+            '삭제',
+            '취소',
+            true
+        );
+    }, [params.scheduleId, deleteSchedule, showAlert, showConfirm]);
+
+    const formatDateDisplay = (date: Date): string => {
+        return date.toLocaleDateString('ko-KR', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            weekday: 'short'
+        });
+    };
 
     return (
         <SafeAreaView style={styles.container}>
+            <DatePickerModal
+                visible={showDatePicker}
+                date={date}
+                onSelect={(newDate) => setDate(newDate)}
+                onClose={() => setShowDatePicker(false)}
+            />
             <TimePickerModal
                 visible={showStartTimePicker}
                 time={startTime}
-                onSelect={setStartTime}
+                onSelect={(newTime) => setStartTime(newTime)}
                 onClose={() => setShowStartTimePicker(false)}
             />
             <TimePickerModal
                 visible={showEndTimePicker}
                 time={endTime}
-                onSelect={setEndTime}
+                onSelect={(newTime) => setEndTime(newTime)}
                 onClose={() => setShowEndTimePicker(false)}
             />
 
-            <View style={styles.header}>
-                <TouchableOpacity onPress={router.back} style={styles.headerButton}>
-                    <Ionicons name="close" size={24} color={Colors.text.main} />
-                </TouchableOpacity>
-                <Text style={styles.headerTitle}>
-                    {isEditMode ? '일정 수정' : '새 일정'}
-                </Text>
-                <TouchableOpacity onPress={handleSave} style={styles.headerButton}>
-                    <Text style={styles.saveButtonText}>저장</Text>
-                </TouchableOpacity>
-            </View>
+            <ScreenHeader
+                title={isEditMode ? '일정 수정' : '일정 생성'}
+                showBack={true}
+            />
 
             <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
-                <View style={styles.card}>
+                {/* 제목 */}
+                <View style={styles.section}>
+                    <Text style={styles.sectionLabel}>제목</Text>
                     <TextInput
                         style={styles.titleInput}
-                        placeholder="일정 제목"
+                        placeholder="일정 제목을 입력하세요"
                         placeholderTextColor={Colors.text.secondary}
                         value={title}
                         onChangeText={setTitle}
                     />
                 </View>
 
-                <View style={styles.card}>
-                    <FormRow label="종일" isSwitch>
+                {/* 날짜 */}
+                <View style={styles.section}>
+                    <Text style={styles.sectionLabel}>날짜</Text>
+                    <TouchableOpacity
+                        style={styles.dateButton}
+                        onPress={() => setShowDatePicker(true)}
+                    >
+                        <Ionicons name="calendar-outline" size={20} color={Colors.text.main} />
+                        <Text style={styles.dateButtonText}>
+                            {formatDateDisplay(date)}
+                        </Text>
+                        <Ionicons name="chevron-forward" size={20} color={Colors.text.secondary} />
+                    </TouchableOpacity>
+                </View>
+
+                {/* 하루종일 */}
+                <View style={styles.section}>
+                    <View style={styles.switchRow}>
+                        <Text style={styles.sectionLabel}>하루종일</Text>
                         <Switch
                             trackColor={{ false: Colors.border, true: Colors.primary }}
                             thumbColor={Colors.background.card}
                             onValueChange={setIsAllDay}
                             value={isAllDay}
                         />
-                    </FormRow>
-                    <FormRow label="날짜">
-                        <TouchableOpacity>
-                            <Text style={{ color: Colors.text.main }}>
-                                {date.toLocaleDateString('ko-KR')}
-                            </Text>
-                        </TouchableOpacity>
-                    </FormRow>
-                    {!isAllDay && (
-                        <>
-                            <FormRow label="시작 시간">
-                                <TouchableOpacity onPress={() => setShowStartTimePicker(true)}>
-                                    <Text style={{ color: Colors.text.main }}>{startTime}</Text>
-                                </TouchableOpacity>
-                            </FormRow>
-                            <FormRow label="종료 시간">
-                                <TouchableOpacity onPress={() => setShowEndTimePicker(true)}>
-                                    <Text style={{ color: Colors.text.main }}>{endTime}</Text>
-                                </TouchableOpacity>
-                            </FormRow>
-                        </>
-                    )}
-                </View>
-
-                <View style={styles.card}>
-                    <Text style={styles.sectionTitle}>반복 설정</Text>
-                    <View style={styles.daySelectionContainer}>
-                        <FlatList
-                            data={selectedDays}
-                            renderItem={({ item }) => (
-                                <TouchableOpacity
-                                    style={[
-                                        styles.dayButton,
-                                        item.isSelected && styles.dayButtonSelected,
-                                    ]}
-                                    onPress={() => handleToggleDay(item.key)}
-                                >
-                                    <Text
-                                        style={[
-                                            styles.dayText,
-                                            item.isSelected && styles.dayTextSelected
-                                        ]}
-                                    >
-                                        {item.label}
-                                    </Text>
-                                </TouchableOpacity>
-                            )}
-                            keyExtractor={(item) => item.key}
-                            horizontal
-                            showsHorizontalScrollIndicator={false}
-                            contentContainerStyle={styles.daySelectionList}
-                        />
                     </View>
                 </View>
 
-                <View style={styles.card}>
-                    <Text style={styles.sectionTitle}>메모</Text>
+                {/* 시간 */}
+                {!isAllDay && (
+                    <View style={styles.section}>
+                        <Text style={styles.sectionLabel}>시간</Text>
+                        <View style={styles.timeRow}>
+                            <View style={styles.timeColumn}>
+                                <Text style={styles.timeLabel}>시작</Text>
+                                <TouchableOpacity
+                                    style={styles.timeButton}
+                                    onPress={() => setShowStartTimePicker(true)}
+                                >
+                                    <Text style={styles.timeButtonText}>{startTime}</Text>
+                                    <Ionicons name="chevron-down" size={20} color={Colors.text.secondary} />
+                                </TouchableOpacity>
+                            </View>
+                            <Text style={styles.timeSeparator}>~</Text>
+                            <View style={styles.timeColumn}>
+                                <Text style={styles.timeLabel}>종료</Text>
+                                <TouchableOpacity
+                                    style={styles.timeButton}
+                                    onPress={() => setShowEndTimePicker(true)}
+                                >
+                                    <Text style={styles.timeButtonText}>{endTime}</Text>
+                                    <Ionicons name="chevron-down" size={20} color={Colors.text.secondary} />
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                    </View>
+                )}
+
+                {/* 반복 설정 */}
+                <View style={styles.section}>
+                    <Text style={styles.sectionLabel}>반복 설정</Text>
+                    <View style={styles.daySelectionContainer}>
+                        {selectedDays.map((item) => (
+                            <TouchableOpacity
+                                key={item.key}
+                                style={[
+                                    styles.dayButton,
+                                    item.isSelected && styles.dayButtonSelected,
+                                ]}
+                                onPress={() => handleToggleDay(item.key)}
+                            >
+                                <Text
+                                    style={[
+                                        styles.dayText,
+                                        item.isSelected && styles.dayTextSelected
+                                    ]}
+                                >
+                                    {item.label}
+                                </Text>
+                            </TouchableOpacity>
+                        ))}
+                    </View>
+                </View>
+
+                {/* 메모 */}
+                <View style={styles.section}>
+                    <View style={styles.memoHeader}>
+                        <Text style={styles.sectionLabel}>메모</Text>
+                        <Text style={styles.charCount}>{memo.length}/500</Text>
+                    </View>
                     <TextInput
                         style={styles.memoInput}
-                        placeholder="메모를 입력하세요..."
+                        placeholder="메모를 입력하세요 (선택사항)"
                         placeholderTextColor={Colors.text.secondary}
                         multiline
                         value={memo}
                         onChangeText={setMemo}
+                        maxLength={500}
                     />
                 </View>
 
+                {/* 저장 버튼 */}
+                <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
+                    <Text style={styles.saveButtonText}>
+                        {isEditMode ? '일정 수정' : '스케줄 생성'}
+                    </Text>
+                </TouchableOpacity>
+
+                {/* 삭제 버튼 (수정 모드일 때만) */}
                 {isEditMode && (
-                    <View style={styles.deleteContainer}>
-                        <TouchableOpacity onPress={handleDelete} style={styles.deleteButton}>
-                            <Ionicons name="trash-bin-outline" size={20} color={Colors.schedule.delete} />
-                            <Text style={styles.deleteButtonText}>일정 삭제</Text>
-                        </TouchableOpacity>
-                    </View>
+                    <TouchableOpacity style={styles.deleteButton} onPress={handleDelete}>
+                        <Text style={styles.deleteButtonText}>일정 삭제</Text>
+                    </TouchableOpacity>
                 )}
+
+                <View style={{ height: 50 }} />
             </ScrollView>
         </SafeAreaView>
     );
@@ -249,77 +302,95 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: Colors.background.main,
     },
-    header: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        paddingHorizontal: 15,
-        paddingVertical: 10,
-        borderBottomWidth: 1,
-        borderBottomColor: Colors.menu.border,
-    },
-    headerButton: {
-        padding: 5,
-    },
-    headerTitle: {
-        fontSize: 18,
-        fontWeight: '700',
-        color: Colors.text.main,
-    },
-    saveButtonText: {
-        fontSize: 16,
-        fontWeight: '600',
-        color: Colors.primary,
-    },
     scrollView: {
-        padding: 10,
+        flex: 1,
     },
-    card: {
-        backgroundColor: Colors.background.card,
-        borderRadius: 10,
-        padding: 15,
-        marginBottom: 10,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.05,
-        shadowRadius: 2,
-        elevation: 2,
+    section: {
+        paddingHorizontal: 20,
+        marginBottom: 24,
     },
-    sectionTitle: {
-        fontSize: 16,
-        fontWeight: '700',
+    sectionLabel: {
+        fontSize: 15,
+        fontWeight: '600',
         color: Colors.text.main,
         marginBottom: 10,
     },
     titleInput: {
-        fontSize: 20,
-        fontWeight: '700',
-        color: Colors.text.main,
-        paddingBottom: 5,
-    },
-    memoInput: {
-        minHeight: 100,
+        height: 52,
         borderWidth: 1,
         borderColor: Colors.border,
-        borderRadius: 8,
-        padding: 10,
-        textAlignVertical: 'top',
+        borderRadius: 10,
+        paddingHorizontal: 16,
+        fontSize: 16,
+        color: Colors.text.main,
+        backgroundColor: Colors.background.card,
+    },
+    dateButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        height: 52,
+        borderWidth: 1,
+        borderColor: Colors.border,
+        borderRadius: 10,
+        paddingHorizontal: 16,
+        backgroundColor: Colors.background.card,
+    },
+    dateButtonText: {
+        flex: 1,
+        fontSize: 15,
+        color: Colors.text.main,
+        marginLeft: 12,
+    },
+    switchRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+    },
+    timeRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+    },
+    timeColumn: {
+        flex: 1,
+    },
+    timeLabel: {
+        fontSize: 14,
+        color: Colors.text.secondary,
+        marginBottom: 8,
+    },
+    timeButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        height: 52,
+        borderWidth: 1,
+        borderColor: Colors.border,
+        borderRadius: 10,
+        paddingHorizontal: 16,
+        backgroundColor: Colors.background.card,
+    },
+    timeButtonText: {
         fontSize: 15,
         color: Colors.text.main,
     },
-    daySelectionContainer: {
-        marginTop: 5,
+    timeSeparator: {
+        fontSize: 16,
+        color: Colors.text.secondary,
+        marginHorizontal: 12,
+        marginTop: 28,
     },
-    daySelectionList: {
+    daySelectionContainer: {
+        flexDirection: 'row',
         justifyContent: 'space-between',
+        gap: 8,
     },
     dayButton: {
-        width: 35,
-        height: 35,
-        borderRadius: 17.5,
+        flex: 1,
+        height: 44,
+        borderRadius: 10,
         borderWidth: 1,
         borderColor: Colors.border,
-        marginRight: 8,
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: Colors.background.card,
@@ -335,29 +406,57 @@ const styles = StyleSheet.create({
     },
     dayTextSelected: {
         color: Colors.text.white,
+        fontWeight: '600',
     },
-    deleteContainer: {
-        padding: 10,
+    memoHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
         alignItems: 'center',
+        marginBottom: 10,
+    },
+    charCount: {
+        fontSize: 13,
+        color: Colors.text.secondary,
+    },
+    memoInput: {
+        minHeight: 120,
+        borderWidth: 1,
+        borderColor: Colors.border,
+        borderRadius: 10,
+        padding: 16,
+        textAlignVertical: 'top',
+        fontSize: 15,
+        color: Colors.text.main,
+        backgroundColor: Colors.background.card,
+    },
+    saveButton: {
+        marginHorizontal: 20,
+        height: 54,
+        backgroundColor: Colors.primary,
+        borderRadius: 12,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginBottom: 12,
+    },
+    saveButtonText: {
+        fontSize: 17,
+        fontWeight: '700',
+        color: Colors.text.white,
     },
     deleteButton: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingVertical: 15,
-        paddingHorizontal: 25,
-        backgroundColor: Colors.schedule.deleteBackground,
-        borderRadius: 10,
-        borderWidth: 2,
+        marginHorizontal: 20,
+        height: 54,
+        backgroundColor: Colors.background.card,
+        borderRadius: 12,
+        borderWidth: 1.5,
         borderColor: Colors.schedule.delete,
-        minHeight: 50,
-        minWidth: 150,
         justifyContent: 'center',
+        alignItems: 'center',
     },
     deleteButtonText: {
         fontSize: 16,
+        fontWeight: '600',
         color: Colors.schedule.delete,
-        marginLeft: 8,
-        fontWeight: '500',
     },
 });
 

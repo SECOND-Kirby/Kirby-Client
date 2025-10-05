@@ -3,7 +3,9 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import CalendarComponent from '@/components/schedule/CalendarComponent';
-import { CalendarData } from '@/types/schedule';
+import { CalendarData, Schedule } from '@/types/schedule';
+import { MONTH_NAMES } from '@/constants';
+import { Colors } from '@/constants/Colors';
 
 interface CalendarSectionProps {
     calendarData: CalendarData;
@@ -12,13 +14,8 @@ interface CalendarSectionProps {
     currentYear: number;
     onDateSelect: (day: number) => void;
     onNavigateMonth: (direction: 'prev' | 'next') => void;
-    schedules: any[];
+    schedules: Schedule[];
 }
-
-const MONTH_NAMES = [
-    '1월', '2월', '3월', '4월', '5월', '6월',
-    '7월', '8월', '9월', '10월', '11월', '12월'
-];
 
 const CalendarSection: React.FC<CalendarSectionProps> = ({
                                                              calendarData,
@@ -32,20 +29,30 @@ const CalendarSection: React.FC<CalendarSectionProps> = ({
     return (
         <View style={styles.container}>
             <View style={styles.header}>
-                <TouchableOpacity onPress={() => onNavigateMonth('prev')} style={styles.navButton}>
-                    <Ionicons name="chevron-back" size={24} color="#666" />
+                <TouchableOpacity
+                    onPress={() => onNavigateMonth('prev')}
+                    style={styles.navButton}
+                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                >
+                    <Ionicons name="chevron-back" size={24} color={Colors.text.secondary} />
                 </TouchableOpacity>
                 <Text style={styles.monthYearText}>
-                    {currentYear}년 {MONTH_NAMES[currentMonth - 1]}
+                    {currentYear}년 {MONTH_NAMES[currentMonth]}
                 </Text>
-                <TouchableOpacity onPress={() => onNavigateMonth('next')} style={styles.navButton}>
-                    <Ionicons name="chevron-forward" size={24} color="#666" />
+                <TouchableOpacity
+                    onPress={() => onNavigateMonth('next')}
+                    style={styles.navButton}
+                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                >
+                    <Ionicons name="chevron-forward" size={24} color={Colors.text.secondary} />
                 </TouchableOpacity>
             </View>
 
             <CalendarComponent
                 calendarData={calendarData}
-                selectedDate={selectedDate}
+                selectedDate={selectedDate !== null
+                    ? new Date(currentYear, currentMonth - 1, selectedDate)
+                    : null}
                 onDateSelect={onDateSelect}
                 schedules={schedules}
             />
@@ -61,16 +68,17 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        paddingHorizontal: 16,
-        marginBottom: 8,
+        paddingHorizontal: 20,
+        marginBottom: 12,
     },
     navButton: {
         padding: 8,
+        borderRadius: 8,
     },
     monthYearText: {
         fontSize: 18,
-        fontWeight: 'bold',
-        color: '#1A1A1A',
+        fontWeight: '700',
+        color: Colors.text.main,
     },
 });
 

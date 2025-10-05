@@ -37,6 +37,11 @@ const TimePickerModal: React.FC<TimePickerModalProps> = ({
 
     const timeList = generateTimeList();
 
+    const handleConfirm = () => {
+        onSelect(time);
+        onClose();
+    };
+
     return (
         <Modal
             animationType="slide"
@@ -52,11 +57,11 @@ const TimePickerModal: React.FC<TimePickerModalProps> = ({
                 <View style={styles.modalContent} onStartShouldSetResponder={() => true}>
                     <View style={styles.modalHeader}>
                         <TouchableOpacity onPress={onClose}>
-                            <Text style={styles.modalCancelText}>취소</Text>
+                            <Text style={styles.cancelText}>취소</Text>
                         </TouchableOpacity>
                         <Text style={styles.modalTitle}>시간 선택</Text>
-                        <TouchableOpacity onPress={() => { onSelect(time); onClose(); }}>
-                            <Text style={styles.modalDoneText}>완료</Text>
+                        <TouchableOpacity onPress={handleConfirm}>
+                            <Text style={styles.confirmText}>완료</Text>
                         </TouchableOpacity>
                     </View>
                     <FlatList
@@ -78,6 +83,12 @@ const TimePickerModal: React.FC<TimePickerModalProps> = ({
                             </TouchableOpacity>
                         )}
                         showsVerticalScrollIndicator={true}
+                        initialScrollIndex={timeList.indexOf(time)}
+                        getItemLayout={(data, index) => ({
+                            length: 50,
+                            offset: 50 * index,
+                            index,
+                        })}
                     />
                 </View>
             </TouchableOpacity>
@@ -103,9 +114,9 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         padding: 20,
         borderBottomWidth: 1,
-        borderBottomColor: Colors.menu.border,
+        borderBottomColor: Colors.border,
     },
-    modalCancelText: {
+    cancelText: {
         fontSize: 16,
         color: Colors.text.secondary,
     },
@@ -114,24 +125,25 @@ const styles = StyleSheet.create({
         fontWeight: '700',
         color: Colors.text.main,
     },
-    modalDoneText: {
+    confirmText: {
         fontSize: 16,
         fontWeight: '600',
         color: Colors.primary,
     },
     timeItem: {
-        padding: 15,
+        paddingVertical: 15,
         borderBottomWidth: 1,
         borderBottomColor: Colors.background.neon,
         alignItems: 'center',
     },
     timeText: {
-        fontSize: 18,
+        fontSize: 17,
         color: Colors.text.main,
     },
     selectedTimeText: {
         color: Colors.primary,
-        fontWeight: 'bold',
+        fontWeight: '700',
+        fontSize: 19,
     },
 });
 
