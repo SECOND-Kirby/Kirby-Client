@@ -1,55 +1,104 @@
-const tintColorLight = '#B2C549';
-const tintColorDark = '#E7FF65';
-
+// constants/Colors.ts - 스케줄 관련 색상 추가
 export const Colors = {
-  light: {
-    text: '#11181C',
-    background: '#F9FAFA',
-    tint: tintColorLight,
-    icon: '#687076',
-    tabIconDefault: '#687076',
-    tabIconSelected: tintColorLight,
-    primary: '#B2C549',
-    primaryLight: '#E7FF65',
-    cardBackground: '#fff',
-    separator: '#f0f0f0',
-    gray: '#666',
-    lightGray: '#999',
-    red: '#D1524C',
-    // 훈련 세션 색상 추가
-    timerBackground: '#75D88B',
-    timerProgress: '#8EFFA1',
-    pauseButton: '#F16D61',
-    resetButton: '#717171',
-    continueButton: '#45BA45',
-    startButton: '#4DD5C1',
-    // 통계 카드 색상 추가
-    statCardBackground: '#F2F2F2',
-    statValueColor: '#6475E0',
-    statLabelColor: '#5A5A5A',
+  // 브랜드 컬러
+  primary: '#A4D65E',
+  primaryDark: '#9DE84C',
+
+  // 배경
+  background: {
+    main: '#F9FAFA',
+    card: '#FFFFFF',
+    button: '#D9D9D9',
+    progressBar: '#D9D9D9',
+    neon: '#F6F7F9',
+    weekday: '#F4C6C6',
+    modalOverlay: 'rgba(0,0,0,0.35)',
+    aiFeedback: '#E6FFE4',
+    scheduleHighlight: '#E8F5E8',
   },
-  dark: {
-    text: '#ECEDEE',
-    background: '#151718',
-    tint: tintColorDark,
-    icon: '#9BA1A6',
-    tabIconDefault: '#9BA1A6',
-    tabIconSelected: tintColorDark,
-    primary: '#E7FF65',
-    primaryLight: '#B2C549',
-    cardBackground: '#1f1f1f',
-    separator: '#333',
-    gray: '#9BA1A6',
-    lightGray: '#666',
-    red: '#ff6b6b',
-    timerBackground: '#5BB574',
-    timerProgress: '#6FE082',
-    pauseButton: '#E55A52',
-    resetButton: '#5A5A5A',
-    continueButton: '#3A9A3A',
-    startButton: '#3BC4B2',
-    statCardBackground: '#2A2A2A',
-    statValueColor: '#7B8CE8',
-    statLabelColor: '#AAAAAA',
+
+  // 텍스트
+  text: {
+    main: '#333740',
+    secondary: '#6E6E6E',
+    ruleItem: '#666666',
+    white: '#FFFFFF',
+    dark: '#111',
+    medium: '#555',
+    gray: '#999',
+    lightGray: '#ccc',
   },
-};
+
+  // 요일
+  days: {
+    saturday: '#5D69F3',
+    sunday: '#F46C6C',
+  },
+
+  // 위험/경고
+  danger: {
+    main: '#D1524C',
+    background: '#FFF5F5',
+    border: '#fecaca',
+  },
+
+  // 아이콘
+  icon: {
+    secondary: '#888888',
+    white: '#FFFFFF',
+    placeholder: '#999999',
+    arrow: '#CCCCCC',
+  },
+
+  // 체크박스
+  checkbox: {
+    border: '#E0E0E0',
+  },
+
+  // 프로필
+  profile: {
+    background: '#E0E0E0',
+    cameraBorder: '#E0E0E0',
+  },
+
+  // 비밀번호
+  password: {
+    ruleBackground: '#F8F8F8',
+  },
+
+  // 메뉴
+  menu: {
+    border: '#F0F0F0',
+  },
+
+  // 트레이닝
+  training: {
+    timer: '#9DE84C',
+    progress: '#9DE84C',
+    start: '#9DE84C',
+    pause: '#FFB020',
+    continue: '#9DE84C',
+    reset: '#D1524C',
+    aiFeedbackBorder: '#5CB33D',
+    aiFeedbackTitle: '#527D40',
+  },
+
+  // 버튼
+  button: {
+    lightGray: '#e5e7eb',
+    darkGray: '#111827',
+    background: '#F5F5F5',
+  },
+
+  // 스케줄
+  schedule: {
+    delete: '#FF6B6B',
+    deleteBackground: '#FFF5F5',
+  },
+
+  // 공통
+  border: '#E4EAE9',
+  register: '#103D5E',
+  error: '#FF4444',
+  disabled: '#F0F0F0',
+} as const;

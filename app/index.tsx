@@ -1,3 +1,6 @@
-import LoginScreen from '@/components/LoginScreen';
+// app/index.tsx
+import { Redirect } from 'expo-router';
 
-export default LoginScreen;
+export default function Index() {
+    return <Redirect href="/(auth)" />;
+}
