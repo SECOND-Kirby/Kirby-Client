@@ -44,7 +44,11 @@ const ScheduleScreen: React.FC = () => {
         endTime: schedule.endTime,
         isAllDay: schedule.isAllDay.toString(),
         memo: schedule.memo || '',
-        repeatDays: schedule.repeatDays?.join(',') || '',
+        repeatDays: schedule.repeatDays && schedule.repeatDays.length > 0
+            ? schedule.repeatDays.join(',')
+            : '',
+        repeatEndDate: schedule.repeatEndDate || '',
+        isRepeating: schedule.isRepeating?.toString() || 'false',
       },
     });
   }, []);
@@ -61,7 +65,6 @@ const ScheduleScreen: React.FC = () => {
     setCurrentDate(prev => new Date(prev.getFullYear(), prev.getMonth() + 1, 1));
   }, []);
 
-  // 홈 화면으로 이동하는 함수
   const handleBackToHome = useCallback(() => {
     router.push('/(tabs)');
   }, []);
@@ -81,7 +84,7 @@ const ScheduleScreen: React.FC = () => {
             title="스케줄"
             showBack={true}
             showAdd={true}
-            onBackPress={handleBackToHome}  // 홈으로 이동
+            onBackPress={handleBackToHome}
             onAddPress={handleAddSchedule}
         />
 
