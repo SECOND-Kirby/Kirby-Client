@@ -71,11 +71,13 @@ const ScheduleListSection: React.FC<ScheduleListSectionProps> = ({
                 scheduleId: selectedSchedule.id,
                 title: selectedSchedule.title,
                 date: selectedSchedule.date,
-                startTime: selectedSchedule.startTime,
-                endTime: selectedSchedule.endTime,
+                startTime: selectedSchedule.startTime.substring(0, 5), // HH:MM:SS -> HH:MM
+                endTime: selectedSchedule.endTime.substring(0, 5),
                 isAllDay: selectedSchedule.isAllDay.toString(),
                 memo: selectedSchedule.memo || '',
                 repeatDays: selectedSchedule.repeatDays?.join(',') || '',
+                repeatEndDate: selectedSchedule.repeatEndDate || '', // 추가
+                isRepeating: selectedSchedule.isRepeating?.toString() || 'false', // 추가
             },
         });
     };

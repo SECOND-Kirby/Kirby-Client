@@ -18,118 +18,135 @@ import { useScheduleStore } from '@/store/scheduleStore';
 import { useAlert } from '@/hooks';
 import TimePickerModal from '@/components/schedule/TimePickerModal';
 import DatePickerModal from '@/components/schedule/DatePickerModal';
+import UpdateScopeModal from '@/components/schedule/UpdateScopeModal';
 import ScreenHeader from '@/components/shared/layout/ScreenHeader';
-import { DayOfWeek, DAY_OF_WEEK_OPTIONS, RepeatDay } from '@/types/schedule';
+import { DayOfWeek, DAY_OF_WEEK_OPTIONS, RepeatDay, UpdateScope, DeleteScope } from '@/types/schedule';
 
 const ScheduleFormScreen: React.FC = () => {
     const params = useLocalSearchParams();
     const isEditMode = params.mode === 'edit';
+    const isRepeating = params.isRepeating === 'true';
 
     const { addSchedule, updateSchedule, deleteSchedule } = useScheduleStore();
     const { showAlert, showConfirm } = useAlert();
 
-    const [title, setTitle] = useState('');
-    const [isAllDay, setIsAllDay] = useState(false);
-    const [date, setDate] = useState(new Date());
-    const [startTime, setStartTime] = useState('09:00');
-    const [endTime, setEndTime] = useState('10:00');
-    const [memo, setMemo] = useState('');
+    // Form State
+    const [formData, setFormData] = useState({
+        title: '',
+        isAllDay: false,
+        date: new Date(),
+        startTime: '09:00',
+        endTime: '10:00',
+        memo: '',
+    });
 
-    const [showStartTimePicker, setShowStartTimePicker] = useState(false);
-    const [showEndTimePicker, setShowEndTimePicker] = useState(false);
-    const [showDatePicker, setShowDatePicker] = useState(false);
+    const [repeatConfig, setRepeatConfig] = useState({
+        selectedDays: [...DAY_OF_WEEK_OPTIONS],
+        repeatEndDate: null as Date | null,
+    });
 
-    const [selectedDays, setSelectedDays] = useState<DayOfWeek[]>(DAY_OF_WEEK_OPTIONS);
+    // Modal State
+    const [modals, setModals] = useState({
+        startTime: false,
+        endTime: false,
+        date: false,
+        repeatEndDate: false,
+        updateScope: false,
+        deleteScope: false,
+    });
 
+    const [pendingSaveData, setPendingSaveData] = useState<any>(null);
+
+    // 초기 데이터 로드
     useEffect(() => {
-        if (isEditMode && params.title) {
-            setTitle(params.title as string);
-            setIsAllDay(params.isAllDay === 'true');
-            setDate(new Date(params.date as string));
-            setStartTime(params.startTime as string);
-            setEndTime(params.endTime as string);
-            setMemo(params.memo as string || '');
-
-            if (params.repeatDays) {
-                const repeatDaysArray = (params.repeatDays as string).split(',') as RepeatDay[];
-                setSelectedDays(prev =>
-                    prev.map(day => ({
-                        ...day,
-                        isSelected: repeatDaysArray.includes(day.key)
-                    }))
-                );
-            }
+        if (isEditMode && params.scheduleId) {
+            loadEditData();
         } else if (params.presetDate) {
-            setDate(new Date(params.presetDate as string));
+            setFormData(prev => ({
+                ...prev,
+                date: new Date(params.presetDate as string)
+            }));
         }
-    }, [isEditMode, params]);
+    }, [isEditMode, params.scheduleId]);
+
+    const loadEditData = () => {
+        const updates: any = {};
+
+        if (params.title) updates.title = params.title as string;
+        if (params.isAllDay !== undefined) updates.isAllDay = params.isAllDay === 'true';
+        if (params.memo) updates.memo = params.memo as string;
+        if (params.date) updates.date = new Date(params.date as string);
+
+        if (params.startTime) {
+            const timeStr = params.startTime as string;
+            updates.startTime = timeStr.substring(0, 5);
+        }
+
+        if (params.endTime) {
+            const timeStr = params.endTime as string;
+            updates.endTime = timeStr.substring(0, 5);
+        }
+
+        setFormData(prev => ({ ...prev, ...updates }));
+
+        // 반복 설정 로드
+        if (params.repeatDays && params.repeatDays !== '') {
+            const repeatDaysArray = (params.repeatDays as string)
+                .split(',')
+                .filter(d => d.trim()) as RepeatDay[];
+
+            setRepeatConfig(prev => ({
+                ...prev,
+                selectedDays: prev.selectedDays.map(day => ({
+                    ...day,
+                    isSelected: repeatDaysArray.includes(day.key)
+                }))
+            }));
+        }
+
+        if (params.repeatEndDate && params.repeatEndDate !== '') {
+            setRepeatConfig(prev => ({
+                ...prev,
+                repeatEndDate: new Date(params.repeatEndDate as string)
+            }));
+        }
+    };
+
+    // Modal 토글 헬퍼
+    const toggleModal = (modalName: keyof typeof modals, value?: boolean) => {
+        setModals(prev => ({
+            ...prev,
+            [modalName]: value !== undefined ? value : !prev[modalName]
+        }));
+    };
+
+    // Form 업데이트 헬퍼
+    const updateFormData = <K extends keyof typeof formData>(
+        key: K,
+        value: typeof formData[K]
+    ) => {
+        setFormData(prev => ({ ...prev, [key]: value }));
+    };
 
     const handleToggleDay = useCallback((key: RepeatDay) => {
-        setSelectedDays(prev =>
-            prev.map(day =>
+        setRepeatConfig(prev => ({
+            ...prev,
+            selectedDays: prev.selectedDays.map(day =>
                 day.key === key ? { ...day, isSelected: !day.isSelected } : day
             )
-        );
+        }));
     }, []);
 
-    const handleSave = useCallback(async () => {
-        if (!title.trim()) {
-            showAlert('알림', '제목을 입력해주세요.');
-            return;
-        }
+    // Date/Time Formatters
+    const formatDate = (d: Date): string => {
+        const year = d.getFullYear();
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    };
 
-        const repeatDays = selectedDays
-            .filter(day => day.isSelected)
-            .map(day => day.key);
-
-        // 로컬 타임존 기준으로 날짜 문자열 생성
-        const year = date.getFullYear();
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const day = String(date.getDate()).padStart(2, '0');
-        const dateString = `${year}-${month}-${day}`;
-
-        const scheduleData = {
-            id: isEditMode ? (params.scheduleId as string) : Date.now().toString(),
-            title,
-            isAllDay,
-            date: dateString,
-            startTime,
-            endTime,
-            memo,
-            repeatDays: repeatDays.length > 0 ? repeatDays : undefined,
-        };
-
-        try {
-            if (isEditMode) {
-                updateSchedule(scheduleData.id, scheduleData);
-                showAlert('알림', '일정이 수정되었습니다.', () => router.back());
-            } else {
-                addSchedule(scheduleData);
-                showAlert('알림', '일정이 저장되었습니다.', () => router.back());
-            }
-        } catch (e) {
-            showAlert('오류', '저장에 실패했습니다.');
-        }
-    }, [title, isAllDay, date, startTime, endTime, memo, selectedDays, isEditMode, params, addSchedule, updateSchedule, showAlert]);
-
-    const handleDelete = useCallback(() => {
-        showConfirm(
-            '삭제 확인',
-            '정말 이 일정을 삭제하시겠습니까?',
-            () => {
-                if (params.scheduleId) {
-                    deleteSchedule(params.scheduleId as string);
-                    showAlert('알림', '일정이 삭제되었습니다.', () => router.back());
-                }
-            },
-            '삭제',
-            '취소',
-            true
-        );
-    }, [params.scheduleId, deleteSchedule, showAlert, showConfirm]);
-
-    const formatDateDisplay = (date: Date): string => {
-        return date.toLocaleDateString('ko-KR', {
+    const formatDateDisplay = (d: Date): string => {
+        return d.toLocaleDateString('ko-KR', {
             year: 'numeric',
             month: 'long',
             day: 'numeric',
@@ -137,25 +154,197 @@ const ScheduleFormScreen: React.FC = () => {
         });
     };
 
+    // Selection Handlers
+    const handleDateSelect = useCallback((newDate: Date) => {
+        updateFormData('date', newDate);
+        toggleModal('date', false);
+    }, []);
+
+    const handleRepeatEndDateSelect = useCallback((newDate: Date) => {
+        setRepeatConfig(prev => ({ ...prev, repeatEndDate: newDate }));
+        toggleModal('repeatEndDate', false);
+    }, []);
+
+    const handleStartTimeSelect = useCallback((time: string) => {
+        updateFormData('startTime', time);
+        toggleModal('startTime', false);
+    }, []);
+
+    const handleEndTimeSelect = useCallback((time: string) => {
+        updateFormData('endTime', time);
+        toggleModal('endTime', false);
+    }, []);
+
+    // Validation
+    const validateForm = (): string | null => {
+        if (!formData.title.trim()) {
+            return '제목을 입력해주세요.';
+        }
+
+        const repeatDays = repeatConfig.selectedDays.filter(d => d.isSelected);
+
+        if (repeatDays.length > 0 && !repeatConfig.repeatEndDate) {
+            return '반복 종료 날짜를 선택해주세요.';
+        }
+
+        if (repeatDays.length > 0 && repeatConfig.repeatEndDate) {
+            if (repeatConfig.repeatEndDate <= formData.date) {
+                return '반복 종료 날짜는 시작 날짜 이후여야 합니다.';
+            }
+        }
+
+        if (!formData.isAllDay && formData.startTime >= formData.endTime) {
+            return '종료 시간은 시작 시간보다 늦어야 합니다.';
+        }
+
+        return null;
+    };
+
+    // Save Handler
+    const handleSave = useCallback(async () => {
+        const error = validateForm();
+        if (error) {
+            showAlert('알림', error);
+            return;
+        }
+
+        const repeatDays = repeatConfig.selectedDays
+            .filter(day => day.isSelected)
+            .map(day => day.key);
+
+        const scheduleData = {
+            id: isEditMode ? (params.scheduleId as string) : undefined,
+            title: formData.title,
+            isAllDay: formData.isAllDay,
+            date: formatDate(formData.date),
+            startTime: formData.startTime + ':00',
+            endTime: formData.endTime + ':00',
+            memo: formData.memo,
+            repeatDays: repeatDays.length > 0 ? repeatDays : undefined,
+            repeatEndDate: repeatConfig.repeatEndDate ? formatDate(repeatConfig.repeatEndDate) : undefined,
+        };
+
+        if (isEditMode && isRepeating) {
+            setPendingSaveData(scheduleData);
+            toggleModal('updateScope', true);
+        } else {
+            await saveSchedule(scheduleData);
+        }
+    }, [formData, repeatConfig, isEditMode, isRepeating, params.scheduleId]);
+
+    const saveSchedule = async (data: any, updateScope?: UpdateScope) => {
+        try {
+            if (isEditMode) {
+                await updateSchedule(data.id, data, updateScope || 'THIS_ONLY');
+                showAlert('알림', '일정이 수정되었습니다.', () => router.back());
+            } else {
+                await addSchedule(data);
+                showAlert('알림', '일정이 저장되었습니다.', () => router.back());
+            }
+        } catch (e: any) {
+            showAlert('오류', e.message || '저장에 실패했습니다.');
+        }
+    };
+
+    const handleUpdateScopeSelect = async (scope: UpdateScope) => {
+        toggleModal('updateScope', false);
+        if (pendingSaveData) {
+            await saveSchedule(pendingSaveData, scope);
+        }
+    };
+
+    // Delete Handlers
+    const handleDelete = useCallback(() => {
+        if (!params.scheduleId) return;
+
+        if (isRepeating) {
+            toggleModal('deleteScope', true);
+        } else {
+            showConfirm(
+                '삭제 확인',
+                '정말 이 일정을 삭제하시겠습니까?',
+                () => performDelete('THIS_ONLY'),
+                '삭제',
+                '취소',
+                true
+            );
+        }
+    }, [params.scheduleId, isRepeating]);
+
+    const handleDeleteScopeSelect = async (scope: DeleteScope) => {
+        toggleModal('deleteScope', false);
+
+        const scopeText = {
+            'THIS_ONLY': '이 일정을',
+            'THIS_AND_FUTURE': '이후 모든 일정을',
+            'ALL': '전체 반복 일정을'
+        }[scope];
+
+        showConfirm(
+            '삭제 확인',
+            `정말 ${scopeText} 삭제하시겠습니까?`,
+            () => performDelete(scope),
+            '삭제',
+            '취소',
+            true
+        );
+    };
+
+    const performDelete = async (scope: DeleteScope) => {
+        try {
+            await deleteSchedule(params.scheduleId as string, scope);
+            showAlert('알림', '일정이 삭제되었습니다.', () => router.back());
+        } catch (e: any) {
+            showAlert('오류', e.message || '삭제에 실패했습니다.');
+        }
+    };
+
+    const hasSelectedDays = repeatConfig.selectedDays.some(d => d.isSelected);
+
     return (
         <SafeAreaView style={styles.container}>
+            {/* Modals */}
             <DatePickerModal
-                visible={showDatePicker}
-                date={date}
-                onSelect={(newDate) => setDate(newDate)}
-                onClose={() => setShowDatePicker(false)}
+                visible={modals.date}
+                date={formData.date}
+                onSelect={handleDateSelect}
+                onClose={() => toggleModal('date', false)}
             />
-            <TimePickerModal
-                visible={showStartTimePicker}
-                time={startTime}
-                onSelect={(newTime) => setStartTime(newTime)}
-                onClose={() => setShowStartTimePicker(false)}
+
+            <DatePickerModal
+                visible={modals.repeatEndDate}
+                date={repeatConfig.repeatEndDate || formData.date}
+                onSelect={handleRepeatEndDateSelect}
+                onClose={() => toggleModal('repeatEndDate', false)}
+                minDate={formData.date}
             />
+
             <TimePickerModal
-                visible={showEndTimePicker}
-                time={endTime}
-                onSelect={(newTime) => setEndTime(newTime)}
-                onClose={() => setShowEndTimePicker(false)}
+                visible={modals.startTime}
+                time={formData.startTime}
+                onSelect={handleStartTimeSelect}
+                onClose={() => toggleModal('startTime', false)}
+            />
+
+            <TimePickerModal
+                visible={modals.endTime}
+                time={formData.endTime}
+                onSelect={handleEndTimeSelect}
+                onClose={() => toggleModal('endTime', false)}
+            />
+
+            <UpdateScopeModal
+                visible={modals.updateScope}
+                isDelete={false}
+                onSelect={handleUpdateScopeSelect}
+                onClose={() => toggleModal('updateScope', false)}
+            />
+
+            <UpdateScopeModal
+                visible={modals.deleteScope}
+                isDelete={true}
+                onSelect={handleDeleteScopeSelect}
+                onClose={() => toggleModal('deleteScope', false)}
             />
 
             <ScreenHeader
@@ -171,8 +360,8 @@ const ScheduleFormScreen: React.FC = () => {
                         style={styles.titleInput}
                         placeholder="일정 제목을 입력하세요"
                         placeholderTextColor={Colors.text.secondary}
-                        value={title}
-                        onChangeText={setTitle}
+                        value={formData.title}
+                        onChangeText={(text) => updateFormData('title', text)}
                     />
                 </View>
 
@@ -181,11 +370,12 @@ const ScheduleFormScreen: React.FC = () => {
                     <Text style={styles.sectionLabel}>날짜</Text>
                     <TouchableOpacity
                         style={styles.dateButton}
-                        onPress={() => setShowDatePicker(true)}
+                        onPress={() => toggleModal('date', true)}
+                        activeOpacity={0.7}
                     >
                         <Ionicons name="calendar-outline" size={20} color={Colors.text.main} />
                         <Text style={styles.dateButtonText}>
-                            {formatDateDisplay(date)}
+                            {formatDateDisplay(formData.date)}
                         </Text>
                         <Ionicons name="chevron-forward" size={20} color={Colors.text.secondary} />
                     </TouchableOpacity>
@@ -198,14 +388,14 @@ const ScheduleFormScreen: React.FC = () => {
                         <Switch
                             trackColor={{ false: Colors.border, true: Colors.primary }}
                             thumbColor={Colors.background.card}
-                            onValueChange={setIsAllDay}
-                            value={isAllDay}
+                            onValueChange={(value) => updateFormData('isAllDay', value)}
+                            value={formData.isAllDay}
                         />
                     </View>
                 </View>
 
                 {/* 시간 */}
-                {!isAllDay && (
+                {!formData.isAllDay && (
                     <View style={styles.section}>
                         <Text style={styles.sectionLabel}>시간</Text>
                         <View style={styles.timeRow}>
@@ -213,9 +403,10 @@ const ScheduleFormScreen: React.FC = () => {
                                 <Text style={styles.timeLabel}>시작</Text>
                                 <TouchableOpacity
                                     style={styles.timeButton}
-                                    onPress={() => setShowStartTimePicker(true)}
+                                    onPress={() => toggleModal('startTime', true)}
+                                    activeOpacity={0.7}
                                 >
-                                    <Text style={styles.timeButtonText}>{startTime}</Text>
+                                    <Text style={styles.timeButtonText}>{formData.startTime}</Text>
                                     <Ionicons name="chevron-down" size={20} color={Colors.text.secondary} />
                                 </TouchableOpacity>
                             </View>
@@ -224,9 +415,10 @@ const ScheduleFormScreen: React.FC = () => {
                                 <Text style={styles.timeLabel}>종료</Text>
                                 <TouchableOpacity
                                     style={styles.timeButton}
-                                    onPress={() => setShowEndTimePicker(true)}
+                                    onPress={() => toggleModal('endTime', true)}
+                                    activeOpacity={0.7}
                                 >
-                                    <Text style={styles.timeButtonText}>{endTime}</Text>
+                                    <Text style={styles.timeButtonText}>{formData.endTime}</Text>
                                     <Ionicons name="chevron-down" size={20} color={Colors.text.secondary} />
                                 </TouchableOpacity>
                             </View>
@@ -238,7 +430,7 @@ const ScheduleFormScreen: React.FC = () => {
                 <View style={styles.section}>
                     <Text style={styles.sectionLabel}>반복 설정</Text>
                     <View style={styles.daySelectionContainer}>
-                        {selectedDays.map((item) => (
+                        {repeatConfig.selectedDays.map((item) => (
                             <TouchableOpacity
                                 key={item.key}
                                 style={[
@@ -246,6 +438,7 @@ const ScheduleFormScreen: React.FC = () => {
                                     item.isSelected && styles.dayButtonSelected,
                                 ]}
                                 onPress={() => handleToggleDay(item.key)}
+                                activeOpacity={0.7}
                             >
                                 <Text
                                     style={[
@@ -260,19 +453,54 @@ const ScheduleFormScreen: React.FC = () => {
                     </View>
                 </View>
 
+                {/* 반복 종료일 */}
+                {hasSelectedDays && (
+                    <View style={styles.section}>
+                        <Text style={styles.sectionLabel}>
+                            반복 종료일 <Text style={styles.requiredMark}>*</Text>
+                        </Text>
+                        <TouchableOpacity
+                            style={[
+                                styles.dateButton,
+                                !repeatConfig.repeatEndDate && styles.dateButtonEmpty
+                            ]}
+                            onPress={() => toggleModal('repeatEndDate', true)}
+                            activeOpacity={0.7}
+                        >
+                            <Ionicons
+                                name="calendar-outline"
+                                size={20}
+                                color={repeatConfig.repeatEndDate ? Colors.text.main : Colors.text.secondary}
+                            />
+                            <Text style={[
+                                styles.dateButtonText,
+                                !repeatConfig.repeatEndDate && styles.dateButtonTextEmpty
+                            ]}>
+                                {repeatConfig.repeatEndDate
+                                    ? formatDateDisplay(repeatConfig.repeatEndDate)
+                                    : '반복 종료 날짜를 선택하세요'}
+                            </Text>
+                            <Ionicons name="chevron-forward" size={20} color={Colors.text.secondary} />
+                        </TouchableOpacity>
+                        <Text style={styles.helpText}>
+                            선택한 요일에 해당하는 날짜까지 자동으로 일정이 생성됩니다.
+                        </Text>
+                    </View>
+                )}
+
                 {/* 메모 */}
                 <View style={styles.section}>
                     <View style={styles.memoHeader}>
                         <Text style={styles.sectionLabel}>메모</Text>
-                        <Text style={styles.charCount}>{memo.length}/500</Text>
+                        <Text style={styles.charCount}>{formData.memo.length}/500</Text>
                     </View>
                     <TextInput
                         style={styles.memoInput}
                         placeholder="메모를 입력하세요 (선택사항)"
                         placeholderTextColor={Colors.text.secondary}
                         multiline
-                        value={memo}
-                        onChangeText={setMemo}
+                        value={formData.memo}
+                        onChangeText={(text) => updateFormData('memo', text)}
                         maxLength={500}
                     />
                 </View>
@@ -284,7 +512,7 @@ const ScheduleFormScreen: React.FC = () => {
                     </Text>
                 </TouchableOpacity>
 
-                {/* 삭제 버튼 (수정 모드일 때만) */}
+                {/* 삭제 버튼 */}
                 {isEditMode && (
                     <TouchableOpacity style={styles.deleteButton} onPress={handleDelete}>
                         <Text style={styles.deleteButtonText}>일정 삭제</Text>
@@ -335,11 +563,18 @@ const styles = StyleSheet.create({
         paddingHorizontal: 16,
         backgroundColor: Colors.background.card,
     },
+    dateButtonEmpty: {
+        borderColor: Colors.schedule.delete,
+        borderWidth: 1.5,
+    },
     dateButtonText: {
         flex: 1,
         fontSize: 15,
         color: Colors.text.main,
         marginLeft: 12,
+    },
+    dateButtonTextEmpty: {
+        color: Colors.text.secondary,
     },
     switchRow: {
         flexDirection: 'row',
@@ -407,6 +642,16 @@ const styles = StyleSheet.create({
     dayTextSelected: {
         color: Colors.text.white,
         fontWeight: '600',
+    },
+    requiredMark: {
+        color: Colors.schedule.delete,
+        fontSize: 15,
+    },
+    helpText: {
+        fontSize: 13,
+        color: Colors.text.secondary,
+        marginTop: 8,
+        lineHeight: 18,
     },
     memoHeader: {
         flexDirection: 'row',
