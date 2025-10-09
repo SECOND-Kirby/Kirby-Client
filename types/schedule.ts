@@ -2,12 +2,17 @@
 export interface Schedule {
   id: string;
   title: string;
-  date: string; // ISO 형식
-  startTime: string; // "HH:MM"
-  endTime: string; // "HH:MM"
+  date: string; // ISO 형식 (YYYY-MM-DD)
+  startTime: string; // "HH:MM:SS"
+  endTime: string; // "HH:MM:SS"
   isAllDay: boolean;
   memo?: string;
-  repeatDays?: RepeatDay[]; // 반복 요일
+
+  // 반복 정보
+  isRepeating?: boolean;
+  recurringScheduleId?: string;
+  repeatDays?: RepeatDay[];
+  repeatEndDate?: string; // ISO 형식 (YYYY-MM-DD)
 }
 
 export type RepeatDay = 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat' | 'sun';
@@ -31,6 +36,10 @@ export interface CalendarData {
   year: number;
 }
 
+// 수정/삭제 범위
+export type UpdateScope = 'THIS_ONLY' | 'THIS_AND_FUTURE' | 'ALL';
+export type DeleteScope = 'THIS_ONLY' | 'THIS_AND_FUTURE' | 'ALL';
+
 export const DAY_OF_WEEK_OPTIONS: DayOfWeek[] = [
   { key: 'mon', label: '월', isSelected: false },
   { key: 'tue', label: '화', isSelected: false },
@@ -40,3 +49,24 @@ export const DAY_OF_WEEK_OPTIONS: DayOfWeek[] = [
   { key: 'sat', label: '토', isSelected: false },
   { key: 'sun', label: '일', isSelected: false },
 ];
+
+// 프론트-백엔드 요일 매핑
+export const REPEAT_DAY_MAPPING: Record<RepeatDay, string> = {
+  mon: 'MONDAY',
+  tue: 'TUESDAY',
+  wed: 'WEDNESDAY',
+  thu: 'THURSDAY',
+  fri: 'FRIDAY',
+  sat: 'SATURDAY',
+  sun: 'SUNDAY',
+};
+
+export const BACKEND_TO_FRONTEND_DAY: Record<string, RepeatDay> = {
+  MONDAY: 'mon',
+  TUESDAY: 'tue',
+  WEDNESDAY: 'wed',
+  THURSDAY: 'thu',
+  FRIDAY: 'fri',
+  SATURDAY: 'sat',
+  SUNDAY: 'sun',
+};
