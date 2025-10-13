@@ -9,6 +9,7 @@ import { SafeAreaView, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { ProfileSection } from '@/components/settings/ProfileSection';
 import { SectionHeader } from '@/components/settings/SectionHeader';
 import { SettingItem } from '@/components/settings/SettingItem';
+import { shadowPresets } from '@/utils/styles';
 
 const SettingsScreen = () => {
     const { user, logout } = useAuthStore();
@@ -148,7 +149,7 @@ const SettingsScreen = () => {
                     />
                     <SettingItem
                         icon="person-remove-outline"
-                        title="회원 탈퇴"
+                        title="회원탈퇴"
                         onPress={handleAccountDeletion}
                         showArrow={false}
                         iconColor={Colors.error}
@@ -184,14 +185,7 @@ const styles = StyleSheet.create({
         marginBottom: 20,
         marginHorizontal: 16,
         borderRadius: 12,
-        shadowColor: '#000',
-        shadowOffset: {
-            width: 0,
-            height: 1,
-        },
-        shadowOpacity: 0.05,
-        shadowRadius: 2,
-        elevation: 2,
+        ...shadowPresets.small,
     },
 });
 

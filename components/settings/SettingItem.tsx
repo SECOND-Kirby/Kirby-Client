@@ -1,7 +1,9 @@
+// components/settings/SettingItem.tsx
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Colors } from '@/constants/Colors';
+import { shadowPresets } from '@/utils/styles';
 
 interface SettingItemProps {
     icon: string;
@@ -126,14 +128,7 @@ const styles = StyleSheet.create({
         borderRadius: 11,
         backgroundColor: Colors.background.card,
         position: 'absolute',
-        shadowColor: '#000',
-        shadowOffset: {
-            width: 0,
-            height: 2,
-        },
-        shadowOpacity: 0.2,
-        shadowRadius: 2,
-        elevation: 3,
+        ...shadowPresets.small,
     },
     thumbActive: {
         right: 2,

@@ -2,6 +2,7 @@
 import React from 'react';
 import { Image, StyleSheet, Text, View } from 'react-native';
 import { Colors } from '@/constants/Colors';
+import { shadowPresets } from '@/utils/styles';
 
 interface StatsCardProps {
     icon?: any;
@@ -34,14 +35,7 @@ const styles = StyleSheet.create({
         padding: 16,
         alignItems: 'center',
         backgroundColor: Colors.background.card,
-        shadowColor: '#000',
-        shadowOffset: {
-            width: 0,
-            height: 1,
-        },
-        shadowOpacity: 0.05,
-        shadowRadius: 2,
-        elevation: 2,
+        ...shadowPresets.small,
     },
     statIcon: {
         width: 24,

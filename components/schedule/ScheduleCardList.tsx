@@ -4,6 +4,7 @@ import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '@/constants/Colors';
 import { Schedule } from '@/types/schedule';
+import { shadowPresets } from '@/utils/styles';
 
 interface ScheduleCardListProps {
     schedules: Schedule[];
@@ -42,7 +43,7 @@ const ScheduleCardList: React.FC<ScheduleCardListProps> = ({
     };
 
     const handleEditPress = (e: any, schedule: Schedule) => {
-        e.stopPropagation(); // 카드 클릭 이벤트 전파 방지
+        e.stopPropagation();
         onEditSchedule(schedule);
     };
 
@@ -137,11 +138,7 @@ const styles = StyleSheet.create({
         padding: 20,
         marginBottom: 12,
         backgroundColor: Colors.background.card,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.06,
-        shadowRadius: 8,
-        elevation: 2,
+        ...shadowPresets.medium,
     },
     scheduleCardContent: {
         flexDirection: 'row',

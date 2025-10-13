@@ -2,6 +2,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { router } from 'expo-router';
+import { shadowPresets } from '@/utils/styles';
 
 const ActionButtons: React.FC = () => {
     const handleBallCollection = () => {
@@ -46,11 +47,7 @@ const styles = StyleSheet.create({
         borderRadius: 12,
         alignItems: 'center',
         justifyContent: 'center',
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-        elevation: 3,
+        ...shadowPresets.button,
     },
     collectionButton: {
         backgroundColor: '#A4D65E',

@@ -4,6 +4,7 @@ import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Schedule } from '@/types/schedule';
 import { Colors } from '@/constants/Colors';
+import { shadowPresets } from '@/utils/styles';
 
 interface UpcomingScheduleCardProps {
     schedule: Schedule | null;
@@ -70,11 +71,7 @@ const styles = StyleSheet.create({
         marginBottom: 16,
         flexDirection: 'row',
         alignItems: 'center',
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.05,
-        shadowRadius: 4,
-        elevation: 2,
+        ...shadowPresets.small,
     },
     cardWithSchedule: {
         backgroundColor: Colors.primary,

@@ -4,6 +4,7 @@ import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Colors } from '@/constants/Colors';
 import { CalendarData, Schedule } from '@/types/schedule';
 import { DAY_NAMES } from '@/constants';
+import { shadowPresets } from '@/utils/styles';
 
 interface CalendarComponentProps {
   calendarData: CalendarData;
@@ -105,11 +106,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     padding: 20,
     marginHorizontal: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
-    elevation: 3,
+    ...shadowPresets.medium,
   },
   dayHeader: {
     flexDirection: 'row',

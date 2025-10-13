@@ -7,6 +7,7 @@ import { Colors } from '@/constants/Colors';
 import { Schedule } from '@/types/schedule';
 import { useScheduleStore } from '@/store/scheduleStore';
 import { useAlert } from '@/hooks';
+import { shadowPresets } from '@/utils/styles';
 
 interface ScheduleListSectionProps {
     selectedDate: number | null;
@@ -71,13 +72,13 @@ const ScheduleListSection: React.FC<ScheduleListSectionProps> = ({
                 scheduleId: selectedSchedule.id,
                 title: selectedSchedule.title,
                 date: selectedSchedule.date,
-                startTime: selectedSchedule.startTime.substring(0, 5), // HH:MM:SS -> HH:MM
+                startTime: selectedSchedule.startTime.substring(0, 5),
                 endTime: selectedSchedule.endTime.substring(0, 5),
                 isAllDay: selectedSchedule.isAllDay.toString(),
                 memo: selectedSchedule.memo || '',
                 repeatDays: selectedSchedule.repeatDays?.join(',') || '',
-                repeatEndDate: selectedSchedule.repeatEndDate || '', // 추가
-                isRepeating: selectedSchedule.isRepeating?.toString() || 'false', // 추가
+                repeatEndDate: selectedSchedule.repeatEndDate || '',
+                isRepeating: selectedSchedule.isRepeating?.toString() || 'false',
             },
         });
     };
@@ -251,11 +252,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         marginBottom: 20,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.05,
-        shadowRadius: 10,
-        elevation: 2,
+        ...shadowPresets.small,
     },
     emptyText: {
         fontSize: 16,
@@ -276,11 +273,7 @@ const styles = StyleSheet.create({
         backgroundColor: Colors.primary,
         borderRadius: 30,
         gap: 8,
-        shadowColor: Colors.primary,
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.3,
-        shadowRadius: 8,
-        elevation: 6,
+        ...shadowPresets.large,
     },
     addButtonText: {
         fontSize: 16,
@@ -296,11 +289,7 @@ const styles = StyleSheet.create({
         borderRadius: 20,
         padding: 18,
         flexDirection: 'row',
-        shadowColor: '#4A4A4A',
-        shadowOffset: { width: 0, height: 5 },
-        shadowOpacity: 0.08,
-        shadowRadius: 15,
-        elevation: 5,
+        ...shadowPresets.card,
         borderWidth: 1,
         borderColor: '#F0F0F0',
         minHeight: 100,
@@ -381,11 +370,7 @@ const styles = StyleSheet.create({
         backgroundColor: Colors.background.card,
         borderRadius: 10,
         width: 110,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.2,
-        shadowRadius: 8,
-        elevation: 10,
+        ...shadowPresets.large,
         zIndex: 9999,
         borderWidth: 1,
         borderColor: Colors.border,

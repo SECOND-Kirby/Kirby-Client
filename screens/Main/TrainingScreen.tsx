@@ -16,6 +16,7 @@ import { useTrainingSettings } from '@/hooks';
 import TrainingModeSelector from '@/components/training/TrainingModeSelector';
 import SettingsCard from '@/components/training/SettingsCard';
 import StatsCard from '@/components/shared/ui/StatsCard';
+import { shadowPresets } from '@/utils/styles';
 
 const TrainingScreen: React.FC = () => {
     const { user } = useAuthStore();
@@ -153,11 +154,7 @@ const styles = StyleSheet.create({
         marginHorizontal: 16,
         marginVertical: 20,
         alignItems: 'center',
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-        elevation: 3,
+        ...shadowPresets.button,
     },
     startButtonText: {
         fontSize: 18,

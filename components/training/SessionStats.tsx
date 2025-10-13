@@ -3,6 +3,7 @@ import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { Colors } from '@/constants/Colors';
 import { TrainingSessionData } from '@/types/training';
+import { shadowPresets } from '@/utils/styles';
 
 interface SessionStatsProps {
     sessionData: TrainingSessionData;
@@ -42,11 +43,7 @@ const styles = StyleSheet.create({
         borderRadius: 12,
         padding: 16,
         alignItems: 'center',
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.05,
-        shadowRadius: 2,
-        elevation: 2,
+        ...shadowPresets.small,
     },
     statValue: {
         fontSize: 20,

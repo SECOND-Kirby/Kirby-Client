@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import { useBallCollectionStore } from '@/store/ballCollectionStore';
 import { Colors } from '@/constants/Colors';
+import { shadowPresets } from '@/utils/styles';
 
 interface BallCollectionScreenProps {
   onStop?: () => void;
@@ -106,14 +107,7 @@ const styles = StyleSheet.create({
     padding: 20,
     marginBottom: 40,
     width: '100%',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    ...shadowPresets.button,
   },
   cardTitle: {
     fontSize: 16,
@@ -153,14 +147,7 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     width: '100%',
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    ...shadowPresets.button,
   },
   stopButtonText: {
     fontSize: 18,

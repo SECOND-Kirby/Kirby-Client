@@ -1,6 +1,6 @@
 // screens/Main/AnalyticsScreen.tsx
 import React, { useState } from 'react';
-import { Dimensions, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Dimensions, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { LineChart } from 'react-native-chart-kit';
@@ -10,6 +10,7 @@ import ScreenHeader from '@/components/shared/layout/ScreenHeader';
 import StatsCard from '@/components/shared/ui/StatsCard';
 import { useSettingsStore } from '@/store/settingsStore';
 import { Colors } from '@/constants/Colors';
+import { shadowPresets } from '@/utils/styles';
 
 // ===== CircularProgress 컴포넌트 =====
 interface CircularProgressProps {
@@ -219,11 +220,7 @@ const chartStyles = StyleSheet.create({
         padding: 8,
         borderRadius: 8,
         minWidth: 100,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.25,
-        shadowRadius: 4,
-        elevation: 5,
+        ...shadowPresets.tooltip,
     },
     tooltipText: {
         color: Colors.background.card,
@@ -364,18 +361,7 @@ const styles = StyleSheet.create({
         backgroundColor: Colors.background.card,
         borderRadius: 12,
         paddingVertical: 20,
-        elevation: 2,
-        ...Platform.select({
-            web: {
-                boxShadow: '0px 1px 2px rgba(0, 0, 0, 0.05)',
-            },
-            default: {
-                shadowColor: '#000',
-                shadowOffset: { width: 0, height: 1 },
-                shadowOpacity: 0.05,
-                shadowRadius: 2,
-            },
-        }),
+        ...shadowPresets.small,
     },
     cardRow: {
         flexDirection: 'row',
@@ -387,11 +373,7 @@ const styles = StyleSheet.create({
         borderRadius: 12,
         padding: 20,
         alignItems: 'center',
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.05,
-        shadowRadius: 2,
-        elevation: 2,
+        ...shadowPresets.small,
     },
     summaryContainer: {
         alignItems: 'center',
@@ -411,11 +393,7 @@ const styles = StyleSheet.create({
         backgroundColor: Colors.background.card,
         borderRadius: 12,
         padding: 20,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.05,
-        shadowRadius: 2,
-        elevation: 2,
+        ...shadowPresets.small,
         marginBottom: 20,
     },
     cardTitle: {

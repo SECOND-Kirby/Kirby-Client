@@ -2,6 +2,7 @@
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Colors } from '@/constants/Colors';
+import { shadowPresets } from '@/utils/styles';
 
 interface SettingsCardProps {
     intensity: number;
@@ -131,11 +132,7 @@ const styles = StyleSheet.create({
         padding: 24,
         marginBottom: 20,
         backgroundColor: Colors.background.card,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.05,
-        shadowRadius: 2,
-        elevation: 2,
+        ...shadowPresets.small,
     },
     cardTitle: {
         fontSize: 20,
@@ -191,11 +188,7 @@ const styles = StyleSheet.create({
         borderWidth: 2,
         borderColor: Colors.icon.arrow,
         top: 2,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.2,
-        shadowRadius: 2,
-        elevation: 2,
+        ...shadowPresets.small,
     },
     timeSection: {
         marginBottom: 16,

@@ -3,6 +3,7 @@ import { Ionicons } from '@expo/vector-icons';
 import React, { useState, useEffect, forwardRef, useImperativeHandle } from 'react';
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { Colors } from '@/constants/Colors';
+import { shadowPresets } from '@/utils/styles';
 
 interface GoalAdjusterProps {
     initialValue: number;
@@ -149,11 +150,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         borderWidth: 1,
         borderColor: Colors.border,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.05,
-        shadowRadius: 10,
-        elevation: 3,
+        ...shadowPresets.medium,
     },
     controlRow: {
         flexDirection: 'row',

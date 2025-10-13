@@ -2,6 +2,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Colors } from '@/constants/Colors';
+import { shadowPresets } from '@/utils/styles';
 
 interface SessionControlsProps {
     isStarted: boolean;
@@ -66,22 +67,14 @@ const styles = StyleSheet.create({
         marginHorizontal: 20,
         borderRadius: 20,
         backgroundColor: Colors.background.card,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: -2 },
-        shadowOpacity: 0.05,
-        shadowRadius: 4,
-        elevation: 5,
+        ...shadowPresets.large,
     },
     primaryButton: {
         borderRadius: 12,
         paddingVertical: 16,
         alignItems: 'center',
         backgroundColor: Colors.training.start,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-        elevation: 3,
+        ...shadowPresets.button,
     },
     primaryButtonText: {
         fontSize: 18,
@@ -98,11 +91,7 @@ const styles = StyleSheet.create({
         paddingVertical: 16,
         alignItems: 'center',
         backgroundColor: Colors.training.pause,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-        elevation: 3,
+        ...shadowPresets.button,
     },
     continueButton: {
         flex: 1,
@@ -110,11 +99,7 @@ const styles = StyleSheet.create({
         paddingVertical: 16,
         alignItems: 'center',
         backgroundColor: Colors.training.continue,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-        elevation: 3,
+        ...shadowPresets.button,
     },
     resetButton: {
         flex: 1,
@@ -122,11 +107,7 @@ const styles = StyleSheet.create({
         paddingVertical: 16,
         alignItems: 'center',
         backgroundColor: Colors.training.reset,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-        elevation: 3,
+        ...shadowPresets.button,
     },
     secondaryButtonText: {
         fontSize: 16,

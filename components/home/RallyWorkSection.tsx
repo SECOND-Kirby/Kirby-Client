@@ -1,6 +1,7 @@
 // components/home/RallyWorkSection.tsx
 import React from 'react';
 import { View, Text, StyleSheet, Image } from 'react-native';
+import { shadowPresets } from '@/utils/styles';
 
 const RallyWorkSection: React.FC = () => {
     return (
@@ -34,11 +35,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-        elevation: 3,
+        ...shadowPresets.button,
     },
     textContainer: {
         flex: 1,

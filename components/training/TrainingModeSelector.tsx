@@ -4,6 +4,7 @@ import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Colors } from '@/constants/Colors';
 import { TrainingMode, TRAINING_MODE_OPTIONS } from '@/types/training';
+import { shadowPresets } from '@/utils/styles';
 
 interface TrainingModeSelectorProps {
     selectedMode: TrainingMode;
@@ -71,11 +72,7 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: Colors.border,
         backgroundColor: Colors.background.card,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.05,
-        shadowRadius: 2,
-        elevation: 2,
+        ...shadowPresets.small,
     },
     modeCardSelected: {
         borderColor: Colors.primary,
